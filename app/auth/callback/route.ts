@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   const cookieStore = await cookies()
 
   if (code) {
-    const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+    const supabase = createRouteHandlerClient({ cookies: () => Promise.resolve(cookieStore) })
     await supabase.auth.exchangeCodeForSession(code)
   }
 
@@ -20,7 +20,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   const cookieStore = await cookies()
-  const supabase = createRouteHandlerClient({ cookies: () => cookieStore })
+  const supabase = createRouteHandlerClient({ cookies: () => Promise.resolve(cookieStore) })
   const { event, session } = await request.json()
 
   if (event === 'SIGNED_OUT') {
