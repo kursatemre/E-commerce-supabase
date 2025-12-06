@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 
 export default async function ShopLayout({
   children,
@@ -8,23 +8,23 @@ export default async function ShopLayout({
   children: React.ReactNode
 }) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect('/auth/login')
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('first_name, last_name')
-    .eq('id', user.id)
-    .single()
+  const { data: profile } = user
+    ? await supabase
+        .from('profiles')
+        .select('first_name, last_name')
+        .eq('id', user.id)
+        .single()
+    : { data: null }
 
   const handleSignOut = async () => {
     'use server'
     const supabase = await createClient()
     await supabase.auth.signOut()
-    redirect('/auth/login')
+    redirect('/shop')
   }
 
   return (
@@ -54,17 +54,38 @@ export default async function ShopLayout({
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">
-                {profile?.first_name} {profile?.last_name}
-              </span>
-              <form action={handleSignOut}>
-                <button
-                  type="submit"
-                  className="text-sm text-red-600 hover:text-red-700 font-medium"
-                >
-                  Çıkış
-                </button>
-              </form>
+              {user ? (
+                <>
+                  <span className="text-sm text-gray-700">
+                    {`${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() ||
+                      user.email ||
+                      'Hesabım'}
+                  </span>
+                  <form action={handleSignOut}>
+                    <button
+                      type="submit"
+                      className="text-sm text-red-600 hover:text-red-700 font-medium"
+                    >
+                      Çıkış
+                    </button>
+                  </form>
+                </>
+              ) : (
+                <div className="flex items-center space-x-3">
+                  <Link
+                    href="/auth/login"
+                    className="text-sm font-medium text-gray-700 hover:text-gray-900"
+                  >
+                    Giriş Yap
+                  </Link>
+                  <Link
+                    href="/auth/register"
+                    className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
+                  >
+                    Kayıt Ol
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>

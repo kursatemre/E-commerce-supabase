@@ -12,7 +12,7 @@ const PROJECT_REF = (() => {
   }
 })()
 const AUTH_COOKIE = PROJECT_REF ? `sb-${PROJECT_REF}-auth-token` : null
-const PUBLIC_PATH_PREFIXES = ['/auth', '/_next', '/api', '/favicon.ico']
+const PROTECTED_PATH_PREFIXES = ['/admin']
 
 type SupabaseAuthCookie = {
   access_token?: string
@@ -65,15 +65,7 @@ export async function updateSession(request: NextRequest) {
 }
 
 function shouldProtectPath(pathname: string) {
-  if (pathname === '/') {
-    return false
-  }
-
-  if (PUBLIC_PATH_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
-    return false
-  }
-
-  return true
+  return PROTECTED_PATH_PREFIXES.some((prefix) => pathname.startsWith(prefix))
 }
 
 function extractAccessToken(rawValue: string | undefined) {
