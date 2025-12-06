@@ -23,8 +23,15 @@ export default async function AdminLayout({
     .select('role, first_name, last_name')
     .eq('id', user.id)
     .single()
+  const normalizedRole = profile?.role?.toLowerCase() ?? null
+  const metadataRole = (user.user_metadata?.role || user.app_metadata?.role)?.toString().toLowerCase() ?? null
+  const allowedAdminEmails = process.env.NEXT_PUBLIC_ADMIN_EMAILS
+    ? process.env.NEXT_PUBLIC_ADMIN_EMAILS.split(',').map((email) => email.trim().toLowerCase()).filter(Boolean)
+    : []
+  const isAdminEmail = user.email ? allowedAdminEmails.includes(user.email.toLowerCase()) : false
+  const isAdmin = normalizedRole === 'admin' || metadataRole === 'admin' || isAdminEmail
 
-  if (profile?.role !== 'admin') {
+  if (!isAdmin) {
     redirect('/shop')
   }
 
