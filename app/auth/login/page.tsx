@@ -38,7 +38,6 @@ export default function LoginPage() {
       } else {
         router.push('/shop')
       }
-      router.refresh()
     } catch (error: any) {
       setError(error.message)
     } finally {
