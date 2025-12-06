@@ -1,1 +1,5 @@
-export { default } from './shop/page'
+import { redirect } from 'next/navigation'
+
+export default function RootRedirectPage() {
+	redirect('/shop')
+}
