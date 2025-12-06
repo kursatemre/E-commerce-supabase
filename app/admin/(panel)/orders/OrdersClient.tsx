@@ -420,14 +420,14 @@ function AllOrdersPanel({ orders, onUpdate, filters, onFilterChange }: AllOrders
 
   return (
     <div className="space-y-5">
-      <div className="space-y-5 rounded-2xl border border-white/10 bg-card p-5 shadow-lg shadow-black/30">
+      <div className="space-y-5 rounded-2xl border border-white/10 bg-card p-6 shadow-lg shadow-black/30">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Operasyon Panosu</p>
             <h3 className="text-2xl font-semibold text-white">Sipariş akışını gerçek zamanlı izleyin</h3>
-            <p className="text-sm text-gray-200">Kanallara göre filtreleyin, seçim yapın ve tek ekrandan aksiyon alın.</p>
+            <p className="text-sm text-gray-100">Kanallara göre filtreleyin, seçim yapın ve tek ekrandan aksiyon alın.</p>
           </div>
-          <div className="flex flex-wrap gap-2 text-xs text-gray-200">
+          <div className="flex flex-wrap gap-2 text-xs text-gray-100">
             <Badge>Pazar Yeri</Badge>
             <Badge>Lojistik</Badge>
             <Badge>Muhasebe</Badge>
@@ -454,18 +454,21 @@ function AllOrdersPanel({ orders, onUpdate, filters, onFilterChange }: AllOrders
               type="text"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-gray-950/50 px-10 py-2.5 text-sm text-gray-100 placeholder:text-gray-500 focus:border-primary focus:outline-none"
+              className="w-full rounded-xl border border-white/20 bg-white/5 px-10 py-2.5 text-sm text-white placeholder:text-gray-400 transition focus:border-primary focus:bg-white/10 focus:outline-none"
               placeholder="Sipariş kodu, kanal veya ödeme yöntemi ara"
             />
           </div>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-gray-100 hover:border-white/30"
+              className="rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/15"
             >
               CSV Dışa Aktar
             </button>
-            <button type="button" className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+            <button
+              type="button"
+              className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition hover:translate-y-0.5"
+            >
               Yeni Sipariş
             </button>
           </div>
@@ -506,7 +509,7 @@ function AllOrdersPanel({ orders, onUpdate, filters, onFilterChange }: AllOrders
           />
         </div>
 
-        <div className="flex flex-wrap gap-2 text-xs text-gray-200">
+        <div className="flex flex-wrap gap-2 text-xs text-gray-100">
           <Badge>Toplu Seçim</Badge>
           <Badge variant="outline">Durum Güncelle</Badge>
           <Badge variant="outline">Fatura Oluştur</Badge>
@@ -565,7 +568,12 @@ function AllOrdersPanel({ orders, onUpdate, filters, onFilterChange }: AllOrders
             {filteredOrders.map((order) => {
               const isSelected = selectedOrders.includes(order.id);
               return (
-                <tr key={order.id} className={`border-t border-white/5 ${isSelected ? "bg-white/10" : "hover:bg-white/5"}`}>
+                <tr
+                  key={order.id}
+                  className={`border-t border-white/5 ${
+                    isSelected ? "bg-primary/10" : "hover:bg-white/10"
+                  }`}
+                >
                   <td className="px-4 py-4">
                     <input
                       type="checkbox"
@@ -1283,8 +1291,8 @@ function FilterChip({ label, active, onClick }: FilterChipProps) {
       onClick={onClick}
       className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
         active
-          ? "border-primary bg-primary/15 text-primary"
-          : "border-white/15 bg-white/5 text-gray-200 hover:border-white/30"
+          ? "border-primary bg-primary text-primary-foreground shadow-sm shadow-primary/40"
+          : "border-white/20 bg-white/10 text-white hover:border-white/40"
       }`}
     >
       {label}
