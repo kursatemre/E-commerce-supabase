@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "Bash(timeout /t 5 /nobreak)",
+      "Bash(npm install:*)",
+      "Bash(ping:*)",
+      "Bash(move \"c:\\Users\\emre5\\e-ticaret-supabase\\app\\shop\\actions.ts\" \"c:\\Users\\emre5\\e-ticaret-supabase\\src\\actions\\shop.ts\")",
+      "Bash(taskkill:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx supabase:*)",
+      "Bash(cat:*)",
+      "Bash(npm run build:*)",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(if [ -f nul ])",
+      "Bash(then rm nul)",
+      "Bash(fi)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

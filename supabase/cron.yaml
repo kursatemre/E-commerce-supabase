@@ -1,0 +1,20 @@
+version: 1
+
+crons:
+  - name: trendyol-products-sync
+    schedule: '*/30 * * * *'
+    function: trendyol-sync
+    request:
+      method: POST
+      headers:
+        Content-Type: application/json
+      body: '{"type":"products"}'
+
+  - name: trendyol-orders-sync
+    schedule: '*/10 * * * *'
+    function: trendyol-sync
+    request:
+      method: POST
+      headers:
+        Content-Type: application/json
+      body: '{"type":"orders","statuses":["Created","Picking","Invoiced"]}'
