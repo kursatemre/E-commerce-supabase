@@ -26,7 +26,11 @@ export async function updateSession(request: NextRequest) {
 }
 
 function shouldProtectPath(pathname: string) {
-  if (PUBLIC_ADMIN_PATHS.includes(pathname)) {
+  if (
+    PUBLIC_ADMIN_PATHS.some(
+      (publicPath) => pathname === publicPath || pathname.startsWith(`${publicPath}/`)
+    )
+  ) {
     return false
   }
 
