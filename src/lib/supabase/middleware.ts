@@ -1,64 +1,114 @@
-import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+const PROJECT_REF = (() => {
+  try {
+    if (!SUPABASE_URL) return null
+    const hostname = new URL(SUPABASE_URL).hostname
+    return hostname.split('.')[0]
+  } catch {
+    return null
+  }
+})()
+const AUTH_COOKIE = PROJECT_REF ? `sb-${PROJECT_REF}-auth-token` : null
+const PUBLIC_PATH_PREFIXES = ['/auth', '/_next', '/api', '/favicon.ico']
+
+type SupabaseAuthCookie = {
+  access_token?: string
+  accessToken?: string
+  currentSession?: {
+    access_token?: string
+    accessToken?: string
+  }
+}
+
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  })
+  const response = NextResponse.next({ request })
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request,
-          })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
-        },
-      },
-    }
-  )
-
-  // IMPORTANT: Avoid writing any logic between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/auth') &&
-    !request.nextUrl.pathname.startsWith('/_next') &&
-    request.nextUrl.pathname !== '/'
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
-    const url = request.nextUrl.clone()
-    url.pathname = '/auth/login'
-    return NextResponse.redirect(url)
+  if (!shouldProtectPath(request.nextUrl.pathname)) {
+    return response
   }
 
-  // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
-  // creating a new response object with NextResponse.next() make sure to:
-  // 1. Pass the request in it, like so:
-  //    const myNewResponse = NextResponse.next({ request })
-  // 2. Copy over the cookies, like so:
-  //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
-  // 3. Change the myNewResponse object to fit your needs, but avoid changing
-  //    the cookies!
-  // 4. Finally:
-  //    return myNewResponse
-  // If this is not done, you may be causing the browser and server to go out
-  // of sync and terminate the user's session prematurely.
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !AUTH_COOKIE) {
+    return response
+  }
 
-  return supabaseResponse
+  const authCookie = request.cookies.get(AUTH_COOKIE)
+  if (!authCookie) {
+    return redirectToLogin(request)
+  }
+
+  const accessToken = extractAccessToken(authCookie.value)
+  if (!accessToken) {
+    return redirectToLogin(request)
+  }
+
+  try {
+    const userResponse = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${accessToken}`,
+      },
+      cache: 'no-store',
+    })
+
+    if (!userResponse.ok) {
+      return redirectToLogin(request)
+    }
+  } catch (error) {
+    console.error('[middleware] Failed to validate Supabase session', error)
+    return redirectToLogin(request)
+  }
+
+  return response
+}
+
+function shouldProtectPath(pathname: string) {
+  if (pathname === '/') {
+    return false
+  }
+
+  if (PUBLIC_PATH_PREFIXES.some((prefix) => pathname.startsWith(prefix))) {
+    return false
+  }
+
+  return true
+}
+
+function extractAccessToken(rawValue: string | undefined) {
+  if (!rawValue) {
+    return null
+  }
+
+  try {
+    const parsed = JSON.parse(rawValue) as SupabaseAuthCookie
+    return (
+      parsed.currentSession?.access_token ??
+      parsed.currentSession?.accessToken ??
+      parsed.access_token ??
+      parsed.accessToken ??
+      null
+    )
+  } catch {
+    try {
+      const decoded = decodeURIComponent(rawValue)
+      const parsed = JSON.parse(decoded) as SupabaseAuthCookie
+      return (
+        parsed.currentSession?.access_token ??
+        parsed.currentSession?.accessToken ??
+        parsed.access_token ??
+        parsed.accessToken ??
+        null
+      )
+    } catch {
+      return null
+    }
+  }
+}
+
+function redirectToLogin(request: NextRequest) {
+  const url = request.nextUrl.clone()
+  url.pathname = '/auth/login'
+  return NextResponse.redirect(url)
 }
