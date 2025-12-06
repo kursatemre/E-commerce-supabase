@@ -8,296 +8,214 @@ import type { updateReturnStatus } from "@/actions/returns";
 
 const tabs = [
   { id: "all", label: "Tüm Siparişler" },
-  { id: "ready", label: "Hazırlanmaya Hazır" },
-  { id: "returns", label: "İadeler (RMA)" },
-  { id: "invoices", label: "Fatura & Bildirim" },
-];
-
-const ORDER_STATUS_OPTIONS = [
-  { value: "pending", label: "Beklemede" },
-  { value: "processing", label: "Hazırlanıyor" },
-  { value: "shipped", label: "Kargoda" },
-  { value: "delivered", label: "Teslim" },
-  { value: "return_requested", label: "İade Talebi" },
-];
-
-const PAYMENT_STATUS_OPTIONS = [
-  { value: "awaiting_payment", label: "Ödeme Bekleniyor" },
-  { value: "paid", label: "Ödeme Alındı" },
-  { value: "refunded", label: "İade Edildi" },
-];
-
-const FULFILLMENT_STATUS_OPTIONS = [
-  { value: "preparing", label: "Hazırlanıyor" },
-  { value: "packed", label: "Paketlendi" },
-  { value: "shipped", label: "Kargoya Verildi" },
-  { value: "delivered", label: "Teslim Edildi" },
-];
-
-const DOCUMENT_TYPES = [
-  { value: "e_invoice", label: "e-Fatura" },
-  { value: "e_archive", label: "e-Arşiv" },
-  { value: "dispatch", label: "İrsaliye" },
-];
-
-const NOTIFICATION_TYPES = [
-  { value: "order_confirmation", label: "Sipariş Onayı" },
-  { value: "shipment_update", label: "Kargo Güncellemesi" },
-  { value: "return_flow", label: "İade Süreci" },
-];
-
-const CHANNEL_FILTER_OPTIONS = [
-  { value: "web", label: "Web Mağaza" },
-  { value: "trendyol", label: "Trendyol" },
-];
-
-const RETURN_STATUS_OPTIONS = [
-  { value: "pending", label: "Talep Alındı" },
-  { value: "approved", label: "Onaylandı" },
-  { value: "in_transit", label: "İade Kargoda" },
-  { value: "inspection", label: "Kalite Kontrol" },
-  { value: "refunded", label: "Ücret İade" },
-  { value: "rejected", label: "Reddedildi" },
-];
-
-const RETURN_STATUS_LABELS: Record<string, string> = {
-  pending: "Talep Alındı",
-  approved: "Onaylandı",
-  in_transit: "İade Kargoda",
-  inspection: "Kontrol Aşamasında",
-  refunded: "İade Tamamlandı",
-  rejected: "Reddedildi",
-};
-
-const currencyFormatter = new Intl.NumberFormat("tr-TR", {
-  style: "currency",
-  currency: "TRY",
-});
-
-const dateFormatter = new Intl.DateTimeFormat("tr-TR", {
-  dateStyle: "medium",
-  timeStyle: "short",
-});
-
-function formatOrderCurrency(value: number | null | undefined, currency = "TRY") {
-  try {
-    const formatter = new Intl.NumberFormat("tr-TR", {
-      style: "currency",
-      currency,
-    });
-    return formatter.format(typeof value === "number" ? value : 0);
-  } catch (error) {
-    console.warn("[OrdersClient] Para formatlanamadı", error);
-    return currencyFormatter.format(typeof value === "number" ? value : 0);
-  }
-}
-
-type ReturnRequestMetadata = {
-  email?: string;
-  order_number?: string;
-  customer_note?: string;
-};
-
-export type OrderRecord = {
-  id: string;
-  order_number: string | null;
-  status: string | null;
-  payment_status: string | null;
-  fulfillment_status: string | null;
-  total: number | null;
-  currency?: string | null;
-  created_at: string | null;
-  cargo_tracking_code?: string | null;
-  delivered_at?: string | null;
-  invoice_number?: string | null;
-  invoice_issued_at?: string | null;
-  payment_method?: string | null;
-  channel?: string | null;
-  source?: string | null;
-  origin?: string | null;
-  marketplace_order_id?: string | null;
-  metadata?: Record<string, unknown> | null;
-} & Record<string, unknown>;
-
-export type OrderDocumentRecord = {
-  id: string;
-  order_id: string;
-  document_type: string;
-  document_number: string;
-  status: string;
-  file_url?: string | null;
-  created_at: string | null;
-};
-
-export type OrderNotificationRecord = {
-  id: string;
-  order_id: string | null;
-  notification_type: string;
-  recipient_email: string;
-  subject: string;
-  status: string;
-  created_at: string | null;
-  sent_at: string | null;
-};
-
-export type ReturnRequestRecord = {
-  id: string;
-  order_id: string;
-  user_id: string;
-  status: string;
-  reason: string | null;
-  notes: string | null;
-  refund_amount: number | null;
-  requested_at: string | null;
-  processed_at: string | null;
-  metadata: ReturnRequestMetadata | null;
-};
-
-export type OrdersClientProps = {
-  orders: OrderRecord[];
-  documents: OrderDocumentRecord[];
-  notifications: OrderNotificationRecord[];
-  returnRequests: ReturnRequestRecord[];
-  actions: {
-    updateOrderStatus: typeof updateOrderStatus;
-    generateOrderDocument: typeof generateOrderDocument;
-    queueOrderNotification: typeof queueOrderNotification;
-    updateReturnStatus: typeof updateReturnStatus;
-  };
-};
-
-type NormalizedOrder = {
-  id: string;
-  code: string;
-  channelKey: string;
-  channelLabel: string;
-  paymentMethod: string;
-  status: string;
-  paymentStatus: string;
-  fulfillmentStatus: string;
-  totalValue: number;
-  totalFormatted: string;
-  createdAtLabel: string;
-};
-
-type MetricBadge = {
-  label: string;
-  value: number;
-};
-
-type RmaPipelineStage = {
-  label: string;
-  items: number;
-  description: string;
-};
-
-type InvoiceSummaryItem = {
-  label: string;
-  value: number;
-};
-
-type FilterState = {
-  channel: string;
-  status: string;
-  payment: string;
-  fulfillment: string;
-};
-
-export default function OrdersClient({ orders, documents, notifications, returnRequests, actions }: OrdersClientProps) {
-  const normalizedOrders = useMemo<NormalizedOrder[]>(
-    () =>
-      (orders ?? []).map((order) => {
-        const channelKey = String(order.channel ?? order.source ?? "web").toLowerCase();
-        const channelLabel = channelKey === "trendyol" ? "Trendyol" : "Web";
-        const currency = order.currency ?? "TRY";
-        const numericTotal = typeof order.total === "number" ? order.total : 0;
-
-        return {
-          id: order.id,
-          code: order.order_number || order.id.slice(0, 8).toUpperCase(),
-          channelKey,
-          channelLabel,
-          paymentMethod: order.payment_method ?? (channelKey === "trendyol" ? "Trendyol" : "Kart"),
-          status: order.status ?? "pending",
-          paymentStatus: order.payment_status ?? "awaiting_payment",
-          fulfillmentStatus: order.fulfillment_status ?? "preparing",
-          totalValue: numericTotal,
-          totalFormatted: formatOrderCurrency(order.total, currency),
-          createdAtLabel: order.created_at ? dateFormatter.format(new Date(order.created_at)) : "-",
-        } satisfies NormalizedOrder;
-      }),
-    [orders]
-  );
-
-  const readyOrders = useMemo(
-    () =>
-      normalizedOrders.filter(
-        (order) => order.paymentStatus === "paid" && ["preparing", "packed"].includes(order.fulfillmentStatus)
-      ),
-    [normalizedOrders]
-  );
-
-  const readyBadges = useMemo<MetricBadge[]>(
-    () => [
-      { label: "Ödeme Onaylı", value: normalizedOrders.filter((order) => order.paymentStatus === "paid").length },
-      { label: "Stok Hazır", value: readyOrders.length },
-      { label: "Bekleyen Kargo", value: normalizedOrders.filter((order) => order.fulfillmentStatus === "packed").length },
-    ],
-    [normalizedOrders, readyOrders]
-  );
-
-  const rmaPipeline = useMemo<RmaPipelineStage[]>(() => {
-    const countByStatus = (status: string) => returnRequests.filter((request) => request.status === status).length;
-    return [
-      { label: "Beklemede", items: countByStatus("pending"), description: "Müşteri talebi alındı." },
-      { label: "Kargo Geldi", items: countByStatus("in_transit"), description: "Depoya giriş yapıldı." },
-      { label: "Kalite Kontrol", items: countByStatus("inspection"), description: "Ürün inceleniyor." },
-      { label: "Para İadesi", items: countByStatus("refunded"), description: "Tamamlanan iadeler." },
-    ];
-  }, [returnRequests]);
-
-  const invoiceSummary = useMemo<InvoiceSummaryItem[]>(() => {
-    const drafts = documents.filter((doc) => doc.status === "draft").length;
-    const sent = documents.filter((doc) => ["sent", "created"].includes(doc.status)).length;
-    const pending = documents.filter((doc) => ["pending_sync", "queued"].includes(doc.status)).length;
-    return [
-      { label: "e-Fatura Taslağı", value: drafts },
-      { label: "e-Arşiv Gönderildi", value: sent },
-      { label: "Muhasebe Bekliyor", value: pending },
-    ];
-  }, [documents]);
-
-  const [activeTab, setActiveTab] = useState<string>(tabs[0].id);
-  const tabTitle = useMemo(() => tabs.find((tab) => tab.id === activeTab)?.label, [activeTab]);
-
-  const [filters, setFilters] = useState<FilterState>({
-    channel: "",
-    status: "",
-    payment: "",
-    fulfillment: "",
-  });
-
-  const handleFilterChange = (key: keyof FilterState, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+  type DocumentManagerProps = {
+    documents: OrderDocumentRecord[];
+    orders: NormalizedOrder[];
+    action: typeof generateOrderDocument;
   };
 
-  return (
-    <div className="space-y-5">
-      <div className="flex flex-col gap-4 rounded-2xl border border-gray-800 bg-gray-900/80 p-6 shadow-xl shadow-black/30 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Sipariş Yönetimi</p>
-          <h1 className="text-3xl font-semibold text-white">Siparişler</h1>
-          <p className="text-sm text-gray-300">
-            Tüm kanallardan gelen siparişleri yönetin, lojistik ve faturaları tek ekran üzerinden takip edin.
-          </p>
+  function DocumentManager({ documents, orders, action }: DocumentManagerProps) {
+    return (
+      <div className="space-y-4 rounded-2xl border border-gray-800 bg-gray-950/70 p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">Belge Oluşturma</h3>
+            <p className="text-sm text-gray-300">Toplu veya tekil e-Fatura/e-Arşiv.</p>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2 text-xs text-gray-100">
-          <Badge>Pazar Yerleri</Badge>
-          <Badge>Lojistik</Badge>
-          <Badge>Muhasebe</Badge>
+
+        <form action={action} className="space-y-3">
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-gray-300">Sipariş</label>
+            <select
+              name="order_id"
+              required
+              className="w-full rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none"
+            >
+              <option value="">Sipariş seçin</option>
+              {orders.map((order) => (
+                <option key={order.id} value={order.id}>
+                  {order.code}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-gray-300">Belge Tipi</label>
+              <select
+                name="document_type"
+                className="w-full rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none"
+              >
+                {DOCUMENT_TYPES.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-gray-300">Belge No</label>
+              <input
+                name="document_number"
+                required
+                placeholder="INV-2025-001"
+                className="w-full rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+          </div>
+          <input
+            name="file_url"
+            type="url"
+            placeholder="Belge URL (opsiyonel)"
+            className="w-full rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
+          />
+          <textarea
+            name="notes"
+            rows={2}
+            placeholder="Not"
+            className="w-full rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
+          />
+          <button
+            type="submit"
+            className="w-full rounded-xl bg-gradient-to-r from-emerald-500 to-green-500 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_25px_-12px_rgba(16,185,129,0.9)]"
+          >
+            Belge Oluştur
+          </button>
+        </form>
+
+        <div className="space-y-3 border-t border-gray-800 pt-4 text-sm">
+          {documents.length === 0 && <p className="text-gray-400">Henüz belge oluşturulmamış.</p>}
+          {documents.slice(0, 5).map((doc) => (
+            <div key={doc.id} className="rounded-xl border border-gray-800 bg-gray-900/60 px-3 py-3">
+              <div className="flex items-center justify-between">
+                <p className="font-semibold text-gray-50">{DOCUMENT_TYPES.find((type) => type.value === doc.document_type)?.label || doc.document_type}</p>
+                <span className="text-xs text-gray-400">
+                  {doc.created_at ? dateFormatter.format(new Date(doc.created_at)) : ""}
+                </span>
+              </div>
+              <p className="text-xs text-gray-400">Belge No: {doc.document_number}</p>
+              {doc.file_url && (
+                <a href={doc.file_url} target="_blank" rel="noreferrer" className="text-xs font-medium text-blue-400">
+                  Dosyayı Aç
+                </a>
+              )}
+            </div>
+          ))}
         </div>
       </div>
+    );
+  }
 
+  type NotificationManagerProps = {
+    notifications: OrderNotificationRecord[];
+    orders: NormalizedOrder[];
+    action: typeof queueOrderNotification;
+  };
+
+  function NotificationManager({ notifications, orders, action }: NotificationManagerProps) {
+    return (
+      <div className="space-y-4 rounded-2xl border border-gray-800 bg-gray-950/70 p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-semibold">E-posta Bildirimleri</h3>
+            <p className="text-sm text-gray-300">Siparişe bağlı otomatik bilgilendirmeler.</p>
+          </div>
+        </div>
+
+        <form action={action} className="space-y-3">
+          <div className="grid gap-3 md:grid-cols-2">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-gray-300">Bildirim Tipi</label>
+              <select
+                name="notification_type"
+                className="w-full rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none"
+              >
+                {NOTIFICATION_TYPES.map((type) => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-gray-300">Sipariş (opsiyonel)</label>
+              <select
+                name="order_id"
+                className="w-full rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none"
+              >
+                <option value="">Sipariş seçin</option>
+                {orders.map((order) => (
+                  <option key={order.id} value={order.id}>
+                    {order.code}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-gray-300">Alıcı E-posta</label>
+            <input
+              type="email"
+              name="recipient_email"
+              required
+              placeholder="musteri@email.com"
+              className="w-full rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+          <input
+            name="subject"
+            required
+            placeholder="Konu"
+            className="w-full rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
+          />
+          <textarea
+            name="body"
+            rows={3}
+            required
+            placeholder="Mesaj içeriği"
+            className="w-full rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
+          />
+          <button
+            type="submit"
+            className="w-full rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_25px_-12px_rgba(192,38,211,0.9)]"
+          >
+            Bildirim Gönder
+          </button>
+        </form>
+
+        <div className="space-y-3 border-t border-gray-800 pt-4 text-sm">
+          {notifications.length === 0 && <p className="text-gray-400">Henüz bildirim kuyruğu oluşmadı.</p>}
+          {notifications.slice(0, 5).map((notification) => (
+            <div key={notification.id} className="rounded-xl border border-gray-800 bg-gray-900/60 px-3 py-3">
+              <div className="flex items-center justify-between">
+                <p className="font-semibold text-gray-50">
+                  {NOTIFICATION_TYPES.find((type) => type.value === notification.notification_type)?.label ||
+                    notification.notification_type}
+                </p>
+                <span
+                  className={`text-xs px-2 py-0.5 rounded-full ${
+                    notification.status === "sent"
+                      ? "bg-emerald-500/20 text-emerald-100"
+                      : "bg-amber-500/20 text-amber-100"
+                  }`}
+                >
+                  {notification.status === "sent" ? "Gönderildi" : "Kuyrukta"}
+                </span>
+              </div>
+              <p className="text-xs text-gray-400">{notification.subject}</p>
+              <p className="text-xs text-gray-300">{notification.recipient_email}</p>
+              <p className="text-[11px] text-gray-400">
+                {notification.created_at ? dateFormatter.format(new Date(notification.created_at)) : ""}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  type ReturnStatusBadgeProps = {
       <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-2 flex flex-wrap gap-2">
         {tabs.map((tab) => (
           <button
@@ -485,20 +403,13 @@ function AllOrdersPanel({ orders, onUpdate, filters, onFilterChange }: AllOrders
           ))}
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           <FilterSelect
             label="Kaynak"
             value={filters.channel}
             placeholder="Tüm kaynaklar"
             options={CHANNEL_FILTER_OPTIONS}
             onChange={(value) => onFilterChange("channel", value)}
-          />
-          <FilterSelect
-            label="Sipariş Durumu"
-            value={filters.status}
-            placeholder="Durum seç"
-            options={ORDER_STATUS_OPTIONS}
-            onChange={(value) => onFilterChange("status", value)}
           />
           <FilterSelect
             label="Ödeme Durumu"
@@ -672,7 +583,9 @@ function ReadyToShipPanel({ orders, badges }: ReadyToShipPanelProps) {
                 <button className="text-sm font-medium text-blue-400">Etiket Oluştur</button>
               </div>
             ))}
-            {orders.length === 0 && <p className="text-sm text-gray-400">Hazırlanmaya hazır sipariş yok.</p>}
+            {orders.length === 0 && (
+              <p className="text-sm text-gray-400">Hazırlanmaya hazır sipariş yok.</p>
+            )}
           </div>
         </div>
       </div>
@@ -800,7 +713,7 @@ function ReturnModerationTable({ requests, onUpdate, getOrderCode }: ReturnModer
         </p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-sm text-gray-200">
+          <table className="w-full min-w-[640px] text-sm text-gray-100">
             <thead className="text-left text-xs uppercase tracking-wide text-gray-500">
               <tr>
                 <th className="px-3 py-2">Sipariş</th>
@@ -823,9 +736,7 @@ function ReturnModerationTable({ requests, onUpdate, getOrderCode }: ReturnModer
                     <ReturnStatusBadge status={request.status} />
                   </td>
                   <td className="px-3 py-3 text-sm text-gray-200">
-                    <p className="text-xs text-gray-400">
-                      Müşteri: {request.metadata?.customer_note?.trim() || "Not iletilmedi"}
-                    </p>
+                    <p className="text-xs text-gray-400">Müşteri: {request.metadata?.customer_note?.trim() || "Not iletilmedi"}</p>
                     <p className="text-xs text-gray-300">Operasyon: {request.notes || "Henüz eklenmedi"}</p>
                   </td>
                   <td className="px-3 py-3 text-right">
@@ -859,7 +770,7 @@ function ReturnModerationTable({ requests, onUpdate, getOrderCode }: ReturnModer
                       />
                       <button
                         type="submit"
-                        className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white transition hover:bg-blue-500"
+                        className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white hover:bg-blue-500"
                       >
                         Güncelle
                       </button>
@@ -874,81 +785,6 @@ function ReturnModerationTable({ requests, onUpdate, getOrderCode }: ReturnModer
     </div>
   );
 }
-
-type InvoicePanelProps = {
-  summary: InvoiceSummaryItem[];
-  documents: OrderDocumentRecord[];
-  notifications: OrderNotificationRecord[];
-  orders: NormalizedOrder[];
-  actions: {
-    generateOrderDocument: typeof generateOrderDocument;
-    queueOrderNotification: typeof queueOrderNotification;
-  };
-};
-
-function InvoicePanel({ summary, documents, notifications, orders, actions }: InvoicePanelProps) {
-  return (
-    <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {summary.map((item) => (
-          <div key={item.label} className="rounded-2xl border border-gray-800 bg-gray-950/70 px-4 py-3">
-            <p className="text-2xl font-semibold text-white">{item.value}</p>
-            <p className="text-sm font-medium text-gray-300">{item.label}</p>
-            <p className="text-xs text-gray-500">Son eşitleme 5 dk önce.</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        <DocumentManager documents={documents} orders={orders} action={actions.generateOrderDocument} />
-        <NotificationManager notifications={notifications} orders={orders} action={actions.queueOrderNotification} />
-      </div>
-    </div>
-  );
-}
-
-type StatusUpdateFormProps = {
-  orders: NormalizedOrder[];
-  action: typeof updateOrderStatus;
-};
-
-function StatusUpdateForm({ orders, action }: StatusUpdateFormProps) {
-  if (!orders.length) {
-    return (
-      <div className="rounded-2xl border border-dashed border-gray-800 bg-gray-900/60 px-4 py-6 text-center text-sm text-gray-400">
-        Durum güncellemesi yapabilmek için en az bir sipariş gerekir.
-      </div>
-    );
-  }
-
-  return (
-    <form action={action} className="rounded-2xl border border-gray-800 bg-gray-950/70 p-5 space-y-4">
-      <div className="grid gap-3 md:grid-cols-2">
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-300">Sipariş</label>
-          <select
-            name="order_id"
-            required
-            className="w-full rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none"
-          >
-            <option value="">Sipariş seçin</option>
-            {orders.map((order) => (
-              <option key={order.id} value={order.id}>
-                {order.code}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-gray-300">Sipariş Durumu</label>
-          <select
-            name="status"
-            className="w-full rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none"
-          >
-            {ORDER_STATUS_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
             ))}
           </select>
         </div>
@@ -997,13 +833,13 @@ function StatusUpdateForm({ orders, action }: StatusUpdateFormProps) {
         <input
           type="date"
           name="invoice_issued_at"
-          className="rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none"
+          className="rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
         />
       </div>
 
       <button
         type="submit"
-        className="w-full rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_25px_-12px_rgba(37,99,235,0.9)]"
+        className="w-full rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_25px_-12px_rgba(37,99,235,0.9)]"
       >
         Güncelle
       </button>
@@ -1022,7 +858,7 @@ function DocumentManager({ documents, orders, action }: DocumentManagerProps) {
     <div className="space-y-4 rounded-2xl border border-gray-800 bg-gray-950/70 p-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-white">Belge Oluşturma</h3>
+          <h3 className="text-lg font-semibold">Belge Oluşturma</h3>
           <p className="text-sm text-gray-300">Toplu veya tekil e-Fatura/e-Arşiv.</p>
         </div>
       </div>
@@ -1121,7 +957,7 @@ function NotificationManager({ notifications, orders, action }: NotificationMana
     <div className="space-y-4 rounded-2xl border border-gray-800 bg-gray-950/70 p-4">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-lg font-semibold text-white">E-posta Bildirimleri</h3>
+          <h3 className="text-lg font-semibold">E-posta Bildirimleri</h3>
           <p className="text-sm text-gray-300">Siparişe bağlı otomatik bilgilendirmeler.</p>
         </div>
       </div>
@@ -1198,7 +1034,9 @@ function NotificationManager({ notifications, orders, action }: NotificationMana
               </p>
               <span
                 className={`text-xs px-2 py-0.5 rounded-full ${
-                  notification.status === "sent" ? "bg-emerald-500/20 text-emerald-100" : "bg-amber-500/20 text-amber-100"
+                  notification.status === "sent"
+                    ? "bg-emerald-500/20 text-emerald-100"
+                    : "bg-amber-500/20 text-amber-100"
                 }`}
               >
                 {notification.status === "sent" ? "Gönderildi" : "Kuyrukta"}
@@ -1215,7 +1053,112 @@ function NotificationManager({ notifications, orders, action }: NotificationMana
     </div>
   );
 }
+  );
+}
 
+type NotificationManagerProps = {
+  notifications: OrderNotificationRecord[];
+  orders: NormalizedOrder[];
+  action: typeof queueOrderNotification;
+};
+
+function NotificationManager({ notifications, orders, action }: NotificationManagerProps) {
+  return (
+    <div className="space-y-4 rounded-xl border bg-card p-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-lg font-semibold">E-posta Bildirimleri</h3>
+          <p className="text-sm text-gray-100">Siparişe bağlı otomatik bilgilendirmeler.</p>
+        </div>
+      </div>
+
+      <form action={action} className="space-y-3">
+        <div className="grid gap-3 md:grid-cols-2">
+          <div className="space-y-1">
+            <label className="text-xs text-gray-100">Bildirim Tipi</label>
+            <select name="notification_type" className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm">
+              {NOTIFICATION_TYPES.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs text-gray-100">Sipariş (opsiyonel)</label>
+            <select name="order_id" className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm">
+              <option value="">Sipariş seçin</option>
+              {orders.map((order) => (
+                <option key={order.id} value={order.id}>
+                  {order.code}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="space-y-1">
+          <label className="text-xs text-gray-100">Alıcı E-posta</label>
+          <input
+            type="email"
+            name="recipient_email"
+            required
+            placeholder="musteri@email.com"
+            className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm"
+          />
+        </div>
+        <input
+          name="subject"
+          required
+          placeholder="Konu"
+          className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm"
+        />
+        <textarea
+          name="body"
+          rows={3}
+          required
+          placeholder="Mesaj içeriği"
+          className="w-full rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm"
+        />
+        <button type="submit" className="w-full rounded-lg bg-purple-600 px-4 py-2 text-sm font-semibold text-white">
+          Bildirim Gönder
+        </button>
+      </form>
+
+      <div className="space-y-3 border-t border-white/10 pt-4 text-sm">
+        {notifications.length === 0 && <p className="text-gray-200">Henüz bildirim kuyruğu oluşmadı.</p>}
+        {notifications.slice(0, 5).map((notification) => (
+          <div key={notification.id} className="rounded-lg border border-white/10 px-3 py-3">
+            <div className="flex items-center justify-between">
+              return (
+                <div className="space-y-4 rounded-2xl border border-gray-800 bg-gray-950/70 p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold">E-posta Bildirimleri</h3>
+                      <p className="text-sm text-gray-300">Siparişe bağlı otomatik bilgilendirmeler.</p>
+                    </div>
+                  </div>
+
+                  <form action={action} className="space-y-3">
+                    <div className="grid gap-3 md:grid-cols-2">
+                      <div className="space-y-1">
+                        <label className="text-xs font-medium text-gray-300">Bildirim Tipi</label>
+                        <select
+                          name="notification_type"
+                          className="w-full rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none"
+                        >
+            <p className="text-[11px] text-gray-100">
+              {notification.created_at ? dateFormatter.format(new Date(notification.created_at)) : ""}
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+                        <label className="text-xs font-medium text-gray-300">Sipariş (opsiyonel)</label>
+                        <select
+                          name="order_id"
+                          className="w-full rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none"
+                        >
 type ReturnStatusBadgeProps = {
   status: string;
 };
@@ -1226,46 +1169,49 @@ function ReturnStatusBadge({ status }: ReturnStatusBadgeProps) {
     pending: "bg-amber-500/20 text-amber-100",
     approved: "bg-blue-500/20 text-blue-100",
     in_transit: "bg-purple-500/20 text-purple-100",
-    inspection: "bg-orange-500/20 text-orange-100",
+                      <label className="text-xs font-medium text-gray-300">Alıcı E-posta</label>
     refunded: "bg-emerald-500/20 text-emerald-100",
     rejected: "bg-rose-500/20 text-rose-100",
   };
 
   const style = colorMap[status] ?? "bg-white/10 text-white";
-
+                        className="w-full rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
   return <span className={`rounded-full px-3 py-1 text-xs font-semibold ${style}`}>{label}</span>;
 }
 
 type BadgeProps = {
   children: ReactNode;
   variant?: "solid" | "outline";
-};
+                      className="w-full rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
 
 function Badge({ children, variant = "solid" }: BadgeProps) {
   if (variant === "outline") {
     return <span className="rounded-full border border-white/30 px-3 py-1 text-xs text-gray-100">{children}</span>;
   }
 
-  return <span className="rounded-full bg-primary/15 px-3 py-1 text-xs text-primary">{children}</span>;
+                      className="w-full rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 placeholder:text-gray-500 focus:border-blue-500 focus:outline-none"
 }
-
+                    <button
+                      type="submit"
+                      className="w-full rounded-xl bg-gradient-to-r from-fuchsia-500 to-purple-600 px-4 py-2 text-sm font-semibold text-white shadow-[0_10px_25px_-12px_rgba(192,38,211,0.9)]"
+                    >
 type FilterSelectProps = {
   label: string;
   value: string;
-  placeholder: string;
-  options: { value: string; label: string }[];
-  onChange: (value: string) => void;
-};
 
+                  <div className="space-y-3 border-t border-gray-800 pt-4 text-sm">
+                    {notifications.length === 0 && <p className="text-gray-400">Henüz bildirim kuyruğu oluşmadı.</p>}
+                    {notifications.slice(0, 5).map((notification) => (
+                      <div key={notification.id} className="rounded-xl border border-gray-800 bg-gray-900/60 px-3 py-3">
 function FilterSelect({ label, value, placeholder, options, onChange }: FilterSelectProps) {
   return (
     <div className="flex flex-col gap-1">
       <p className="text-xs font-medium text-gray-300">{label}</p>
       <select
         value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 focus:border-blue-500 focus:outline-none"
-      >
+                        <p className="text-xs text-gray-400">{notification.subject}</p>
+                        <p className="text-xs text-gray-300">{notification.recipient_email}</p>
+                        <p className="text-[11px] text-gray-400">
         <option value="">{placeholder}</option>
         {options.map((option) => (
           <option key={option.value} value={option.value}>
