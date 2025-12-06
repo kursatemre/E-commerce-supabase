@@ -420,12 +420,12 @@ function AllOrdersPanel({ orders, onUpdate, filters, onFilterChange }: AllOrders
 
   return (
     <div className="space-y-5">
-      <div className="space-y-5 rounded-2xl border border-white/10 bg-card p-6 shadow-lg shadow-black/30">
+      <div className="space-y-5 rounded-2xl border border-gray-800 bg-gray-900/80 p-6 shadow-xl shadow-black/30">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Operasyon Panosu</p>
             <h3 className="text-2xl font-semibold text-white">Sipariş akışını gerçek zamanlı izleyin</h3>
-            <p className="text-sm text-gray-100">Kanallara göre filtreleyin, seçim yapın ve tek ekrandan aksiyon alın.</p>
+            <p className="text-sm text-gray-300">Kanallara göre filtreleyin, seçim yapın ve tek ekrandan aksiyon alın.</p>
           </div>
           <div className="flex flex-wrap gap-2 text-xs text-gray-100">
             <Badge>Pazar Yeri</Badge>
@@ -454,20 +454,20 @@ function AllOrdersPanel({ orders, onUpdate, filters, onFilterChange }: AllOrders
               type="text"
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              className="w-full rounded-xl border border-white/20 bg-white/5 px-10 py-2.5 text-sm text-white placeholder:text-gray-400 transition focus:border-primary focus:bg-white/10 focus:outline-none"
+              className="w-full rounded-2xl border border-gray-800 bg-gray-900/70 px-10 py-2.5 text-sm text-white placeholder:text-gray-400 transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/40 focus:outline-none"
               placeholder="Sipariş kodu, kanal veya ödeme yöntemi ara"
             />
           </div>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
-              className="rounded-xl border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition hover:border-white/40 hover:bg-white/15"
+              className="rounded-2xl border border-gray-800 bg-gray-900/70 px-4 py-2 text-sm font-semibold text-gray-100 transition hover:border-blue-500 hover:text-white"
             >
               CSV Dışa Aktar
             </button>
             <button
               type="button"
-              className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/30 transition hover:translate-y-0.5"
+              className="rounded-2xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 transition hover:bg-blue-500"
             >
               Yeni Sipariş
             </button>
@@ -518,19 +518,19 @@ function AllOrdersPanel({ orders, onUpdate, filters, onFilterChange }: AllOrders
       </div>
 
       {selectedOrders.length > 0 && (
-        <div className="flex flex-col gap-3 rounded-2xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-primary-foreground shadow-lg shadow-primary/20 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-3 rounded-2xl border border-blue-500/40 bg-blue-500/10 px-4 py-3 text-sm text-blue-100 shadow-lg shadow-blue-500/20 md:flex-row md:items-center md:justify-between">
           <p className="font-semibold">{selectedOrders.length} sipariş seçildi</p>
           <div className="flex flex-wrap gap-2">
-            <button type="button" className="rounded-full bg-black/20 px-4 py-1 text-xs font-semibold text-white">
+            <button type="button" className="rounded-full bg-gray-900/70 px-4 py-1 text-xs font-semibold text-white">
               Durum Güncelle
             </button>
-            <button type="button" className="rounded-full bg-black/20 px-4 py-1 text-xs font-semibold text-white">
+            <button type="button" className="rounded-full bg-gray-900/70 px-4 py-1 text-xs font-semibold text-white">
               Kargo Etiketi
             </button>
             <button
               type="button"
               onClick={() => setSelectedOrders([])}
-              className="rounded-full border border-white/30 px-4 py-1 text-xs font-semibold text-white"
+              className="rounded-full border border-white/40 px-4 py-1 text-xs font-semibold text-white"
             >
               Temizle
             </button>
@@ -538,16 +538,16 @@ function AllOrdersPanel({ orders, onUpdate, filters, onFilterChange }: AllOrders
         </div>
       )}
 
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-card shadow-lg shadow-black/30">
-        <table className="w-full text-sm text-gray-100">
-          <thead className="bg-white/5 text-xs uppercase tracking-wide text-gray-300">
+      <div className="overflow-hidden rounded-2xl border border-gray-800 bg-gray-900/70 shadow-xl shadow-black/30">
+        <table className="w-full text-sm text-gray-200">
+          <thead className="bg-gray-900 text-xs uppercase tracking-wide text-gray-400">
             <tr>
               <th className="w-12 px-4 py-3">
                 <input
                   type="checkbox"
                   checked={isAllSelected}
                   onChange={toggleSelectAll}
-                  className="h-4 w-4 rounded border-white/20 bg-transparent text-primary focus:ring-primary"
+                  className="h-4 w-4 rounded border-gray-700 bg-transparent text-blue-500 focus:ring-blue-500"
                 />
               </th>
               <th className="px-4 py-3 text-left">Sipariş</th>
@@ -570,8 +570,8 @@ function AllOrdersPanel({ orders, onUpdate, filters, onFilterChange }: AllOrders
               return (
                 <tr
                   key={order.id}
-                  className={`border-t border-white/5 ${
-                    isSelected ? "bg-primary/10" : "hover:bg-white/10"
+                  className={`border-t border-gray-800 transition ${
+                    isSelected ? "bg-blue-500/10 border-blue-500/40" : "hover:bg-gray-800/70"
                   }`}
                 >
                   <td className="px-4 py-4">
@@ -579,7 +579,7 @@ function AllOrdersPanel({ orders, onUpdate, filters, onFilterChange }: AllOrders
                       type="checkbox"
                       checked={isSelected}
                       onChange={() => toggleOrderSelection(order.id)}
-                      className="h-4 w-4 rounded border-white/20 bg-transparent text-primary focus:ring-primary"
+                      className="h-4 w-4 rounded border-gray-700 bg-transparent text-blue-500 focus:ring-blue-500"
                     />
                   </td>
                   <td className="px-4 py-4">
@@ -588,7 +588,7 @@ function AllOrdersPanel({ orders, onUpdate, filters, onFilterChange }: AllOrders
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex items-center gap-2">
-                      <span className="rounded-full border border-white/10 px-3 py-0.5 text-[11px] uppercase tracking-wide text-gray-200">
+                      <span className="rounded-full border border-gray-700 px-3 py-0.5 text-[11px] uppercase tracking-wide text-gray-200">
                         {order.channelLabel}
                       </span>
                       <span className="text-xs text-gray-400">Ödeme: {order.paymentMethod}</span>
@@ -606,7 +606,7 @@ function AllOrdersPanel({ orders, onUpdate, filters, onFilterChange }: AllOrders
                     <button
                       type="button"
                       onClick={() => setDetailOrder(order)}
-                      className="rounded-full border border-white/20 px-4 py-1 text-xs font-semibold text-gray-100 hover:border-white/40"
+                      className="rounded-full border border-gray-600 px-4 py-1 text-xs font-semibold text-gray-100 hover:border-blue-500"
                     >
                       Görüntüle
                     </button>
@@ -1228,11 +1228,11 @@ type FilterSelectProps = {
 function FilterSelect({ label, value, placeholder, options, onChange }: FilterSelectProps) {
   return (
     <div className="flex flex-col gap-1">
-      <p className="text-xs font-medium text-gray-100">{label}</p>
+      <p className="text-xs font-medium text-gray-300">{label}</p>
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="rounded-lg border border-white/10 bg-black/20 px-3 py-2 text-sm text-gray-100"
+        className="rounded-xl border border-gray-800 bg-gray-900/70 px-3 py-2 text-sm text-gray-100 focus:border-blue-500"
       >
         <option value="">{placeholder}</option>
         {options.map((option) => (
@@ -1270,10 +1270,10 @@ type SummaryCardProps = {
 
 function SummaryCard({ label, value, helper }: SummaryCardProps) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+    <div className="rounded-2xl border border-gray-800 bg-gray-900/70 p-4">
       <p className="text-2xl font-semibold text-white">{value}</p>
-      <p className="text-sm font-medium text-gray-200">{label}</p>
-      <p className="text-xs text-gray-400">{helper}</p>
+      <p className="text-sm font-medium text-gray-300">{label}</p>
+      <p className="text-xs text-gray-500">{helper}</p>
     </div>
   );
 }
@@ -1291,8 +1291,8 @@ function FilterChip({ label, active, onClick }: FilterChipProps) {
       onClick={onClick}
       className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
         active
-          ? "border-primary bg-primary text-primary-foreground shadow-sm shadow-primary/40"
-          : "border-white/20 bg-white/10 text-white hover:border-white/40"
+          ? "border-blue-500 bg-blue-600 text-white shadow-sm shadow-blue-600/40"
+          : "border-gray-800 bg-gray-900/60 text-gray-100 hover:border-blue-500"
       }`}
     >
       {label}
@@ -1315,7 +1315,7 @@ function OrderDetailModal({ order, onClose }: OrderDetailModalProps) {
         }
       }}
     >
-      <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-card p-6 shadow-2xl">
+      <div className="w-full max-w-lg rounded-2xl border border-gray-800 bg-gray-900 p-6 shadow-2xl shadow-black/40">
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase text-gray-400">Sipariş Kodu</p>
