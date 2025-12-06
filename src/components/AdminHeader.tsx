@@ -79,7 +79,8 @@ export function AdminHeader({ userName }: AdminHeaderProps) {
                 onClick={async () => {
                   const supabase = createClient()
                   await supabase.auth.signOut()
-                  router.push('/auth/login')
+                  await fetch('/admin/logout', { method: 'POST' })
+                  router.push('/admin/login')
                 }}
                 className="text-xs text-gray-400 hover:text-red-400 transition"
               >
