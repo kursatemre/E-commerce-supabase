@@ -5,14 +5,16 @@ import { AdminLoginForm } from '@/components/admin/AdminLoginForm'
 import { ADMIN_COOKIE_NAME, isAdminSessionValid } from '@/lib/adminAuth'
 
 interface AdminLoginPageProps {
-  searchParams?: Record<string, string | string[] | undefined>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }
 
 export default async function AdminLoginPage({ searchParams }: AdminLoginPageProps) {
+  const resolvedSearchParams = searchParams ? await searchParams : {}
   const cookieStore = await cookies()
   const adminSessionCookie = cookieStore.get(ADMIN_COOKIE_NAME)?.value
   const hasAdminSession = isAdminSessionValid(adminSessionCookie)
-  const redirectParam = typeof searchParams?.redirectedFrom === 'string' ? searchParams?.redirectedFrom : null
+  const redirectedFromValue = resolvedSearchParams.redirectedFrom
+  const redirectParam = typeof redirectedFromValue === 'string' ? redirectedFromValue : null
   const redirectTarget = redirectParam && redirectParam.startsWith('/admin') ? redirectParam : '/admin'
 
   if (hasAdminSession) {
