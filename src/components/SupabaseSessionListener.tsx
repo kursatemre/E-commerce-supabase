@@ -14,6 +14,15 @@ export function SupabaseSessionListener() {
         return
       }
 
+      const shouldSync = event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED'
+      if (!shouldSync) {
+        return
+      }
+
+      if (!session && event !== 'SIGNED_OUT') {
+        return
+      }
+
       try {
         await fetch('/auth/callback', {
           method: 'POST',
@@ -24,7 +33,7 @@ export function SupabaseSessionListener() {
           body: JSON.stringify({ event, session }),
         })
       } catch (error) {
-        console.error('Failed to sync Supabase session', error)
+        console.warn('Supabase oturum eşitlemesi başarısız oldu', error)
       }
     })
 
