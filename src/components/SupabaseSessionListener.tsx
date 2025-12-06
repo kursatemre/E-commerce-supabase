@@ -14,13 +14,18 @@ export function SupabaseSessionListener() {
         return
       }
 
-      await fetch('/auth/callback', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ event, session }),
-      })
+      try {
+        await fetch('/auth/callback', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({ event, session }),
+        })
+      } catch (error) {
+        console.error('Failed to sync Supabase session', error)
+      }
     })
 
     return () => {

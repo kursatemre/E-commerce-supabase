@@ -6,13 +6,15 @@ export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
   const origin = requestUrl.origin
+  const redirectedFrom = requestUrl.searchParams.get('redirectedFrom')
+  const safeRedirectPath = redirectedFrom && redirectedFrom.startsWith('/') ? redirectedFrom : '/'
 
   if (code) {
     const supabase = createRouteHandlerClient({ cookies })
     await supabase.auth.exchangeCodeForSession(code)
   }
 
-  return NextResponse.redirect(`${origin}/`)
+  return NextResponse.redirect(new URL(safeRedirectPath, origin).toString())
 }
 
 export async function POST(request: Request) {
