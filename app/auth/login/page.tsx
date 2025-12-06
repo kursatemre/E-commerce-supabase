@@ -33,10 +33,10 @@ export default function LoginPage() {
         .eq('id', data.user.id)
         .single()
 
-      if (profile?.role === 'admin') {
-        router.push('/admin')
-      } else {
-        router.push('/shop')
+      const targetPath = profile?.role === 'admin' ? '/admin' : '/shop'
+      router.replace(targetPath)
+      if (typeof window !== 'undefined') {
+        window.location.assign(targetPath)
       }
     } catch (error: any) {
       setError(error.message)
