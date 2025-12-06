@@ -1,7 +1,8 @@
 'use client'
 
 import { useFormState, useFormStatus } from 'react-dom'
-import { adminLogin, adminLoginDefaultState } from '@/actions/adminAuth'
+import { adminLogin } from '@/actions/adminAuth'
+import { adminLoginDefaultState } from '@/actions/adminAuthState'
 
 interface AdminLoginFormProps {
   redirectTo: string

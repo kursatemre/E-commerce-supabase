@@ -3,12 +3,8 @@
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { ADMIN_COOKIE_NAME, getAdminConfig, isAdminCredentialValid } from '@/lib/adminAuth'
-
-export type AdminLoginState = {
-  error?: string | null
-}
-
-const defaultState: AdminLoginState = { error: null }
+import type { AdminLoginState } from '@/actions/adminAuthState'
+import { adminLoginDefaultState } from '@/actions/adminAuthState'
 
 export async function adminLogin(_prevState: AdminLoginState, formData: FormData): Promise<AdminLoginState> {
   const username = formData.get('username')?.toString().trim() || ''
@@ -35,7 +31,7 @@ export async function adminLogin(_prevState: AdminLoginState, formData: FormData
 
   redirect(redirectTo)
 
-  return defaultState
+  return adminLoginDefaultState
 }
 
 export async function adminLogout(redirectTo = '/admin/login') {
@@ -43,5 +39,3 @@ export async function adminLogout(redirectTo = '/admin/login') {
   cookieStore.delete(ADMIN_COOKIE_NAME)
   redirect(redirectTo)
 }
-
-export { defaultState as adminLoginDefaultState }
