@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import type { generateOrderDocument, queueOrderNotification, updateOrderStatus } from "@/actions/orders";
 import type { updateReturnStatus } from "@/actions/returns";
@@ -175,6 +175,7 @@ type NormalizedOrder = {
   status: string;
   paymentStatus: string;
   fulfillmentStatus: string;
+  totalValue: number;
   totalFormatted: string;
   createdAtLabel: string;
 };
@@ -209,6 +210,7 @@ export default function OrdersClient({ orders, documents, notifications, returnR
         const channelKey = String(order.channel ?? order.source ?? "web").toLowerCase();
         const channelLabel = channelKey === "trendyol" ? "Trendyol" : "Web";
         const currency = order.currency ?? "TRY";
+        const numericTotal = typeof order.total === "number" ? order.total : 0;
 
         return {
           id: order.id,
@@ -219,6 +221,7 @@ export default function OrdersClient({ orders, documents, notifications, returnR
           status: order.status ?? "pending",
           paymentStatus: order.payment_status ?? "awaiting_payment",
           fulfillmentStatus: order.fulfillment_status ?? "preparing",
+          totalValue: numericTotal,
           totalFormatted: formatOrderCurrency(order.total, currency),
           createdAtLabel: order.created_at ? dateFormatter.format(new Date(order.created_at)) : "-",
         } satisfies NormalizedOrder;
@@ -363,22 +366,123 @@ type AllOrdersPanelProps = {
 };
 
 function AllOrdersPanel({ orders, onUpdate, filters, onFilterChange }: AllOrdersPanelProps) {
-  const filteredOrders = useMemo(
-    () =>
-      orders.filter((order) => {
-        if (filters.channel && order.channelKey !== filters.channel) return false;
-        if (filters.status && order.status !== filters.status) return false;
-        if (filters.payment && order.paymentStatus !== filters.payment) return false;
-        if (filters.fulfillment && order.fulfillmentStatus !== filters.fulfillment) return false;
-        return true;
-      }),
-    [orders, filters]
-  );
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+  const [detailOrder, setDetailOrder] = useState<NormalizedOrder | null>(null);
+
+  const filteredOrders = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    return orders.filter((order) => {
+      if (filters.channel && order.channelKey !== filters.channel) return false;
+      if (filters.status && order.status !== filters.status) return false;
+      if (filters.payment && order.paymentStatus !== filters.payment) return false;
+      if (filters.fulfillment && order.fulfillmentStatus !== filters.fulfillment) return false;
+      if (normalizedQuery) {
+        const haystack = `${order.code} ${order.channelLabel} ${order.paymentMethod}`.toLowerCase();
+        if (!haystack.includes(normalizedQuery)) return false;
+      }
+      return true;
+    });
+  }, [orders, filters, searchQuery]);
+
+  useEffect(() => {
+    setSelectedOrders((prev) => prev.filter((id) => filteredOrders.some((order) => order.id === id)));
+  }, [filteredOrders]);
+
+  const isAllSelected = filteredOrders.length > 0 && selectedOrders.length === filteredOrders.length;
+  const quickStatusFilters = [{ value: "", label: "Tümü" }, ...ORDER_STATUS_OPTIONS];
+
+  const summaryCards = useMemo(() => {
+    const pendingCount = orders.filter((order) => order.status === "pending").length;
+    const processingCount = orders.filter((order) => order.status === "processing").length;
+    const shippedCount = orders.filter((order) => order.fulfillmentStatus === "shipped").length;
+    const totalAmount = currencyFormatter.format(orders.reduce((acc, order) => acc + order.totalValue, 0));
+
+    return [
+      { label: "Toplam Sipariş", value: String(orders.length), helper: `${pendingCount} beklemede` },
+      { label: "Hazırlanıyor", value: String(processingCount), helper: "Operasyon kuyruğu" },
+      { label: "Kargoda", value: String(shippedCount), helper: "Teslimata çıktı" },
+      { label: "Brüt Tutar", value: totalAmount, helper: "Son 30 gün" },
+    ];
+  }, [orders]);
+
+  const toggleOrderSelection = (orderId: string) => {
+    setSelectedOrders((prev) => (prev.includes(orderId) ? prev.filter((id) => id !== orderId) : [...prev, orderId]));
+  };
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedOrders([]);
+      return;
+    }
+    setSelectedOrders(filteredOrders.map((order) => order.id));
+  };
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-xl border bg-card p-4 shadow-sm">
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+    <div className="space-y-5">
+      <div className="space-y-5 rounded-2xl border border-white/10 bg-[#0B0F19] p-5 shadow-2xl shadow-black/40">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Operasyon Panosu</p>
+            <h3 className="text-2xl font-semibold text-white">Sipariş akışını gerçek zamanlı izleyin</h3>
+            <p className="text-sm text-gray-300">Kanallara göre filtreleyin, seçim yapın ve tek ekrandan aksiyon alın.</p>
+          </div>
+          <div className="flex flex-wrap gap-2 text-xs text-gray-300">
+            <Badge>Pazar Yeri</Badge>
+            <Badge>Lojistik</Badge>
+            <Badge>Muhasebe</Badge>
+          </div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {summaryCards.map((card) => (
+            <SummaryCard key={card.label} label={card.label} value={card.value} helper={card.helper} />
+          ))}
+        </div>
+
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+          <div className="relative flex-1">
+            <svg
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
+            </svg>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              className="w-full rounded-xl border border-white/10 bg-black/30 px-10 py-2.5 text-sm text-gray-100 placeholder:text-gray-500 focus:border-primary focus:outline-none"
+              placeholder="Sipariş kodu, kanal veya ödeme yöntemi ara"
+            />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              className="rounded-xl border border-white/10 px-4 py-2 text-sm font-medium text-gray-100 hover:border-white/30"
+            >
+              CSV Dışa Aktar
+            </button>
+            <button type="button" className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+              Yeni Sipariş
+            </button>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {quickStatusFilters.map((option) => (
+            <FilterChip
+              key={option.value || "all"}
+              label={option.label}
+              active={filters.status === option.value}
+              onClick={() => onFilterChange("status", option.value)}
+            />
+          ))}
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
           <FilterSelect
             label="Kaynak"
             value={filters.channel}
@@ -387,82 +491,128 @@ function AllOrdersPanel({ orders, onUpdate, filters, onFilterChange }: AllOrders
             onChange={(value) => onFilterChange("channel", value)}
           />
           <FilterSelect
-            label="Sipariş Durumu"
-            value={filters.status}
-            placeholder="Hazırlanıyor"
-            options={ORDER_STATUS_OPTIONS}
-            onChange={(value) => onFilterChange("status", value)}
-          />
-          <FilterSelect
             label="Ödeme Durumu"
             value={filters.payment}
-            placeholder="Kart"
+            placeholder="Ödeme seç"
             options={PAYMENT_STATUS_OPTIONS}
             onChange={(value) => onFilterChange("payment", value)}
           />
           <FilterSelect
             label="Kargo Durumu"
             value={filters.fulfillment}
-            placeholder="Depoda"
+            placeholder="Kargo seç"
             options={FULFILLMENT_STATUS_OPTIONS}
             onChange={(value) => onFilterChange("fulfillment", value)}
           />
         </div>
-        <div className="mt-4 flex flex-wrap gap-2 text-xs text-gray-200">
-          <Badge>Toplu Seçim Açık</Badge>
+
+        <div className="flex flex-wrap gap-2 text-xs text-gray-200">
+          <Badge>Toplu Seçim</Badge>
           <Badge variant="outline">Durum Güncelle</Badge>
           <Badge variant="outline">Fatura Oluştur</Badge>
-          <Badge variant="outline">Kargo Etiketi</Badge>
+          <Badge variant="outline">Etiket Yazdır</Badge>
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border">
+      {selectedOrders.length > 0 && (
+        <div className="flex flex-col gap-3 rounded-2xl border border-primary/20 bg-primary/10 px-4 py-3 text-sm text-primary-foreground shadow-lg shadow-primary/20 md:flex-row md:items-center md:justify-between">
+          <p className="font-semibold">{selectedOrders.length} sipariş seçildi</p>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" className="rounded-full bg-black/20 px-4 py-1 text-xs font-semibold text-white">
+              Durum Güncelle
+            </button>
+            <button type="button" className="rounded-full bg-black/20 px-4 py-1 text-xs font-semibold text-white">
+              Kargo Etiketi
+            </button>
+            <button
+              type="button"
+              onClick={() => setSelectedOrders([])}
+              className="rounded-full border border-white/30 px-4 py-1 text-xs font-semibold text-white"
+            >
+              Temizle
+            </button>
+          </div>
+        </div>
+      )}
+
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#050B16] shadow-2xl shadow-black/50">
         <table className="w-full text-sm text-gray-100">
-          <thead className="bg-muted/50 text-xs uppercase text-gray-200">
+          <thead className="bg-white/5 text-xs uppercase tracking-wide text-gray-300">
             <tr>
+              <th className="w-12 px-4 py-3">
+                <input
+                  type="checkbox"
+                  checked={isAllSelected}
+                  onChange={toggleSelectAll}
+                  className="h-4 w-4 rounded border-white/20 bg-transparent text-primary focus:ring-primary"
+                />
+              </th>
               <th className="px-4 py-3 text-left">Sipariş</th>
-              <th className="px-4 py-3 text-left">Kaynak</th>
+              <th className="px-4 py-3 text-left">Kanallar</th>
               <th className="px-4 py-3 text-left">Durumlar</th>
-              <th className="px-4 py-3 text-left">Tutar</th>
+              <th className="px-4 py-3 text-left">Toplam</th>
               <th className="px-4 py-3 text-right">Aksiyon</th>
             </tr>
           </thead>
           <tbody>
             {filteredOrders.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-200">
-                  Gösterilecek sipariş bulunamadı.
+                <td colSpan={6} className="px-6 py-16 text-center text-sm text-gray-400">
+                  Filtre kriterlerinize uyan sipariş bulunamadı.
                 </td>
               </tr>
             )}
-            {filteredOrders.map((order) => (
-              <tr key={order.id} className="border-t border-white/5">
-                <td className="px-4 py-4">
-                  <p className="font-medium">{order.code}</p>
-                  <p className="text-xs text-gray-200">{order.createdAtLabel}</p>
-                </td>
-                <td className="px-4 py-4">
-                  <p className="font-medium">{order.channelLabel}</p>
-                  <p className="text-xs text-gray-200">Ödeme: {order.paymentMethod}</p>
-                </td>
-                <td className="px-4 py-4">
-                  <div className="flex flex-wrap gap-2 text-xs">
-                    <StatusPill>{order.status}</StatusPill>
-                    <StatusPill variant="info">{order.fulfillmentStatus}</StatusPill>
-                    <StatusPill variant="success">{order.paymentStatus}</StatusPill>
-                  </div>
-                </td>
-                <td className="px-4 py-4 font-semibold">{order.totalFormatted}</td>
-                <td className="px-4 py-4 text-right">
-                  <button className="text-sm font-medium text-primary">Detay</button>
-                </td>
-              </tr>
-            ))}
+            {filteredOrders.map((order) => {
+              const isSelected = selectedOrders.includes(order.id);
+              return (
+                <tr key={order.id} className={`border-t border-white/5 ${isSelected ? "bg-white/5" : "hover:bg-white/5"}`}>
+                  <td className="px-4 py-4">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleOrderSelection(order.id)}
+                      className="h-4 w-4 rounded border-white/20 bg-transparent text-primary focus:ring-primary"
+                    />
+                  </td>
+                  <td className="px-4 py-4">
+                    <p className="font-semibold text-white">{order.code}</p>
+                    <p className="text-xs text-gray-400">{order.createdAtLabel}</p>
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full border border-white/10 px-3 py-0.5 text-[11px] uppercase tracking-wide text-gray-200">
+                        {order.channelLabel}
+                      </span>
+                      <span className="text-xs text-gray-400">Ödeme: {order.paymentMethod}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      <StatusPill>{order.status}</StatusPill>
+                      <StatusPill variant="info">{order.fulfillmentStatus}</StatusPill>
+                      <StatusPill variant="success">{order.paymentStatus}</StatusPill>
+                    </div>
+                  </td>
+                  <td className="px-4 py-4 font-semibold text-white">{order.totalFormatted}</td>
+                  <td className="px-4 py-4 text-right">
+                    <button
+                      type="button"
+                      onClick={() => setDetailOrder(order)}
+                      className="rounded-full border border-white/20 px-4 py-1 text-xs font-semibold text-gray-100 hover:border-white/40"
+                    >
+                      Görüntüle
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       <StatusUpdateForm orders={orders} action={onUpdate} />
+
+      {detailOrder && <OrderDetailModal order={detailOrder} onClose={() => setDetailOrder(null)} />}
     </div>
   );
 }
@@ -1102,4 +1252,105 @@ function StatusPill({ children, variant = "default" }: StatusPillProps) {
   }
 
   return <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white">{children}</span>;
+}
+
+type SummaryCardProps = {
+  label: string;
+  value: string;
+  helper: string;
+};
+
+function SummaryCard({ label, value, helper }: SummaryCardProps) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/10 to-transparent p-4">
+      <p className="text-2xl font-semibold text-white">{value}</p>
+      <p className="text-sm font-medium text-gray-300">{label}</p>
+      <p className="text-xs text-gray-400">{helper}</p>
+    </div>
+  );
+}
+
+type FilterChipProps = {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+};
+
+function FilterChip({ label, active, onClick }: FilterChipProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${
+        active ? "border-primary bg-primary/10 text-primary" : "border-white/10 text-gray-300 hover:text-white"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+type OrderDetailModalProps = {
+  order: NormalizedOrder;
+  onClose: () => void;
+};
+
+function OrderDetailModal({ order, onClose }: OrderDetailModalProps) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 md:items-center"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-[#0B0F19] p-6 shadow-2xl">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs uppercase text-gray-400">Sipariş Kodu</p>
+            <h3 className="text-2xl font-semibold text-white">{order.code}</h3>
+            <p className="text-xs text-gray-500">{order.createdAtLabel}</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full border border-white/20 px-4 py-1 text-xs font-semibold text-gray-100"
+          >
+            Kapat
+          </button>
+        </div>
+
+        <div className="mt-5 space-y-3 text-sm text-gray-200">
+          <div className="flex items-center justify-between">
+            <span>Kaynak</span>
+            <span className="font-semibold text-white">{order.channelLabel}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span>Ödeme</span>
+            <span className="font-semibold text-white">{order.paymentMethod}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span>Tutar</span>
+            <span className="font-semibold text-white">{order.totalFormatted}</span>
+          </div>
+        </div>
+
+        <div className="mt-5 space-y-2 text-xs text-gray-300">
+          <p className="font-semibold uppercase tracking-wide text-gray-400">Durumlar</p>
+          <div className="flex flex-wrap gap-2">
+            <StatusPill>{order.status}</StatusPill>
+            <StatusPill variant="info">{order.fulfillmentStatus}</StatusPill>
+            <StatusPill variant="success">{order.paymentStatus}</StatusPill>
+          </div>
+        </div>
+
+        <div className="mt-6 flex flex-wrap gap-3 text-xs text-gray-400">
+          <span className="rounded-full border border-white/10 px-3 py-1">CSV Paylaş</span>
+          <span className="rounded-full border border-white/10 px-3 py-1">Not Ekle</span>
+          <span className="rounded-full border border-white/10 px-3 py-1">Lojistik Gönder</span>
+        </div>
+      </div>
+    </div>
+  );
 }
