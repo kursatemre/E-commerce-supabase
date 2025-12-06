@@ -197,7 +197,7 @@ export function ProductVariantManager({
   const [typeSelections, setTypeSelections] = useState<TypeState>(initialTypeState)
   useEffect(() => {
     setTypeSelections(initialTypeState)
-  }, [selectionSignature])
+  }, [selectionSignature, initialTypeState])
 
   const [variantDrafts, setVariantDrafts] = useState<VariantDraft[]>(() =>
     existingVariants.map((variant) => ({
@@ -233,7 +233,7 @@ export function ProductVariantManager({
         isActive: variant.is_active,
       }))
     )
-  }, [variantSignature])
+  }, [variantSignature, existingVariants])
 
   const selectionPayload = useMemo(() => {
     const enabledTypes = variantTypes
