@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 
 export default function LoginPage() {
@@ -11,6 +11,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -33,7 +34,14 @@ export default function LoginPage() {
         .eq('id', data.user.id)
         .single()
 
-      const targetPath = profile?.role === 'admin' ? '/admin' : '/shop'
+      const redirectParam = searchParams.get('redirectedFrom') || undefined
+      const safeRedirect = redirectParam && redirectParam.startsWith('/') ? redirectParam : undefined
+      const targetPath = profile?.role === 'admin'
+        ? safeRedirect ?? '/admin'
+        : safeRedirect && !safeRedirect.startsWith('/admin')
+          ? safeRedirect
+          : '/shop'
+
       router.replace(targetPath)
       if (typeof window !== 'undefined') {
         window.location.assign(targetPath)

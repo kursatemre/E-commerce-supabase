@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { GoogleAnalytics, GoogleTagManager, MetaPixel } from "@/components/analytics/GoogleScripts";
+import { SupabaseSessionListener } from "@/components/SupabaseSessionListener";
 
 export const metadata: Metadata = {
   title: "E-Ticaret - Modern Alışveriş Platformu",
@@ -15,6 +16,7 @@ export default function RootLayout({
   return (
     <html lang="tr">
       <body>
+        <SupabaseSessionListener />
         {children}
         <GoogleAnalytics />
         <GoogleTagManager />
