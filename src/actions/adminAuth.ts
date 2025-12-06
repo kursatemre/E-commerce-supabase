@@ -10,7 +10,7 @@ export type AdminLoginState = {
 
 const defaultState: AdminLoginState = { error: null }
 
-export async function adminLogin(_: AdminLoginState | undefined, formData: FormData): Promise<AdminLoginState | void> {
+export async function adminLogin(_prevState: AdminLoginState, formData: FormData): Promise<AdminLoginState> {
   const username = formData.get('username')?.toString().trim() || ''
   const password = formData.get('password')?.toString() || ''
   const redirectToRaw = formData.get('redirectTo')?.toString() || '/admin'
@@ -34,6 +34,8 @@ export async function adminLogin(_: AdminLoginState | undefined, formData: FormD
   })
 
   redirect(redirectTo)
+
+  return defaultState
 }
 
 export async function adminLogout(redirectTo = '/admin/login') {
