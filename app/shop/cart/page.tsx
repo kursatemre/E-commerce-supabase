@@ -1,8 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { ensureGuestId } from '@/lib/guest'
+import { CartItemButtons } from '@/components/CartItemButtons'
 import Link from 'next/link'
 import Image from 'next/image'
-import { updateCartItem, removeFromCart } from '@/actions/shop'
 
 export default async function CartPage() {
   const supabase = await createClient()
@@ -14,6 +14,7 @@ export default async function CartPage() {
     .from('carts')
     .select(`
       id,
+      user_id,
       guest_id,
       cart_items (
         id,
@@ -57,9 +58,9 @@ export default async function CartPage() {
   }
 
   const total = cartItems.reduce((sum: number, item: any) => {
-    const product = item.products
-    const variant = item.product_variants
-    const unitPrice = variant?.price ?? product.price
+    const product = Array.isArray(item.products) ? item.products[0] : item.products
+    const variant = Array.isArray(item.product_variants) ? item.product_variants[0] : item.product_variants
+    const unitPrice = variant?.price ?? product?.price ?? 0
     return sum + unitPrice * item.quantity
   }, 0)
 
@@ -71,11 +72,11 @@ export default async function CartPage() {
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-4">
           {cartItems.map((item: any) => {
-            const product = item.products
-            const variant = item.product_variants
-            const firstImage = product.product_images?.[0]
-            const unitPrice = variant?.price ?? product.price
-            const maxStock = variant?.stock ?? product.stock
+            const product = Array.isArray(item.products) ? item.products[0] : item.products
+            const variant = Array.isArray(item.product_variants) ? item.product_variants[0] : item.product_variants
+            const firstImage = product?.product_images?.[0]
+            const unitPrice = variant?.price ?? product?.price ?? 0
+            const maxStock = variant?.stock ?? product?.stock ?? 0
 
             return (
               <div key={item.id} className="bg-white rounded-lg shadow p-4 flex gap-4">
@@ -107,35 +108,7 @@ export default async function CartPage() {
                   </p>
 
                   <div className="mt-2 flex items-center gap-4">
-                    <div className="flex items-center gap-2">
-                      <form action={updateCartItem.bind(null, item.id, item.quantity - 1)}>
-                        <button
-                          type="submit"
-                          className="w-8 h-8 rounded-md border border-gray-300 hover:bg-gray-100"
-                        >
-                          −
-                        </button>
-                      </form>
-                      <span className="w-12 text-center">{item.quantity}</span>
-                      <form action={updateCartItem.bind(null, item.id, item.quantity + 1)}>
-                        <button
-                          type="submit"
-                          disabled={item.quantity >= maxStock}
-                          className="w-8 h-8 rounded-md border border-gray-300 hover:bg-gray-100 disabled:opacity-50"
-                        >
-                          +
-                        </button>
-                      </form>
-                    </div>
-
-                    <form action={removeFromCart.bind(null, item.id)}>
-                      <button
-                        type="submit"
-                        className="text-red-600 hover:text-red-700 text-sm"
-                      >
-                        Sil
-                      </button>
-                    </form>
+                    <CartItemButtons itemId={item.id} quantity={item.quantity} maxStock={maxStock} />
                   </div>
                 </div>
 
