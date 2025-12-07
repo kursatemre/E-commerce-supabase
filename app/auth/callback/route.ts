@@ -2,6 +2,17 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
+type SupabaseSessionPayload = {
+  access_token: string
+  refresh_token: string
+}
+
+const isSessionPayload = (value: unknown): value is SupabaseSessionPayload => {
+  if (!value || typeof value !== 'object') return false
+  const candidate = value as Record<string, unknown>
+  return typeof candidate.access_token === 'string' && typeof candidate.refresh_token === 'string'
+}
+
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
@@ -31,7 +42,7 @@ export async function POST(request: Request) {
   }
   
   const event = typeof payload.event === 'string' ? payload.event : undefined
-  const session = payload.session ?? null
+  const session = isSessionPayload(payload.session) ? payload.session : null
 
   if (event === 'SIGNED_OUT') {
     await supabase.auth.signOut()
