@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { ensureGuestId } from '@/lib/guest'
 
 const sanitizeField = (value: FormDataEntryValue | null, fallback?: string) => {
   if (value === null || value === undefined) {
@@ -26,18 +27,16 @@ export async function createOrder(formData: FormData) {
 
 export async function submitCheckoutOrder(formData: FormData) {
   const supabase = await createClient()
+  const guestId = await ensureGuestId()
   const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect('/auth/login?redirectedFrom=/shop/checkout')
-  }
 
   try {
     // Get cart with items
-    const { data: cart } = await supabase
+    const cartQuery = supabase
       .from('carts')
       .select(`
         id,
+        guest_id,
         cart_items (
           id,
           quantity,
@@ -58,8 +57,10 @@ export async function submitCheckoutOrder(formData: FormData) {
           )
         )
       `)
-      .eq('user_id', user.id)
-      .single()
+
+    const { data: cart } = user
+      ? await cartQuery.or(`user_id.eq.${user.id},guest_id.eq.${guestId}`).maybeSingle()
+      : await cartQuery.eq('guest_id', guestId).maybeSingle()
 
     if (!cart || !cart.cart_items || cart.cart_items.length === 0) {
       redirect('/shop/cart?error=Sepetiniz boş')
@@ -98,7 +99,8 @@ export async function submitCheckoutOrder(formData: FormData) {
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
-        user_id: user.id,
+        user_id: user?.id ?? null,
+        guest_id: guestId,
         order_number: orderNumber,
         status: 'pending',
         payment_status: paymentMethod === 'cod' ? 'awaiting_payment' : 'awaiting_payment',
@@ -172,7 +174,7 @@ export async function submitCheckoutOrder(formData: FormData) {
 
     revalidatePath('/shop/cart')
     revalidatePath('/shop/account/orders')
-    return '/shop/account/orders?success=Siparişiniz başarıyla oluşturuldu'
+    return '/shop?success=Siparişiniz başarıyla oluşturuldu'
   } catch (error) {
     console.error('Error creating order:', error)
     redirect('/shop/checkout?error=Sipariş oluşturulurken bir hata oluştu')

@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { ensureGuestId } from '@/lib/guest'
 import Link from 'next/link'
 import Image from 'next/image'
 import { updateCartItem, removeFromCart } from '@/actions/shop'
@@ -6,23 +7,14 @@ import { updateCartItem, removeFromCart } from '@/actions/shop'
 export default async function CartPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    return (
-      <div className="text-center py-12">
-        <h1 className="text-2xl font-bold mb-4">Sepetiniz Boş</h1>
-        <Link href="/auth/login?redirectedFrom=/shop/cart" className="text-blue-600 hover:text-blue-700">
-          Giriş Yapın
-        </Link>
-      </div>
-    )
-  }
+  const guestId = await ensureGuestId()
 
   // Get cart with items
-  const { data: cart } = await supabase
+  const cartQuery = supabase
     .from('carts')
     .select(`
       id,
+      guest_id,
       cart_items (
         id,
         quantity,
@@ -42,8 +34,10 @@ export default async function CartPage() {
         )
       )
     `)
-    .eq('user_id', user.id)
-    .single()
+
+  const { data: cart } = user
+    ? await cartQuery.or(`user_id.eq.${user.id},guest_id.eq.${guestId}`).maybeSingle()
+    : await cartQuery.eq('guest_id', guestId).maybeSingle()
 
   const cartItems = cart?.cart_items || []
 

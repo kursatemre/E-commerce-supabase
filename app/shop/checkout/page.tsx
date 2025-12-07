@@ -2,8 +2,8 @@ import type { InputHTMLAttributes } from 'react'
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { ensureGuestId } from '@/lib/guest'
 
 const currencyFormatter = new Intl.NumberFormat('tr-TR', {
   style: 'currency',
@@ -15,17 +15,14 @@ export default async function CheckoutPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+  const guestId = await ensureGuestId()
 
-  if (!user) {
-    redirect('/auth/login?redirectedFrom=/shop/checkout')
-  }
-
-  const [{ data: cart }, { data: profile }] = await Promise.all([
-    supabase
-      .from('carts')
-      .select(
-        `
+  const cartQuery = supabase
+    .from('carts')
+    .select(
+      `
         id,
+        guest_id,
         cart_items (
           id,
           quantity,
@@ -39,11 +36,17 @@ export default async function CheckoutPage() {
           )
         )
       `,
-      )
-      .eq('user_id', user.id)
-      .single(),
-    supabase.from('profiles').select('first_name, last_name, phone').eq('id', user.id).maybeSingle(),
-  ])
+    )
+
+  const cartPromise = user
+    ? cartQuery.or(`user_id.eq.${user.id},guest_id.eq.${guestId}`).maybeSingle()
+    : cartQuery.eq('guest_id', guestId).maybeSingle()
+
+  const profilePromise = user
+    ? supabase.from('profiles').select('first_name, last_name, phone').eq('id', user.id).maybeSingle()
+    : Promise.resolve({ data: null })
+
+  const [{ data: cart }, { data: profile }] = await Promise.all([cartPromise, profilePromise])
 
   const cartItems = cart?.cart_items ?? []
 

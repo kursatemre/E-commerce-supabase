@@ -3,14 +3,12 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { ensureGuestId } from '@/lib/guest'
 
 export async function addToCart(productId: string, variantId?: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect('/auth/login?redirectedFrom=/shop')
-  }
+  const guestId = await ensureGuestId()
 
   try {
     const { data: product } = await supabase
@@ -45,16 +43,14 @@ export async function addToCart(productId: string, variantId?: string) {
     }
 
     // Get or create cart
-    let { data: cart } = await supabase
-      .from('carts')
-      .select('id')
-      .eq('user_id', user.id)
-      .single()
+    let { data: cart } = user
+      ? await supabase.from('carts').select('id').or(`user_id.eq.${user.id},guest_id.eq.${guestId}`).maybeSingle()
+      : await supabase.from('carts').select('id').eq('guest_id', guestId).maybeSingle()
 
     if (!cart) {
       const { data: newCart, error: cartError } = await supabase
         .from('carts')
-        .insert({ user_id: user.id })
+        .insert({ user_id: user?.id ?? null, guest_id: guestId })
         .select('id')
         .single()
 
