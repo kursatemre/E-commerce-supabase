@@ -9,7 +9,7 @@ export async function addToCart(productId: string, variantId?: string) {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/auth/login')
+    redirect('/auth/login?redirectedFrom=/shop')
   }
 
   try {

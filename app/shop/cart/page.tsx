@@ -11,7 +11,7 @@ export default async function CartPage() {
     return (
       <div className="text-center py-12">
         <h1 className="text-2xl font-bold mb-4">Sepetiniz Boş</h1>
-        <Link href="/auth/login" className="text-blue-600 hover:text-blue-700">
+        <Link href="/auth/login?redirectedFrom=/shop/cart" className="text-blue-600 hover:text-blue-700">
           Giriş Yapın
         </Link>
       </div>

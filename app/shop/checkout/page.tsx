@@ -17,7 +17,7 @@ export default async function CheckoutPage() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/auth/login?redirect=/shop/checkout')
+    redirect('/auth/login?redirectedFrom=/shop/checkout')
   }
 
   const [{ data: cart }, { data: profile }] = await Promise.all([

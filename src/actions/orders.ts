@@ -29,7 +29,7 @@ export async function submitCheckoutOrder(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/auth/login')
+    redirect('/auth/login?redirectedFrom=/shop/checkout')
   }
 
   try {
