@@ -1,0 +1,23 @@
+export type StoreSettingsRecord = {
+  id?: string;
+  store_name?: string | null;
+  support_email?: string | null;
+  support_phone?: string | null;
+  preferred_currency?: string | null;
+  return_window_days?: number | null;
+  timezone?: string | null;
+  working_hours?: string | null;
+  notifications_email?: boolean | null;
+  notifications_sms?: boolean | null;
+  notifications_returns?: boolean | null;
+  alerts_low_stock?: boolean | null;
+  alerts_high_risk?: boolean | null;
+  alert_email?: string | null;
+  slack_webhook_url?: string | null;
+  two_factor_required?: boolean | null;
+  session_timeout_minutes?: number | null;
+  allowed_domains?: string | null;
+  ip_allowlist?: string | null;
+  login_alert_email?: string | null;
+  updated_at?: string | null;
+};
