@@ -30,12 +30,19 @@ type CustomerRow = {
   phone: string | null
   smsConsent: boolean
   kvkkConsent: boolean
+  createdAt: string | null
   createdAtLabel: string
   orderCount: number
   totalSpent: number
   lastOrderDate: string | null
   lastOrderLabel: string
 }
+
+type SegmentSnapshot = {
+  label: string
+  value: number
+  helper: string
+}[]
 
 export default async function AdminCustomersPage() {
   const supabase = await createClient()
@@ -65,35 +72,54 @@ export default async function AdminCustomersPage() {
 
   const customers = buildCustomerRows(profiles, orders)
   const dashboardStats = buildDashboardStats(customers, orders)
+  const segmentSnapshot = buildSegmentSnapshot(customers)
+  const refreshedAtLabel = new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' })
 
   return (
-    <div className="space-y-6">
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-wide text-gray-400">Müşteri Yönetimi</p>
-          <h1 className="text-3xl font-semibold tracking-tight text-gray-900">Müşteriler & CRM</h1>
-          <p className="text-sm text-gray-600">
-            Son sipariş verileri, toplam harcama ve hızlı aksiyonlar tek ekranda.
-          </p>
+    <div className="space-y-6 text-gray-100">
+      <section className="rounded-3xl border border-gray-800 bg-gradient-to-br from-gray-900 via-gray-950 to-black p-6 shadow-2xl shadow-black/50">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Müşteri Yönetimi</p>
+            <div className="space-y-2">
+              <h1 className="text-3xl font-semibold tracking-tight text-white">Müşteriler & CRM</h1>
+              <p className="text-sm text-gray-300">
+                Sadakat, yeniden satın alma ve SMS/KVKK aksiyonlarını tek bir karar panelinden yönetin.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2 text-xs text-gray-200">
+              {['Segmentasyon', 'Sadakat', 'Analitik'].map((label) => (
+                <span
+                  key={label}
+                  className="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-semibold tracking-wide text-gray-100"
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm text-gray-200 shadow-inner shadow-black/20">
+            <p className="text-xs uppercase tracking-wide text-gray-400">Güncel kayıtlar</p>
+            <p className="text-2xl font-semibold text-white">{refreshedAtLabel}</p>
+            <p className="text-xs text-gray-400">Supabase canlı veri • her yenilemede güncellenir</p>
+          </div>
         </div>
-        <div className="rounded-full border border-gray-200 px-4 py-2 text-sm text-gray-500">
-          Güncel kayıtlar • {new Date().toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' })}
-        </div>
-      </header>
+      </section>
 
       <StatsGrid stats={dashboardStats} />
 
-      <section className="rounded-2xl border bg-card/5 shadow-sm">
-        <div className="border-b px-6 py-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">Müşteri Listesi</h2>
-              <p className="text-sm text-gray-500">Son 200 müşteri, sipariş verileriyle birlikte görüntülenir.</p>
-            </div>
-            <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-700">
-              {customers.length} kayıt
-            </span>
+      <SegmentBadges segments={segmentSnapshot} />
+
+      <section className="rounded-3xl border border-gray-800 bg-gray-900/70 shadow-2xl shadow-black/40">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-800 bg-gray-900/80 px-6 py-5">
+          <div className="space-y-1">
+            <p className="text-xs uppercase tracking-wide text-gray-400">CRM Kaynakları</p>
+            <h2 className="text-lg font-semibold text-white">Müşteri Listesi</h2>
+            <p className="text-sm text-gray-400">Son 200 müşteri, sipariş metrikleriyle birlikte eşlenir.</p>
           </div>
+          <span className="rounded-full border border-gray-700 bg-gray-800/70 px-4 py-1.5 text-xs font-semibold text-gray-200">
+            {customers.length} kayıt
+          </span>
         </div>
 
         <CustomerTable customers={customers} />
@@ -130,6 +156,7 @@ function buildCustomerRows(profiles: ProfileRecord[], orders: OrderRecord[]): Cu
       phone: profile.phone,
       smsConsent: Boolean(profile.sms_consent),
       kvkkConsent: Boolean(profile.kvkk_consent),
+      createdAt: profile.created_at,
       createdAtLabel,
       orderCount: stats.count,
       totalSpent: stats.total,
@@ -139,6 +166,27 @@ function buildCustomerRows(profiles: ProfileRecord[], orders: OrderRecord[]): Cu
   })
 
   return rows.sort((a, b) => b.totalSpent - a.totalSpent)
+}
+
+function buildSegmentSnapshot(customers: CustomerRow[]): SegmentSnapshot {
+  const now = Date.now()
+  const thirtyDaysMs = 1000 * 60 * 60 * 24 * 30
+
+  const newCustomers = customers.filter((customer) => {
+    if (!customer.createdAt) return false
+    const createdAtTime = new Date(customer.createdAt).getTime()
+    if (Number.isNaN(createdAtTime)) return false
+    return now - createdAtTime <= thirtyDaysMs
+  }).length
+
+  const vipCustomers = customers.filter((customer) => customer.totalSpent >= 10000).length
+  const dormantCustomers = customers.filter((customer) => !customer.lastOrderDate).length
+
+  return [
+    { label: 'VIP', value: vipCustomers, helper: '10K+ TL harcama' },
+    { label: 'Uyuyan', value: dormantCustomers, helper: 'Henüz sipariş yok' },
+    { label: 'Yeni', value: newCustomers, helper: 'Son 30 günde eklendi' },
+  ]
 }
 
 function buildDashboardStats(customers: CustomerRow[], orders: OrderRecord[]) {
@@ -196,10 +244,33 @@ function StatsGrid({
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
       {stats.map((stat) => (
-        <div key={stat.label} className="rounded-2xl border bg-white p-4 shadow-sm">
+        <div
+          key={stat.label}
+          className="rounded-2xl border border-gray-800 bg-gray-900/80 p-4 shadow-lg shadow-black/30"
+        >
           <p className="text-xs uppercase tracking-wide text-gray-400">{stat.label}</p>
-          <p className="mt-2 text-2xl font-semibold text-gray-900">{stat.value}</p>
+          <p className="mt-3 text-2xl font-semibold text-white">{stat.value}</p>
           <p className="text-xs text-gray-500">{stat.helper}</p>
+          <div className="mt-4 h-px w-full bg-gradient-to-r from-blue-500/60 via-fuchsia-500/60 to-transparent" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function SegmentBadges({ segments }: { segments: SegmentSnapshot }) {
+  if (!segments.length) return null
+
+  return (
+    <div className="grid gap-4 md:grid-cols-3">
+      {segments.map((segment) => (
+        <div
+          key={segment.label}
+          className="rounded-2xl border border-gray-800 bg-gray-900/70 p-4 text-gray-200 shadow-lg shadow-black/20"
+        >
+          <p className="text-xs uppercase tracking-wide text-gray-400">{segment.label}</p>
+          <p className="mt-2 text-3xl font-semibold text-white">{segment.value.toLocaleString('tr-TR')}</p>
+          <p className="text-xs text-gray-500">{segment.helper}</p>
         </div>
       ))}
     </div>
@@ -209,7 +280,7 @@ function StatsGrid({
 function CustomerTable({ customers }: { customers: CustomerRow[] }) {
   if (!customers.length) {
     return (
-      <div className="px-6 py-10 text-center text-sm text-gray-500">
+      <div className="px-6 py-12 text-center text-sm text-gray-400">
         Henüz müşteri kaydı bulunmuyor.
       </div>
     )
@@ -217,35 +288,38 @@ function CustomerTable({ customers }: { customers: CustomerRow[] }) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm text-gray-900">
-        <thead className="bg-gray-50 text-left text-xs uppercase text-gray-500">
-          <tr>
-            <th className="px-6 py-3">Müşteri</th>
-            <th className="px-6 py-3">Sipariş</th>
-            <th className="px-6 py-3">Toplam Harcama</th>
-            <th className="px-6 py-3">Son Sipariş</th>
-            <th className="px-6 py-3 text-right">Hızlı İşlemler</th>
+      <table className="w-full text-sm text-gray-100">
+        <thead className="text-left text-xs uppercase tracking-wide text-gray-400">
+          <tr className="border-b border-gray-800 bg-gray-900/60">
+            <th className="px-6 py-3 font-semibold">Müşteri</th>
+            <th className="px-6 py-3 font-semibold">Sipariş</th>
+            <th className="px-6 py-3 font-semibold">Toplam Harcama</th>
+            <th className="px-6 py-3 font-semibold">Son Sipariş</th>
+            <th className="px-6 py-3 text-right font-semibold">Hızlı İşlemler</th>
           </tr>
         </thead>
         <tbody>
           {customers.map((customer) => (
-            <tr key={customer.id} className="border-t">
+            <tr
+              key={customer.id}
+              className="border-t border-gray-800/80 bg-gray-900/20 transition-colors hover:bg-gray-900/50"
+            >
               <td className="px-6 py-4 align-top">
-                <div className="font-semibold text-gray-900">{customer.name}</div>
-                <p className="text-xs text-gray-500">{customer.phone || 'Telefon yok'}</p>
-                <p className="text-xs text-gray-400">Kayıt: {customer.createdAtLabel}</p>
+                <div className="font-semibold text-white">{customer.name}</div>
+                <p className="text-xs text-gray-400">{customer.phone || 'Telefon yok'}</p>
+                <p className="text-xs text-gray-500">Kayıt: {customer.createdAtLabel}</p>
               </td>
               <td className="px-6 py-4 align-top">
-                <p className="font-semibold">{customer.orderCount} sipariş</p>
-                <p className="text-xs text-gray-500">SMS: {customer.smsConsent ? 'Açık' : 'Kapalı'}</p>
-                <p className="text-xs text-gray-500">KVKK: {customer.kvkkConsent ? 'Var' : 'Yok'}</p>
+                <p className="font-semibold text-white">{customer.orderCount} sipariş</p>
+                <p className="text-xs text-gray-400">SMS: {customer.smsConsent ? 'Açık' : 'Kapalı'}</p>
+                <p className="text-xs text-gray-400">KVKK: {customer.kvkkConsent ? 'Var' : 'Yok'}</p>
               </td>
-              <td className="px-6 py-4 align-top font-semibold">
+              <td className="px-6 py-4 align-top font-semibold text-blue-300">
                 {currencyFormatter.format(customer.totalSpent)}
               </td>
               <td className="px-6 py-4 align-top">
-                <p className="text-sm text-gray-900">{customer.lastOrderLabel}</p>
-                <p className="text-xs text-gray-500">
+                <p className="text-sm text-white">{customer.lastOrderLabel}</p>
+                <p className="text-xs text-gray-400">
                   {customer.lastOrderDate ? 'Güncel sipariş var' : 'Sipariş bekleniyor'}
                 </p>
               </td>
@@ -269,7 +343,7 @@ function CustomerQuickActions({ customer }: { customer: CustomerRow }) {
         <input type="hidden" name="value" value={(!customer.smsConsent).toString()} />
         <button
           type="submit"
-          className="w-full rounded-full border px-3 py-1 font-semibold text-gray-700 hover:border-gray-400"
+          className="w-full rounded-xl border border-gray-700 bg-gray-800/60 px-3 py-2 font-semibold text-gray-100 transition hover:border-blue-500 hover:bg-blue-600/20 hover:text-white"
         >
           {customer.smsConsent ? 'SMS İzni Kapat' : 'SMS İzni Aç'}
         </button>
@@ -280,12 +354,12 @@ function CustomerQuickActions({ customer }: { customer: CustomerRow }) {
         <input type="hidden" name="value" value={(!customer.kvkkConsent).toString()} />
         <button
           type="submit"
-          className="w-full rounded-full border px-3 py-1 font-semibold text-gray-700 hover:border-gray-400"
+          className="w-full rounded-xl border border-gray-700 bg-gray-800/60 px-3 py-2 font-semibold text-gray-100 transition hover:border-fuchsia-500 hover:bg-fuchsia-600/20 hover:text-white"
         >
           {customer.kvkkConsent ? 'KVKK İzni Kaldır' : 'KVKK İzni Ver'}
         </button>
       </form>
-      <div className="rounded-full border border-dashed px-3 py-1 font-semibold text-gray-500">
+      <div className="rounded-xl border border-dashed border-gray-700 bg-gray-900/40 px-3 py-2 font-semibold text-gray-400">
         ID: {customer.id.slice(0, 8)}…
       </div>
     </div>
