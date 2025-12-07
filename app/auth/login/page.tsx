@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import type { Session } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -14,6 +15,21 @@ export default function LoginPage() {
   const searchParams = useSearchParams()
   const supabase = createClient()
 
+  const syncServerSession = async (event: string, session: Session | null) => {
+    try {
+      await fetch('/auth/callback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ event, session }),
+      })
+    } catch (error) {
+      console.warn('Sunucu oturumu eşitlenemedi', error)
+    }
+  }
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
@@ -25,7 +41,9 @@ export default function LoginPage() {
         password,
       })
 
-      if (error) throw error
+  if (error) throw error
+
+  await syncServerSession('SIGNED_IN', data.session ?? null)
 
       // Check user role
       const { data: profile } = await supabase
@@ -43,9 +61,7 @@ export default function LoginPage() {
           : '/shop'
 
       router.replace(targetPath)
-      if (typeof window !== 'undefined') {
-        window.location.assign(targetPath)
-      }
+      router.refresh()
     } catch (error: any) {
       setError(error.message)
     } finally {
