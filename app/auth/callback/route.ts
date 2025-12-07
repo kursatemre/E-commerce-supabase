@@ -21,7 +21,17 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const cookieStore = await cookies()
   const supabase = createRouteHandlerClient({ cookies: () => Promise.resolve(cookieStore) })
-  const { event, session } = await request.json()
+  
+  let payload: { event?: string | null; session?: unknown } = {}
+  
+  try {
+    payload = await request.json()
+  } catch (error) {
+    return NextResponse.json({ success: false, reason: 'invalid-payload' }, { status: 400 })
+  }
+  
+  const event = typeof payload.event === 'string' ? payload.event : undefined
+  const session = payload.session ?? null
 
   if (event === 'SIGNED_OUT') {
     await supabase.auth.signOut()
