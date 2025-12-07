@@ -1,3 +1,5 @@
+import type { InputHTMLAttributes } from 'react'
+
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -207,7 +209,7 @@ function Field({ label, name, required, defaultValue, placeholder, type = 'text'
   defaultValue?: string
   placeholder?: string
   type?: string
-  inputMode?: string
+  inputMode?: InputHTMLAttributes<HTMLInputElement>['inputMode']
 }) {
   return (
     <div>
