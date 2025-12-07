@@ -3,8 +3,6 @@ import type { InputHTMLAttributes } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-
-import { createOrder } from '@/actions/orders'
 import { createClient } from '@/lib/supabase/server'
 
 const currencyFormatter = new Intl.NumberFormat('tr-TR', {
@@ -84,7 +82,7 @@ export default async function CheckoutPage() {
       </header>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <form action={createOrder} method="post" className="space-y-6 lg:col-span-2">
+        <form action="/shop/checkout" method="post" className="space-y-6 lg:col-span-2">
           <section className="space-y-4 rounded-3xl border border-white/60 bg-white p-6 shadow-sm">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Teslimat</p>

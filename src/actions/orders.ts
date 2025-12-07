@@ -20,6 +20,11 @@ const getRequiredField = (formData: FormData, key: string, label: string) => {
 }
 
 export async function createOrder(formData: FormData) {
+  const redirectUrl = await submitCheckoutOrder(formData)
+  redirect(redirectUrl)
+}
+
+export async function submitCheckoutOrder(formData: FormData) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -167,7 +172,7 @@ export async function createOrder(formData: FormData) {
 
     revalidatePath('/shop/cart')
     revalidatePath('/shop/account/orders')
-    redirect('/shop/account/orders?success=Siparişiniz başarıyla oluşturuldu')
+    return '/shop/account/orders?success=Siparişiniz başarıyla oluşturuldu'
   } catch (error) {
     console.error('Error creating order:', error)
     redirect('/shop/checkout?error=Sipariş oluşturulurken bir hata oluştu')
