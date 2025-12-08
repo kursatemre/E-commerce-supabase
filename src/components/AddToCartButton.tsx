@@ -1,7 +1,7 @@
 'use client'
 
-import { addToCart } from '@/actions/shop'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface AddToCartButtonProps {
   productId: string
@@ -12,11 +12,35 @@ interface AddToCartButtonProps {
 
 export function AddToCartButton({ productId, stock, variantId, disabled = false }: AddToCartButtonProps) {
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   const handleAddToCart = async () => {
+    if (stock === 0) return
+
     setLoading(true)
     try {
-      await addToCart(productId, variantId ?? undefined)
+      const response = await fetch('/api/cart/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productId,
+          variantId: variantId ?? null
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        alert(data.error || 'Sepete eklenirken hata oluştu')
+        return
+      }
+
+      // Success feedback
+      alert('✓ Ürün sepete eklendi!')
+      router.refresh()
+    } catch (error) {
+      console.error('Error adding to cart:', error)
+      alert('Sepete eklenirken hata oluştu')
     } finally {
       setLoading(false)
     }

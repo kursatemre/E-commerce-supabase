@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface CartItemButtonsProps {
   itemId: string
@@ -10,6 +11,7 @@ interface CartItemButtonsProps {
 
 export function CartItemButtons({ itemId, quantity, maxStock }: CartItemButtonsProps) {
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   const handleQuantityChange = async (newQuantity: number) => {
     setLoading(true)
@@ -20,8 +22,10 @@ export function CartItemButtons({ itemId, quantity, maxStock }: CartItemButtonsP
         body: JSON.stringify({ itemId, quantity: newQuantity }),
       })
       if (!response.ok) throw new Error('Update failed')
+      router.refresh()
     } catch (error) {
       console.error('Error updating cart:', error)
+      alert('Sepet güncellenirken hata oluştu')
     } finally {
       setLoading(false)
     }
@@ -36,8 +40,10 @@ export function CartItemButtons({ itemId, quantity, maxStock }: CartItemButtonsP
         body: JSON.stringify({ itemId }),
       })
       if (!response.ok) throw new Error('Remove failed')
+      router.refresh()
     } catch (error) {
       console.error('Error removing item:', error)
+      alert('Ürün silinirken hata oluştu')
     } finally {
       setLoading(false)
     }
