@@ -1,10 +1,12 @@
 import { createClient } from '@/lib/supabase/server'
+import { getServiceClient } from '@/lib/supabase/service'
 import { ensureGuestId } from '@/lib/guest'
 import { revalidatePath } from 'next/cache'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
-  const supabase = await createClient()
+  const supabaseAuth = await createClient()
+  const supabase = getServiceClient() // Use service client to bypass RLS
   const guestId = await ensureGuestId()
 
   try {
@@ -14,7 +16,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Product ID is required' }, { status: 400 })
     }
 
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await supabaseAuth.auth.getUser()
 
     // Check product exists and is active
     const { data: product, error: productError } = await supabase
