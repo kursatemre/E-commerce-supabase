@@ -74,7 +74,7 @@ export async function createOrder(formData: FormData) {
 export async function submitCheckoutOrder(formData: FormData) {
   const payload = buildPayloadFromFormData(formData)
   const redirectUrl = await processCheckoutOrderPayload(payload)
-  redirect(redirectUrl)
+  return redirectUrl
 }
 
 export async function processCheckoutOrderPayload(payload: CheckoutFormValues) {
