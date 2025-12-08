@@ -155,7 +155,6 @@ export async function processCheckoutOrderPayload(payload: CheckoutFormValues) {
       total,
       shipping_address: shippingAddress,
       billing_address: shippingAddress,
-      payment_method: paymentMethod,
     })
     .select()
     .single()
