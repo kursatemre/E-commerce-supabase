@@ -5,11 +5,27 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { ensureGuestId } from '@/lib/guest'
 
+export type CheckoutFormValues = {
+  fullName: string
+  phone: string
+  address: string
+  city: string
+  district?: string
+  zipCode: string
+  notes?: string
+  paymentMethod?: string
+}
+
 const sanitizeField = (value: FormDataEntryValue | null, fallback?: string) => {
   if (value === null || value === undefined) {
     return fallback ?? ''
   }
   return String(value).trim()
+}
+
+const sanitizeStringValue = (value?: string | null) => {
+  if (value === null || value === undefined) return ''
+  return value.trim()
 }
 
 const getRequiredField = (formData: FormData, key: string, label: string) => {
@@ -20,165 +36,194 @@ const getRequiredField = (formData: FormData, key: string, label: string) => {
   return normalized
 }
 
+const requireFieldFromPayload = (value: string | undefined, label: string) => {
+  const normalized = sanitizeStringValue(value)
+  if (!normalized) {
+    throw new Error(`${label} gerekli`)
+  }
+  return normalized
+}
+
+const buildPayloadFromFormData = (formData: FormData): CheckoutFormValues => {
+  const fullName = getRequiredField(formData, 'fullName', 'Ad Soyad')
+  const phone = getRequiredField(formData, 'phone', 'Telefon')
+  const address = getRequiredField(formData, 'address', 'Adres')
+  const city = getRequiredField(formData, 'city', 'Şehir')
+  const zipCode = getRequiredField(formData, 'zipCode', 'Posta kodu')
+  const district = sanitizeField(formData.get('district'))
+  const notes = sanitizeField(formData.get('notes'))
+  const paymentMethod = sanitizeField(formData.get('paymentMethod'), 'card')
+
+  return {
+    fullName,
+    phone,
+    address,
+    city,
+    district,
+    zipCode,
+    notes,
+    paymentMethod,
+  }
+}
+
 export async function createOrder(formData: FormData) {
   const redirectUrl = await submitCheckoutOrder(formData)
   redirect(redirectUrl)
 }
 
 export async function submitCheckoutOrder(formData: FormData) {
+  const payload = buildPayloadFromFormData(formData)
+  const redirectUrl = await processCheckoutOrderPayload(payload)
+  redirect(redirectUrl)
+}
+
+export async function processCheckoutOrderPayload(payload: CheckoutFormValues) {
   const supabase = await createClient()
   const guestId = await ensureGuestId()
   const { data: { user } } = await supabase.auth.getUser()
 
-  try {
-    // Get cart with items
-    const cartQuery = supabase
-      .from('carts')
-      .select(`
+  // Get cart with items
+  const cartQuery = supabase
+    .from('carts')
+    .select(`
+      id,
+      guest_id,
+      cart_items (
         id,
-        guest_id,
-        cart_items (
+        quantity,
+        product_id,
+        variant_id,
+        product_variants (
           id,
-          quantity,
-          product_id,
-          variant_id,
-          product_variants (
-            id,
-            name,
-            price,
-            stock,
-            sku
-          ),
-          products (
-            id,
-            name,
-            price,
-            stock
-          )
+          name,
+          price,
+          stock,
+          sku
+        ),
+        products (
+          id,
+          name,
+          price,
+          stock
         )
-      `)
+      )
+    `)
 
-    const { data: cart } = user
-      ? await cartQuery.or(`user_id.eq.${user.id},guest_id.eq.${guestId}`).maybeSingle()
-      : await cartQuery.eq('guest_id', guestId).maybeSingle()
+  const { data: cart } = user
+    ? await cartQuery.or(`user_id.eq.${user.id},guest_id.eq.${guestId}`).maybeSingle()
+    : await cartQuery.eq('guest_id', guestId).maybeSingle()
 
-    if (!cart || !cart.cart_items || cart.cart_items.length === 0) {
-      redirect('/shop/cart?error=Sepetiniz boş')
-    }
-
-    // Calculate total
-    const total = cart.cart_items.reduce((sum: number, item: any) => {
-      const variant = Array.isArray(item.product_variants) ? item.product_variants[0] : item.product_variants
-      const unitPrice = variant?.price ?? item.products.price
-      return sum + unitPrice * item.quantity
-    }, 0)
-
-    // Generate order number
-    const orderNumber = `ORD-${Date.now()}`
-
-    const fullName = getRequiredField(formData, 'fullName', 'Ad Soyad')
-    const phone = getRequiredField(formData, 'phone', 'Telefon')
-    const addressLine = getRequiredField(formData, 'address', 'Adres')
-    const city = getRequiredField(formData, 'city', 'Şehir')
-    const zipCode = getRequiredField(formData, 'zipCode', 'Posta kodu')
-    const district = sanitizeField(formData.get('district'))
-    const notes = sanitizeField(formData.get('notes')) || undefined
-    const paymentMethod = sanitizeField(formData.get('paymentMethod'), 'card') || 'card'
-
-    const shippingAddress = {
-      fullName,
-      phone,
-      address: addressLine,
-      city,
-      district: district || undefined,
-      zipCode,
-      notes,
-    }
-
-    // Create order
-    const { data: order, error: orderError } = await supabase
-      .from('orders')
-      .insert({
-        user_id: user?.id ?? null,
-        guest_id: guestId,
-        order_number: orderNumber,
-        status: 'pending',
-        payment_status: paymentMethod === 'cod' ? 'awaiting_payment' : 'awaiting_payment',
-        fulfillment_status: 'preparing',
-        total,
-        shipping_address: shippingAddress,
-        billing_address: shippingAddress, // Same as shipping for now
-        payment_method: paymentMethod,
-        channel: 'web',
-        source: 'web',
-        origin: 'store',
-      })
-      .select()
-      .single()
-
-    if (orderError) throw orderError
-
-    // Create order items
-    const orderItems = cart.cart_items.map((item: any) => {
-      const product = Array.isArray(item.products) ? item.products[0] : item.products
-      const variant = Array.isArray(item.product_variants) ? item.product_variants[0] : item.product_variants
-      const unitPrice = variant?.price ?? product?.price ?? 0
-      const productName = variant?.name ? `${product?.name ?? 'Ürün'} (${variant.name})` : product?.name ?? 'Ürün'
-      return {
-        order_id: order.id,
-        product_id: item.product_id,
-        product_name: productName,
-        product_price: unitPrice,
-        quantity: item.quantity,
-        subtotal: unitPrice * item.quantity,
-      }
-    })
-
-    const { error: itemsError } = await supabase
-      .from('order_items')
-      .insert(orderItems)
-
-    if (itemsError) throw itemsError
-
-    // Update stock
-    for (const item of cart.cart_items) {
-      const product = Array.isArray(item.products) ? item.products[0] : item.products
-      const variant = Array.isArray(item.product_variants) ? item.product_variants[0] : item.product_variants
-
-      if (variant && typeof variant.stock === 'number') {
-        const { error: variantError } = await supabase
-          .from('product_variants')
-          .update({ stock: Math.max(0, variant.stock - item.quantity) })
-          .eq('id', variant.id)
-
-        if (variantError) throw variantError
-      }
-
-      if (product && typeof product.stock === 'number') {
-        const { error: stockError } = await supabase
-          .from('products')
-          .update({
-            stock: Math.max(0, product.stock - item.quantity)
-          })
-          .eq('id', item.product_id)
-
-        if (stockError) throw stockError
-      }
-    }
-
-    // Clear cart
-    await supabase
-      .from('cart_items')
-      .delete()
-      .eq('cart_id', cart.id)
-
-    revalidatePath('/shop/cart')
-    revalidatePath('/shop/account/orders')
-    return '/shop?success=Siparişiniz başarıyla oluşturuldu'
-  } catch (error) {
-    console.error('Error creating order:', error)
-    redirect('/shop/checkout?error=Sipariş oluşturulurken bir hata oluştu')
+  if (!cart || !cart.cart_items || cart.cart_items.length === 0) {
+    throw new Error('Sepetiniz boş')
   }
+
+  const total = cart.cart_items.reduce((sum: number, item: any) => {
+    const variant = Array.isArray(item.product_variants) ? item.product_variants[0] : item.product_variants
+    const product = Array.isArray(item.products) ? item.products[0] : item.products
+    const unitPrice = variant?.price ?? product?.price ?? 0
+    return sum + unitPrice * item.quantity
+  }, 0)
+
+  const fullName = requireFieldFromPayload(payload.fullName, 'Ad Soyad')
+  const phone = requireFieldFromPayload(payload.phone, 'Telefon')
+  const addressLine = requireFieldFromPayload(payload.address, 'Adres')
+  const city = requireFieldFromPayload(payload.city, 'Şehir')
+  const zipCode = requireFieldFromPayload(payload.zipCode, 'Posta kodu')
+  const district = sanitizeStringValue(payload.district)
+  const notes = sanitizeStringValue(payload.notes)
+  const paymentMethod = sanitizeStringValue(payload.paymentMethod) || 'card'
+
+  const shippingAddress = {
+    fullName,
+    phone,
+    address: addressLine,
+    city,
+    district: district || undefined,
+    zipCode,
+    notes: notes || undefined,
+  }
+
+  const { data: order, error: orderError } = await supabase
+    .from('orders')
+    .insert({
+      user_id: user?.id ?? null,
+      guest_id: user ? null : guestId,
+      order_number: `ORD-${Date.now()}`,
+      status: 'pending',
+      payment_status: 'awaiting_payment',
+      fulfillment_status: 'preparing',
+      total,
+      shipping_address: shippingAddress,
+      billing_address: shippingAddress,
+      payment_method: paymentMethod,
+      channel: 'web',
+      source: 'web',
+      origin: 'store',
+    })
+    .select()
+    .single()
+
+  if (orderError) {
+    console.error('Order creation error:', orderError)
+    throw new Error('Sipariş oluşturulamadı')
+  }
+
+  const orderItems = cart.cart_items.map((item: any) => {
+    const product = Array.isArray(item.products) ? item.products[0] : item.products
+    const variant = Array.isArray(item.product_variants) ? item.product_variants[0] : item.product_variants
+    const unitPrice = variant?.price ?? product?.price ?? 0
+    const productName = variant?.name ? `${product?.name ?? 'Ürün'} (${variant.name})` : product?.name ?? 'Ürün'
+    return {
+      order_id: order.id,
+      product_id: item.product_id,
+      product_name: productName,
+      product_price: unitPrice,
+      quantity: item.quantity,
+      subtotal: unitPrice * item.quantity,
+    }
+  })
+
+  const { error: itemsError } = await supabase.from('order_items').insert(orderItems)
+
+  if (itemsError) {
+    console.error('Order items creation error:', itemsError)
+    throw new Error('Sipariş kalemleri oluşturulamadı')
+  }
+
+  for (const item of cart.cart_items) {
+    const product = Array.isArray(item.products) ? item.products[0] : item.products
+    const variant = Array.isArray(item.product_variants) ? item.product_variants[0] : item.product_variants
+
+    if (variant && typeof variant.stock === 'number') {
+      const { error: variantError } = await supabase
+        .from('product_variants')
+        .update({ stock: Math.max(0, variant.stock - item.quantity) })
+        .eq('id', variant.id)
+
+      if (variantError) {
+        console.error('Variant stock update error:', variantError)
+        throw variantError
+      }
+    }
+
+    if (product && typeof product.stock === 'number') {
+      const { error: stockError } = await supabase
+        .from('products')
+        .update({ stock: Math.max(0, product.stock - item.quantity) })
+        .eq('id', item.product_id)
+
+      if (stockError) {
+        console.error('Product stock update error:', stockError)
+        throw stockError
+      }
+    }
+  }
+
+  await supabase.from('cart_items').delete().eq('cart_id', cart.id)
+
+  revalidatePath('/shop/cart')
+  revalidatePath('/shop/account/orders')
+  return '/shop?success=Siparişiniz başarıyla oluşturuldu'
 }
 
 type StatusUpdatePayload = {
