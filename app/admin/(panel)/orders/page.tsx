@@ -32,7 +32,7 @@ export default async function OrdersPage() {
     supabase
       .from("orders")
       .select(
-        "id, order_number, status, payment_status, fulfillment_status, total, created_at, cargo_tracking_code, delivered_at, invoice_number, invoice_issued_at"
+        "id, order_number, status, payment_status, fulfillment_status, total, created_at, cargo_tracking_code, delivered_at, invoice_number, invoice_issued_at, shipping_address, billing_address, user_id, guest_id"
       )
       .order("created_at", { ascending: false })
       .limit(100),
