@@ -7,11 +7,16 @@ import { NextResponse } from 'next/server'
 export async function POST(request: Request) {
   const supabaseAuth = await createClient()
   // Use service client if available, otherwise use regular client
-  const supabase = canUseServiceClient() ? getServiceClient() : supabaseAuth
+  const useServiceClient = canUseServiceClient()
+  const supabase = useServiceClient ? getServiceClient() : supabaseAuth
+  console.log('[Cart Add] Using service client:', useServiceClient)
+
   const guestId = await ensureGuestId()
+  console.log('[Cart Add] Guest ID:', guestId)
 
   try {
     const { productId, variantId } = await request.json()
+    console.log('[Cart Add] Product ID:', productId, 'Variant ID:', variantId)
 
     if (!productId) {
       return NextResponse.json({ error: 'Product ID is required' }, { status: 400 })
@@ -64,6 +69,7 @@ export async function POST(request: Request) {
     let { data: cart } = await cartQuery.maybeSingle()
 
     if (!cart) {
+      console.log('[Cart Add] Creating new cart for user:', user?.id, 'guest:', guestId)
       const { data: newCart, error: cartError } = await supabase
         .from('carts')
         .insert({ user_id: user?.id ?? null, guest_id: guestId })
@@ -71,10 +77,16 @@ export async function POST(request: Request) {
         .single()
 
       if (cartError) {
-        console.error('Cart creation error:', cartError)
-        return NextResponse.json({ error: 'Sepet oluşturulamadı' }, { status: 500 })
+        console.error('[Cart Add] Cart creation error:', cartError)
+        console.error('[Cart Add] Error details:', JSON.stringify(cartError, null, 2))
+        return NextResponse.json({
+          error: 'Sepet oluşturulamadı',
+          details: cartError.message,
+          code: cartError.code
+        }, { status: 500 })
       }
       cart = newCart
+      console.log('[Cart Add] Cart created successfully:', cart.id)
     }
 
     // Check if item already exists in cart
