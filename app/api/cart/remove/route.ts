@@ -1,9 +1,11 @@
-import { getServiceClient } from '@/lib/supabase/service'
+import { createClient } from '@/lib/supabase/server'
+import { getServiceClient, canUseServiceClient } from '@/lib/supabase/service'
 import { revalidatePath } from 'next/cache'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
-  const supabase = getServiceClient() // Use service client to bypass RLS
+  const regularClient = await createClient()
+  const supabase = canUseServiceClient() ? getServiceClient() : regularClient
   
   try {
     const { itemId } = await request.json()
