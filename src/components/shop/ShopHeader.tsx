@@ -45,7 +45,7 @@ export function ShopHeader({ user, profile, cartItemCount = 0, cartTotal = 0, on
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-center h-10">
             <p className="text-sm text-action font-semibold">
-              Bugün 23:59'a kadar tüm siparişlerde <span className="font-bold">Ücretsiz Kargo</span> 🚚
+              Bugün 23:59&apos;a kadar tüm siparişlerde <span className="font-bold">Ücretsiz Kargo</span> 🚚
             </p>
           </div>
         </div>
