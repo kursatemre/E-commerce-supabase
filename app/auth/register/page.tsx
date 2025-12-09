@@ -11,6 +11,7 @@ export default function RegisterPage() {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [phone, setPhone] = useState('')
+  const [kvkkConsent, setKvkkConsent] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
@@ -37,7 +38,9 @@ export default function RegisterPage() {
           .update({
             first_name: firstName,
             last_name: lastName,
-            phone: phone || null,
+            phone: phone,
+            kvkk_consent: kvkkConsent,
+            kvkk_consent_date: new Date().toISOString(),
           })
           .eq('id', data.user.id)
 
@@ -122,13 +125,14 @@ export default function RegisterPage() {
 
           <div>
             <label htmlFor="phone" className="block text-sm font-semibold text-brand-dark mb-2">
-              Telefon <span className="text-brand-dark/40 font-normal">(Opsiyonel)</span>
+              Telefon
             </label>
             <input
               id="phone"
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
+              required
               className="input-field"
               placeholder="05XX XXX XX XX"
             />
@@ -153,9 +157,27 @@ export default function RegisterPage() {
             </p>
           </div>
 
+          <div className="pt-2">
+            <label className="flex items-start gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={kvkkConsent}
+                onChange={(e) => setKvkkConsent(e.target.checked)}
+                required
+                className="mt-1 w-4 h-4 text-action border-gray-300 rounded focus:ring-action focus:ring-2"
+              />
+              <span className="text-sm text-brand-dark/80">
+                <a href="/kvkk" target="_blank" className="text-action font-semibold hover:text-action-hover underline">
+                  KVKK Aydınlatma Metni
+                </a>
+                &apos;ni okudum ve kişisel verilerimin işlenmesini kabul ediyorum.
+              </span>
+            </label>
+          </div>
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !kvkkConsent}
             className="btn-cta w-full disabled:opacity-50 mt-6"
           >
             {loading ? 'Kayıt yapılıyor...' : 'Hesap Oluştur'}

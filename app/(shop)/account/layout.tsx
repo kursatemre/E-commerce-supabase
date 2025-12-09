@@ -17,8 +17,8 @@ const accountTabs = [
   },
   {
     href: "/account/profile",
-    label: "Kişisel Bilgiler",
-    description: "İletişim ve KVKK tercihleri",
+    label: "Profil",
+    description: "Kişisel bilgiler ve şifre değiştirme",
   },
   {
     href: "/account/rewards",
