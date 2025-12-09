@@ -20,7 +20,8 @@ export function ToggleProductActiveButton({ productId, isActive, action }: Toggl
       formData.append('id', productId)
       formData.append('isActive', isActive.toString())
       await action(formData)
-      router.refresh()
+      // Force a hard refresh instead of soft refresh
+      window.location.reload()
     } catch (error) {
       console.error('Toggle error:', error)
       alert('İşlem sırasında bir hata oluştu.')
