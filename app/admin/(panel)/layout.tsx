@@ -43,7 +43,7 @@ export default async function AdminPanelLayout({
     const isSupabaseAdmin = normalizedRole === 'admin' || metadataRole === 'admin' || isAdminEmail
 
     if (!isSupabaseAdmin && !hasAdminCookie) {
-      redirect('/shop')
+      redirect('/')
     }
 
     userName = `${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() || user.email || 'Yönetici'

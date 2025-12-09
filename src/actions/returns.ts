@@ -195,7 +195,7 @@ export async function createReturnRequest(formData: FormData) {
     reason,
   })
 
-  revalidatePath('/shop/account/orders')
+  revalidatePath('/account/orders')
   revalidatePath('/admin/orders')
 }
 
@@ -260,5 +260,5 @@ export async function updateReturnStatus(formData: FormData) {
   }
 
   revalidatePath('/admin/orders')
-  revalidatePath('/shop/account/orders')
+  revalidatePath('/account/orders')
 }

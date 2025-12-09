@@ -31,7 +31,7 @@ const sanitizeStringValue = (value?: string | null) => {
 const getRequiredField = (formData: FormData, key: string, label: string) => {
   const normalized = sanitizeField(formData.get(key))
   if (!normalized) {
-    redirect(`/shop/checkout?error=${encodeURIComponent(`${label} gerekli`)}`)
+    redirect(`/checkout?error=${encodeURIComponent(`${label} gerekli`)}`)
   }
   return normalized
 }
@@ -223,9 +223,9 @@ export async function processCheckoutOrderPayload(payload: CheckoutFormValues) {
 
   await supabase.from('cart_items').delete().eq('cart_id', cart.id)
 
-  revalidatePath('/shop/cart')
-  revalidatePath('/shop/account/orders')
-  return '/shop?success=Siparişiniz başarıyla oluşturuldu'
+  revalidatePath('/cart')
+  revalidatePath('/account/orders')
+  return '/?success=Siparişiniz başarıyla oluşturuldu'
 }
 
 type StatusUpdatePayload = {

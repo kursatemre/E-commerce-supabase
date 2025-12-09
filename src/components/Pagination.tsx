@@ -9,7 +9,7 @@ interface PaginationProps {
   baseUrl?: string
 }
 
-export function Pagination({ currentPage, totalPages, baseUrl = '/shop' }: PaginationProps) {
+export function Pagination({ currentPage, totalPages, baseUrl = '/' }: PaginationProps) {
   const searchParams = useSearchParams()
 
   const createPageUrl = (page: number) => {

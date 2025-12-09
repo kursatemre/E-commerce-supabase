@@ -58,7 +58,7 @@ export default function LoginPage() {
         ? safeRedirect ?? '/admin'
         : safeRedirect && !safeRedirect.startsWith('/admin')
           ? safeRedirect
-          : '/shop'
+          : '/'
 
       router.replace(targetPath)
       router.refresh()

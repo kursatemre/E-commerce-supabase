@@ -4,7 +4,10 @@ import Link from 'next/link'
 import { ProductImages } from '@/components/shop/ProductImages'
 import { ProductVariantSelector, ProductVariantSku, VariantTypeDefinition } from '@/components/ProductVariantSelector'
 import { AddToCartButton } from '@/components/AddToCartButton'
-import { ChevronLeft, Heart, Share2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Heart, Share2 } from 'lucide-react'
+import { ProductTabs } from '@/components/product/ProductTabs'
+import { ProductReviews } from '@/components/product/ProductReviews'
+import { RelatedProducts } from '@/components/product/RelatedProducts'
 import type { Metadata } from 'next'
 
 const currencyFormatter = new Intl.NumberFormat('tr-TR', {
@@ -49,7 +52,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
-  const pageUrl = `${baseUrl}/shop/product/${slug}`
+  const pageUrl = `${baseUrl}/${slug}`
   const title = product.seo_title || product.name
   const description = product.seo_description || product.description || `${product.name} ürün detayları`
   const canonical = product.seo_canonical_url || pageUrl
@@ -221,12 +224,32 @@ export default async function ShopProductDetail({ params }: { params: Promise<{ 
     minVariantPrice !== maxVariantPrice
 
   const selectorBasePrice = hasVariantFlow ? (minVariantPrice ?? product.price) : product.price
-
   return (
+    <div className="section-container py-6">
+      {/* Breadcrumb */}
+      <nav className="flex items-center gap-2 text-sm text-brand-dark/60 mb-6">
+        <Link href="/" className="hover:text-brand-dark transition-colors">
+          Ana Sayfa
+        </Link>
+        <ChevronRight className="w-4 h-4" />
+        {product.categories && (
+          <>
+            <Link
+              href={`/?category=${product.categories.slug}`}
+              className="hover:text-brand-dark transition-colors"
+            >
+              {product.categories.name}
+            </Link>
+            <ChevronRight className="w-4 h-4" />
+          </>
+        )}
+        <span className="text-brand-dark">{product.name}</span>
+      </nav>
+
     <div className="pb-24 md:pb-8">
       {/* Back Button - Desktop */}
       <Link
-        href="/shop"
+        href="/"
         className="hidden md:inline-flex items-center gap-2 text-sm text-brand-dark/60 hover:text-brand-dark transition-colors mb-6"
       >
         <ChevronLeft className="w-4 h-4" />
@@ -244,7 +267,7 @@ export default async function ShopProductDetail({ params }: { params: Promise<{ 
           {/* Category & Brand */}
           <div className="flex items-center gap-2 text-xs md:text-sm text-brand-dark/60">
             <Link
-              href={`/shop?category=${product.categories?.slug}`}
+              href={`/?category=${product.categories?.slug}`}
               className="hover:text-action transition-colors"
             >
               {product.categories?.name || 'Kategori'}
@@ -351,6 +374,22 @@ export default async function ShopProductDetail({ params }: { params: Promise<{ 
           <p className="text-xs text-brand-dark/60">Müşteri hizmetleri</p>
         </div>
       </div>
+    </div>
+
+      {/* Product Tabs */}
+      <ProductTabs
+        description={product.description}
+        materials={product.material}
+      />
+
+      {/* Reviews */}
+      <ProductReviews />
+
+      {/* Related Products */}
+      <RelatedProducts
+        currentProductId={product.id}
+        categoryId={product.category_id}
+      />
     </div>
   )
 }

@@ -3,6 +3,12 @@ import Link from 'next/link'
 import { ProductCard } from '@/components/shop/ProductCard'
 import { CategoryFilter } from '@/components/shop/CategoryFilter'
 import { Pagination } from '@/components/Pagination'
+import { Hero } from '@/components/homepage/Hero'
+import { TrustStrip } from '@/components/homepage/TrustStrip'
+import { DualBanner } from '@/components/homepage/DualBanner'
+import { SingleBanner } from '@/components/homepage/SingleBanner'
+import { ProductCarousel } from '@/components/homepage/ProductCarousel'
+import { homepageConfig } from '@/config/homepage'
 import { Suspense } from 'react'
 
 const ITEMS_PER_PAGE = 12
@@ -24,6 +30,73 @@ export default async function ShopPage({
   const search = params.search || ''
   const categorySlug = params.category || ''
 
+  // Determine if we should show homepage or product listing
+  const isHomepage = !search && !categorySlug && page === 1
+
+  if (isHomepage) {
+    // Fetch featured products for homepage
+    const { data: featuredProducts } = await supabase
+      .from('products')
+      .select(`
+        id,
+        name,
+        slug,
+        price,
+        product_images(url, alt, sort_order)
+      `)
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(8)
+
+    const transformedFeatured = (featuredProducts ?? []).map((product: any) => ({
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      price: product.price,
+      images: product.product_images?.sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0)) || null,
+    }))
+
+    return (
+      <div className="space-y-0">
+        {/* Hero Section */}
+        <Hero {...homepageConfig.hero} />
+
+        {/* Trust Strip */}
+        <TrustStrip badges={homepageConfig.trustBadges} />
+
+        {/* Dual Banner - Kadın / Erkek */}
+        <DualBanner
+          leftBanner={homepageConfig.dualBanner.left}
+          rightBanner={homepageConfig.dualBanner.right}
+        />
+
+        {/* Featured Products */}
+        {transformedFeatured.length > 0 && (
+          <ProductCarousel
+            title={homepageConfig.featuredSection.title}
+            subtitle={homepageConfig.featuredSection.subtitle}
+            products={transformedFeatured}
+            viewAllLink={homepageConfig.featuredSection.viewAllLink}
+          />
+        )}
+
+        {/* Single Banner - Sustainability */}
+        <SingleBanner {...homepageConfig.singleBanner} />
+
+        {/* More Products */}
+        {transformedFeatured.length > 0 && (
+          <ProductCarousel
+            title={homepageConfig.popularSection.title}
+            subtitle={homepageConfig.popularSection.subtitle}
+            products={transformedFeatured}
+            viewAllLink={homepageConfig.popularSection.viewAllLink}
+          />
+        )}
+      </div>
+    )
+  }
+
+  // Product Listing Mode (when search/filter is active)
   // Base query
   let query = supabase
     .from('products')
@@ -139,18 +212,19 @@ export default async function ShopPage({
   }))
 
   return (
-    <div className="space-y-6">
-      {/* Header Section */}
-      <div>
-        <h1 className="font-heading text-h1 md:text-h1 text-brand-dark mb-2">
-          Ürünlerimiz
-        </h1>
-        <p className="text-brand-dark/60 text-sm md:text-base">
-          {count || 0} ürün bulundu
-          {search && ` - "${search}" için`}
-          {categorySlug && ` - ${categories?.find(c => c.slug === categorySlug)?.name} kategorisinde`}
-        </p>
-      </div>
+    <div className="section-container py-6">
+      <div className="space-y-6">
+        {/* Header Section */}
+        <div>
+          <h1 className="font-heading text-h1 md:text-h1 text-brand-dark mb-2">
+            Ürünlerimiz
+          </h1>
+          <p className="text-brand-dark/60 text-sm md:text-base">
+            {count || 0} ürün bulundu
+            {search && ` - "${search}" için`}
+            {categorySlug && ` - ${categories?.find(c => c.slug === categorySlug)?.name} kategorisinde`}
+          </p>
+        </div>
 
       {/* Category Filter */}
       {categories && categories.length > 0 && (
@@ -191,13 +265,14 @@ export default async function ShopPage({
               : 'Bu kategoride ürün bulunmuyor'}
           </p>
           <Link
-            href="/shop"
+            href="/"
             className="btn-cta inline-block"
           >
             Tüm Ürünleri Gör
           </Link>
         </div>
       )}
+      </div>
     </div>
   )
 }

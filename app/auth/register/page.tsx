@@ -44,7 +44,7 @@ export default function RegisterPage() {
         if (profileError) throw profileError
 
         // Redirect to shop
-        router.push('/shop')
+        router.push('/')
         router.refresh()
       }
     } catch (error: any) {

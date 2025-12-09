@@ -75,7 +75,7 @@ export async function createAddress(formData: FormData) {
     throw new Error('Adres eklenemedi')
   }
 
-  revalidatePath('/shop/account/addresses')
+  revalidatePath('/account/addresses')
 }
 
 export async function updateAddress(formData: FormData) {
@@ -109,7 +109,7 @@ export async function updateAddress(formData: FormData) {
     throw new Error('Adres güncellenemedi')
   }
 
-  revalidatePath('/shop/account/addresses')
+  revalidatePath('/account/addresses')
 }
 
 export async function deleteAddress(formData: FormData) {
@@ -131,7 +131,7 @@ export async function deleteAddress(formData: FormData) {
     throw new Error('Adres silinemedi')
   }
 
-  revalidatePath('/shop/account/addresses')
+  revalidatePath('/account/addresses')
 }
 
 export async function setDefaultAddress(formData: FormData) {
@@ -155,5 +155,5 @@ export async function setDefaultAddress(formData: FormData) {
     throw new Error('Varsayılan adres güncellenemedi')
   }
 
-  revalidatePath('/shop/account/addresses')
+  revalidatePath('/account/addresses')
 }

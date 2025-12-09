@@ -69,7 +69,7 @@ export function ProductCard({ product, priceRange }: ProductCardProps) {
     <div className="group relative bg-surface-white">
       {/* Image Container */}
       <Link
-        href={`/shop/product/${product.slug}`}
+        href={`/${product.slug}`}
         className="relative block aspect-[3/4] overflow-hidden bg-surface-light"
         onMouseEnter={() => hasMultipleImages && setImageIndex(1)}
         onMouseLeave={() => setImageIndex(0)}
@@ -145,7 +145,7 @@ export function ProductCard({ product, priceRange }: ProductCardProps) {
 
         {/* Product Name */}
         <h3 className="font-heading font-semibold text-brand-dark mb-2 line-clamp-2 hover:text-action transition-colors">
-          <Link href={`/shop/product/${product.slug}`}>
+          <Link href={`/${product.slug}`}>
             {product.name}
           </Link>
         </h3>

@@ -137,8 +137,8 @@ export async function POST(request: Request) {
       }
     }
 
-    revalidatePath('/shop')
-    revalidatePath('/shop/cart')
+    revalidatePath('/')
+    revalidatePath('/cart')
     return NextResponse.json({ success: true, message: 'Ürün sepete eklendi' })
   } catch (error) {
     console.error('Add to cart error:', error)
