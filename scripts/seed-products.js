@@ -89,6 +89,10 @@ async function seedData() {
       price: 899.99,
       stock: 50,
       sku: 'MANGO-DRESS-001',
+      images: [
+        { url: 'https://images.unsplash.com/photo-1572804013427-4d7ca7268217?w=800', alt: 'Midi Boy Çiçekli Viskon Elbise - Ön', sort_order: 1 },
+        { url: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=800', alt: 'Midi Boy Çiçekli Viskon Elbise - Yan', sort_order: 2 },
+      ],
       variants: [
         { color: 'Mavi', size: 'S', sku: 'MANGO-DRESS-001-BLUE-S', stock: 10 },
         { color: 'Mavi', size: 'M', sku: 'MANGO-DRESS-001-BLUE-M', stock: 15 },
