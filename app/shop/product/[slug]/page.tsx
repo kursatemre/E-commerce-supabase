@@ -222,7 +222,8 @@ export default async function ShopProductDetail({ params }: { params: Promise<{ 
     minVariantPrice !== null &&
     maxVariantPrice !== null &&
     minVariantPrice !== maxVariantPrice
-  return (
+
+  const selectorBasePrice = hasVariantFlow ? (minVariantPrice ?? product.price) : product.price
   return (
     <div className="section-container py-6">
       {/* Breadcrumb */}
@@ -245,7 +246,6 @@ export default async function ShopProductDetail({ params }: { params: Promise<{ 
         <span className="text-brand-dark">{product.name}</span>
       </nav>
 
-      <div className="pb-24 md:pb-8">
     <div className="pb-24 md:pb-8">
       {/* Back Button - Desktop */}
       <Link
