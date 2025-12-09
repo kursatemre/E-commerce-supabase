@@ -142,7 +142,7 @@ export default async function CartPage() {
                   {/* Product Image */}
                   <Link
                     href={`/${product.slug}`}
-                    className="relative w-24 h-24 md:w-32 md:h-32 bg-surface-light rounded-xl overflow-hidden flex-shrink-0 group"
+                    className="relative w-20 h-20 md:w-32 md:h-32 bg-surface-light rounded-xl overflow-hidden flex-shrink-0 group"
                   >
                     {firstImage ? (
                       <Image
@@ -150,55 +150,82 @@ export default async function CartPage() {
                         alt={firstImage.alt || product.name}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        sizes="(max-width: 768px) 96px, 128px"
+                        sizes="(max-width: 768px) 80px, 128px"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-4xl opacity-20">📦</span>
+                        <span className="text-2xl md:text-4xl opacity-20">📦</span>
                       </div>
                     )}
                   </Link>
 
-                  {/* Product Info */}
-                  <div className="flex-1 min-w-0">
-                    <Link
-                      href={`/${product.slug}`}
-                      className="font-heading font-semibold text-brand-dark hover:text-action transition-colors line-clamp-2 block mb-1"
-                    >
-                      {product.name}
-                    </Link>
+                  {/* Product Info & Price Container */}
+                  <div className="flex-1 min-w-0 flex flex-col">
+                    {/* Product Info and Desktop Price */}
+                    <div className="flex justify-between gap-3 mb-2">
+                      <div className="flex-1 min-w-0">
+                        <Link
+                          href={`/${product.slug}`}
+                          className="font-heading font-semibold text-sm md:text-base text-brand-dark hover:text-action transition-colors line-clamp-2 block mb-1"
+                        >
+                          {product.name}
+                        </Link>
 
-                    {variant && (
-                      <p className="text-sm text-brand-dark/60 mb-2">
-                        Varyant: {variant.name}
-                      </p>
-                    )}
+                        {variant && (
+                          <p className="text-xs md:text-sm text-brand-dark/60 mb-1">
+                            Varyant: {variant.name}
+                          </p>
+                        )}
 
-                    {/* Quantity Controls */}
-                    <div className="mt-3">
-                      <CartItemButtons itemId={item.id} quantity={item.quantity} maxStock={maxStock} />
+                        {/* Stock Warning - Mobile */}
+                        {maxStock > 0 && maxStock <= 5 && (
+                          <p className="text-xs text-action font-medium md:hidden">
+                            Son {maxStock} ürün!
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Price - Desktop Only */}
+                      <div className="hidden md:flex md:flex-col md:text-right md:justify-between">
+                        <div>
+                          <p className="text-xl font-bold text-brand-dark whitespace-nowrap">
+                            {currencyFormatter.format(unitPrice * item.quantity)}
+                          </p>
+                          {item.quantity > 1 && (
+                            <p className="text-sm text-brand-dark/60 whitespace-nowrap">
+                              {currencyFormatter.format(unitPrice)} / adet
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Stock Warning - Desktop */}
+                        {maxStock > 0 && maxStock <= 5 && (
+                          <p className="text-xs text-action font-medium mt-2">
+                            Son {maxStock} ürün!
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
 
-                  {/* Price - Right Side */}
-                  <div className="text-right flex flex-col justify-between">
-                    <div>
-                      <p className="text-lg md:text-xl font-bold text-brand-dark">
-                        {currencyFormatter.format(unitPrice * item.quantity)}
-                      </p>
-                      {item.quantity > 1 && (
-                        <p className="text-sm text-brand-dark/60">
-                          {currencyFormatter.format(unitPrice)} / adet
+                    {/* Quantity and Price Row - Mobile */}
+                    <div className="flex items-center justify-between gap-3 mt-auto">
+                      {/* Quantity Controls */}
+                      <div className="flex-shrink-0">
+                        <CartItemButtons itemId={item.id} quantity={item.quantity} maxStock={maxStock} />
+                      </div>
+
+                      {/* Price - Mobile Only */}
+                      <div className="md:hidden text-right">
+                        <p className="text-base font-bold text-brand-dark whitespace-nowrap">
+                          {currencyFormatter.format(unitPrice * item.quantity)}
                         </p>
-                      )}
+                        {item.quantity > 1 && (
+                          <p className="text-xs text-brand-dark/60 whitespace-nowrap">
+                            {currencyFormatter.format(unitPrice)} / adet
+                          </p>
+                        )}
+                      </div>
                     </div>
-
-                    {/* Stock Warning */}
-                    {maxStock > 0 && maxStock <= 5 && (
-                      <p className="text-xs text-action font-medium mt-2">
-                        Son {maxStock} ürün!
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>
