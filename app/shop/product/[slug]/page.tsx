@@ -4,7 +4,10 @@ import Link from 'next/link'
 import { ProductImages } from '@/components/shop/ProductImages'
 import { ProductVariantSelector, ProductVariantSku, VariantTypeDefinition } from '@/components/ProductVariantSelector'
 import { AddToCartButton } from '@/components/AddToCartButton'
-import { ChevronLeft, Heart, Share2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Heart, Share2 } from 'lucide-react'
+import { ProductTabs } from '@/components/product/ProductTabs'
+import { ProductReviews } from '@/components/product/ProductReviews'
+import { RelatedProducts } from '@/components/product/RelatedProducts'
 import type { Metadata } from 'next'
 
 const currencyFormatter = new Intl.NumberFormat('tr-TR', {
@@ -219,10 +222,30 @@ export default async function ShopProductDetail({ params }: { params: Promise<{ 
     minVariantPrice !== null &&
     maxVariantPrice !== null &&
     minVariantPrice !== maxVariantPrice
-
-  const selectorBasePrice = hasVariantFlow ? (minVariantPrice ?? product.price) : product.price
-
   return (
+  return (
+    <div className="section-container py-6">
+      {/* Breadcrumb */}
+      <nav className="flex items-center gap-2 text-sm text-brand-dark/60 mb-6">
+        <Link href="/shop" className="hover:text-brand-dark transition-colors">
+          Ana Sayfa
+        </Link>
+        <ChevronRight className="w-4 h-4" />
+        {product.categories && (
+          <>
+            <Link
+              href={`/shop?category=${product.categories.slug}`}
+              className="hover:text-brand-dark transition-colors"
+            >
+              {product.categories.name}
+            </Link>
+            <ChevronRight className="w-4 h-4" />
+          </>
+        )}
+        <span className="text-brand-dark">{product.name}</span>
+      </nav>
+
+      <div className="pb-24 md:pb-8">
     <div className="pb-24 md:pb-8">
       {/* Back Button - Desktop */}
       <Link
@@ -351,6 +374,22 @@ export default async function ShopProductDetail({ params }: { params: Promise<{ 
           <p className="text-xs text-brand-dark/60">Müşteri hizmetleri</p>
         </div>
       </div>
+    </div>
+
+      {/* Product Tabs */}
+      <ProductTabs
+        description={product.description}
+        materials={product.material}
+      />
+
+      {/* Reviews */}
+      <ProductReviews />
+
+      {/* Related Products */}
+      <RelatedProducts
+        currentProductId={product.id}
+        categoryId={product.category_id}
+      />
     </div>
   )
 }
