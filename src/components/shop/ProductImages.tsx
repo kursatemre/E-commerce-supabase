@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 type ProductImage = {
@@ -19,9 +19,10 @@ type ProductImagesProps = {
 export function ProductImages({ images, productName }: ProductImagesProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
-  const sortedImages = [...images].sort(
-    (a, b) => (a.sort_order || 0) - (b.sort_order || 0)
-  )
+  const sortedImages = useMemo(() => {
+    if (!images || images.length === 0) return []
+    return [...images].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
+  }, [images])
 
   const goToPrevious = () => {
     setCurrentImageIndex((prev) =>
@@ -35,7 +36,7 @@ export function ProductImages({ images, productName }: ProductImagesProps) {
     )
   }
 
-  if (sortedImages.length === 0) {
+  if (!sortedImages || sortedImages.length === 0) {
     return (
       <div className="aspect-[3/4] bg-surface-light rounded-2xl flex items-center justify-center">
         <div className="text-6xl opacity-40">📦</div>
@@ -43,7 +44,7 @@ export function ProductImages({ images, productName }: ProductImagesProps) {
     )
   }
 
-  const currentImage = sortedImages[currentImageIndex]
+  const currentImage = sortedImages[currentImageIndex] || sortedImages[0]
 
   return (
     <div className="space-y-3">
