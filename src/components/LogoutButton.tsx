@@ -7,6 +7,10 @@ export function LogoutButton() {
     try {
       await logout()
     } catch (error) {
+      // NEXT_REDIRECT is expected behavior, not an error
+      if (error instanceof Error && error.message.includes('NEXT_REDIRECT')) {
+        return
+      }
       console.error('Logout error:', error)
     }
   }

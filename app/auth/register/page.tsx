@@ -194,7 +194,7 @@ export default function RegisterPage() {
         </div>
 
         <div className="mt-6 pt-6 border-t border-gray-200 text-center">
-          <Link href="/shop" className="text-sm text-brand-dark/60 hover:text-brand-dark transition-colors">
+          <Link href="/" className="text-sm text-brand-dark/60 hover:text-brand-dark transition-colors">
             ← Alışverişe Dön
           </Link>
         </div>

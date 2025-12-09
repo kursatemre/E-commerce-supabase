@@ -25,7 +25,8 @@
       "Bash(then echo \"Config exists\")",
       "Bash(else echo \"No config.toml found\")",
       "Bash(git fetch:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(timeout /t 15 /nobreak)"
     ],
     "deny": [],
     "ask": []
