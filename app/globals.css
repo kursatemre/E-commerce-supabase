@@ -1,27 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --foreground: #1D2A3B;
+  --brand-dark: #1D2A3B;
+  --action: #E86A53;
+  --action-hover: #D65A43;
+  --surface-white: #FFFFFF;
+  --surface-light: #F9F9F9;
+  --error: #CC0000;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Poppins', sans-serif;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+
+  /* Hide scrollbar */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer components {
+  /* CTA Button - Dönüşüm Odaklı */
+  .btn-cta {
+    @apply bg-action text-white font-semibold px-6 py-3 rounded-button shadow-button;
+    @apply transition-all duration-200 ease-out;
+    @apply hover:bg-action-hover hover:shadow-button-hover hover:-translate-y-0.5;
+    @apply active:translate-y-0;
+  }
+
+  /* Secondary Button */
+  .btn-secondary {
+    @apply bg-transparent border-2 border-brand-dark text-brand-dark font-semibold px-6 py-3 rounded-button;
+    @apply transition-all duration-200 ease-out;
+    @apply hover:bg-brand-dark hover:text-white;
+  }
+
+  /* Input Fields */
+  .input-field {
+    @apply w-full px-4 py-3 border border-gray-300 rounded-button;
+    @apply focus:outline-none focus:border-action focus:ring-2 focus:ring-action/20;
+    @apply transition-all duration-200;
   }
 }

@@ -98,6 +98,17 @@ type ReturnRequestMetadata = {
   customer_note?: string;
 };
 
+type AddressData = {
+  firstName?: string;
+  lastName?: string;
+  address?: string;
+  city?: string;
+  postalCode?: string;
+  country?: string;
+  phone?: string;
+  email?: string;
+};
+
 export type OrderRecord = {
   id: string;
   order_number: string | null;
@@ -117,6 +128,10 @@ export type OrderRecord = {
   origin?: string | null;
   marketplace_order_id?: string | null;
   metadata?: Record<string, unknown> | null;
+  shipping_address?: AddressData | null;
+  billing_address?: AddressData | null;
+  user_id?: string | null;
+  guest_id?: string | null;
 } & Record<string, unknown>;
 
 export type OrderDocumentRecord = {
@@ -178,6 +193,10 @@ type NormalizedOrder = {
   totalValue: number;
   totalFormatted: string;
   createdAtLabel: string;
+  shippingAddress?: AddressData | null;
+  billingAddress?: AddressData | null;
+  userId?: string | null;
+  guestId?: string | null;
 };
 
 type MetricBadge = {
@@ -224,6 +243,10 @@ export default function OrdersClient({ orders, documents, notifications, returnR
           totalValue: numericTotal,
           totalFormatted: formatOrderCurrency(order.total, currency),
           createdAtLabel: order.created_at ? dateFormatter.format(new Date(order.created_at)) : "-",
+          shippingAddress: order.shipping_address,
+          billingAddress: order.billing_address,
+          userId: order.user_id,
+          guestId: order.guest_id,
         } satisfies NormalizedOrder;
       }),
     [orders]
@@ -1338,6 +1361,11 @@ type OrderDetailModalProps = {
 };
 
 function OrderDetailModal({ order, onClose }: OrderDetailModalProps) {
+  const shipping = order.shippingAddress;
+  const customerName = shipping?.firstName && shipping?.lastName
+    ? `${shipping.firstName} ${shipping.lastName}`
+    : shipping?.firstName || shipping?.lastName || "Belirtilmemiş";
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 md:items-center"
@@ -1347,50 +1375,125 @@ function OrderDetailModal({ order, onClose }: OrderDetailModalProps) {
         }
       }}
     >
-      <div className="w-full max-w-lg rounded-2xl border border-gray-800 bg-gray-900 p-6 shadow-2xl shadow-black/40">
-        <div className="flex items-center justify-between gap-3">
+      <div className="w-full max-w-3xl rounded-2xl border border-gray-800 bg-gray-900 p-6 shadow-2xl shadow-black/40 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between gap-3 mb-6">
           <div>
-            <p className="text-xs uppercase text-gray-400">Sipariş Kodu</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-gray-400">Sipariş Detayı</p>
             <h3 className="text-2xl font-semibold text-white">{order.code}</h3>
             <p className="text-xs text-gray-500">{order.createdAtLabel}</p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-white/20 px-4 py-1 text-xs font-semibold text-gray-100"
+            className="rounded-full border border-white/20 px-4 py-1.5 text-xs font-semibold text-gray-100 hover:bg-white/10 transition"
           >
             Kapat
           </button>
         </div>
 
-        <div className="mt-5 space-y-3 text-sm text-gray-200">
-          <div className="flex items-center justify-between">
-            <span>Kaynak</span>
-            <span className="font-semibold text-white">{order.channelLabel}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Ödeme</span>
-            <span className="font-semibold text-white">{order.paymentMethod}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span>Tutar</span>
-            <span className="font-semibold text-white">{order.totalFormatted}</span>
-          </div>
-        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          {/* Sipariş Özeti */}
+          <section className="space-y-4 rounded-2xl border border-gray-800 bg-gray-950/50 p-5">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-gray-400">Sipariş Özeti</p>
+              <h2 className="text-lg font-semibold text-white">Genel Bilgiler</h2>
+            </div>
+            <div className="space-y-3 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Kaynak</span>
+                <span className="font-semibold text-white">{order.channelLabel}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Ödeme Yöntemi</span>
+                <span className="font-semibold text-white">{order.paymentMethod}</span>
+              </div>
+              <div className="flex items-center justify-between border-t border-gray-800 pt-3">
+                <span className="text-gray-400">Toplam Tutar</span>
+                <span className="text-lg font-bold text-white">{order.totalFormatted}</span>
+              </div>
+            </div>
+            <div className="space-y-2 border-t border-gray-800 pt-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Durumlar</p>
+              <div className="flex flex-wrap gap-2">
+                <StatusPill>{order.status}</StatusPill>
+                <StatusPill variant="info">{order.fulfillmentStatus}</StatusPill>
+                <StatusPill variant="success">{order.paymentStatus}</StatusPill>
+              </div>
+            </div>
+          </section>
 
-        <div className="mt-5 space-y-2 text-xs text-gray-300">
-          <p className="font-semibold uppercase tracking-wide text-gray-400">Durumlar</p>
-          <div className="flex flex-wrap gap-2">
-            <StatusPill>{order.status}</StatusPill>
-            <StatusPill variant="info">{order.fulfillmentStatus}</StatusPill>
-            <StatusPill variant="success">{order.paymentStatus}</StatusPill>
-          </div>
-        </div>
-
-        <div className="mt-6 flex flex-wrap gap-3 text-xs text-gray-400">
-          <span className="rounded-full border border-white/10 px-3 py-1">CSV Paylaş</span>
-          <span className="rounded-full border border-white/10 px-3 py-1">Not Ekle</span>
-          <span className="rounded-full border border-white/10 px-3 py-1">Lojistik Gönder</span>
+          {/* Teslimat Bilgileri */}
+          <section className="space-y-4 rounded-2xl border border-gray-800 bg-gray-950/50 p-5">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-gray-400">Teslimat</p>
+              <h2 className="text-lg font-semibold text-white">Adres Bilgileri</h2>
+              <p className="text-xs text-gray-500">Kargoyu yönlendireceğimiz adres</p>
+            </div>
+            {shipping ? (
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-gray-400">Ad Soyad</label>
+                  <div className="rounded-xl border border-gray-800 bg-gray-900/70 px-4 py-2.5 text-sm text-white">
+                    {customerName}
+                  </div>
+                </div>
+                {shipping.phone && (
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-gray-400">Telefon</label>
+                    <div className="rounded-xl border border-gray-800 bg-gray-900/70 px-4 py-2.5 text-sm text-white">
+                      {shipping.phone}
+                    </div>
+                  </div>
+                )}
+                {shipping.email && (
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-gray-400">E-posta</label>
+                    <div className="rounded-xl border border-gray-800 bg-gray-900/70 px-4 py-2.5 text-sm text-white">
+                      {shipping.email}
+                    </div>
+                  </div>
+                )}
+                {shipping.address && (
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-gray-400">Adres</label>
+                    <div className="rounded-xl border border-gray-800 bg-gray-900/70 px-4 py-2.5 text-sm text-white">
+                      {shipping.address}
+                    </div>
+                  </div>
+                )}
+                <div className="grid gap-3 md:grid-cols-2">
+                  {shipping.city && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-gray-400">Şehir</label>
+                      <div className="rounded-xl border border-gray-800 bg-gray-900/70 px-4 py-2.5 text-sm text-white">
+                        {shipping.city}
+                      </div>
+                    </div>
+                  )}
+                  {shipping.postalCode && (
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-gray-400">Posta Kodu</label>
+                      <div className="rounded-xl border border-gray-800 bg-gray-900/70 px-4 py-2.5 text-sm text-white">
+                        {shipping.postalCode}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {shipping.country && (
+                  <div className="space-y-1">
+                    <label className="text-xs font-medium text-gray-400">Ülke</label>
+                    <div className="rounded-xl border border-gray-800 bg-gray-900/70 px-4 py-2.5 text-sm text-white">
+                      {shipping.country}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="rounded-xl border border-dashed border-gray-800 bg-gray-900/40 px-4 py-8 text-center">
+                <p className="text-sm text-gray-400">Adres bilgisi bulunamadı</p>
+              </div>
+            )}
+          </section>
         </div>
       </div>
     </div>

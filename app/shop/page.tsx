@@ -1,16 +1,11 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import Image from 'next/image'
-import { AddToCartButton } from '@/components/AddToCartButton'
-import { ProductFilter } from '@/components/ProductFilter'
+import { ProductCard } from '@/components/shop/ProductCard'
+import { CategoryFilter } from '@/components/shop/CategoryFilter'
 import { Pagination } from '@/components/Pagination'
 import { Suspense } from 'react'
 
 const ITEMS_PER_PAGE = 12
-const currencyFormatter = new Intl.NumberFormat('tr-TR', {
-  style: 'currency',
-  currency: 'TRY',
-})
 
 type ProductVariantRow = {
   product_id: string | null
@@ -130,137 +125,74 @@ export default async function ShopPage({
 
   const totalPages = Math.ceil((count || 0) / ITEMS_PER_PAGE)
 
+  // Transform products for ProductCard
+  const transformedProducts = (products ?? []).map((product: any) => ({
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    description: product.description,
+    price: product.price,
+    stock: product.stock,
+    category: product.categories,
+    brand: product.brands,
+    images: product.product_images?.sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0)) || null,
+  }))
+
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Ürünlerimiz</h1>
-
-        {/* Search */}
-        <Suspense>
-          <ProductFilter />
-        </Suspense>
-
-        {/* Categories Filter */}
-        {categories && categories.length > 0 && (
-          <div className="flex gap-2 flex-wrap">
-            <Link
-              href="/shop"
-              className={`px-4 py-2 rounded-md text-sm transition-colors ${
-                !categorySlug
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-700 border hover:bg-gray-50'
-              }`}
-            >
-              Tümü
-            </Link>
-            {categories.map((category) => (
-              <Link
-                key={category.id}
-                href={`/shop?category=${category.slug}`}
-                className={`px-4 py-2 rounded-md text-sm transition-colors ${
-                  categorySlug === category.slug
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-700 border hover:bg-gray-50'
-                }`}
-              >
-                {category.name}
-              </Link>
-            ))}
-          </div>
-        )}
-
-        {/* Results info */}
-        {(search || categorySlug) && (
-          <div className="mt-4 text-sm text-gray-600">
-            {count} ürün bulundu
-            {search && ` - "${search}" için`}
-            {categorySlug && ` - ${categories?.find(c => c.slug === categorySlug)?.name} kategorisinde`}
-          </div>
-        )}
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div>
+        <h1 className="font-heading text-h1 md:text-h1 text-brand-dark mb-2">
+          Ürünlerimiz
+        </h1>
+        <p className="text-brand-dark/60 text-sm md:text-base">
+          {count || 0} ürün bulundu
+          {search && ` - "${search}" için`}
+          {categorySlug && ` - ${categories?.find(c => c.slug === categorySlug)?.name} kategorisinde`}
+        </p>
       </div>
 
+      {/* Category Filter */}
+      {categories && categories.length > 0 && (
+        <Suspense fallback={<div className="h-10 bg-surface-light animate-pulse rounded-full" />}>
+          <CategoryFilter categories={categories} />
+        </Suspense>
+      )}
+
       {/* Products Grid */}
-      {products && products.length > 0 ? (
+      {transformedProducts.length > 0 ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((product: any) => {
-              const firstImage = product.product_images?.[0]
-              const priceStats = variantPriceStats[product.id]
-              const showRange = priceStats && priceStats.minPrice !== priceStats.maxPrice
-              return (
-              <div key={product.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
-                <Link
-                  href={`/shop/product/${product.slug}`}
-                  className="aspect-square bg-gray-200 rounded-t-lg relative overflow-hidden block"
-                >
-                  {firstImage ? (
-                    <Image
-                      src={firstImage.url}
-                      alt={firstImage.alt || product.name}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <span className="text-gray-400 text-4xl">📦</span>
-                    </div>
-                  )}
-                </Link>
-                <div className="p-4">
-                  <div className="text-xs text-gray-500 mb-1">
-                    {product.categories?.name || 'Genel'} • {product.brands?.name || 'Marka yok'}
-                  </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    <Link href={`/shop/product/${product.slug}`} className="hover:text-blue-600 transition-colors">
-                      {product.name}
-                    </Link>
-                  </h3>
-                  {product.description && (
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                      {product.description}
-                    </p>
-                  )}
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="text-2xl font-bold text-gray-900">
-                        {priceStats
-                          ? showRange
-                            ? `${currencyFormatter.format(priceStats.minPrice)} − ${currencyFormatter.format(priceStats.maxPrice)}`
-                            : currencyFormatter.format(priceStats.minPrice)
-                          : currencyFormatter.format(product.price)}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        Stok: {product.stock}
-                      </div>
-                    </div>
-                    <AddToCartButton productId={product.id} stock={product.stock} />
-                  </div>
-                </div>
-              </div>
-            )}
-            )}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {transformedProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                priceRange={variantPriceStats[product.id] || null}
+              />
+            ))}
           </div>
 
           {/* Pagination */}
-          <Suspense>
-            <Pagination currentPage={page} totalPages={totalPages} />
-          </Suspense>
+          {totalPages > 1 && (
+            <Suspense fallback={<div className="h-12 bg-surface-light animate-pulse rounded" />}>
+              <Pagination currentPage={page} totalPages={totalPages} />
+            </Suspense>
+          )}
         </>
       ) : (
-        <div className="bg-white rounded-lg shadow p-12 text-center">
-          <div className="text-6xl mb-4">🔍</div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+        <div className="bg-surface-white rounded-2xl border border-gray-200 p-12 md:p-16 text-center">
+          <div className="text-6xl mb-4 opacity-40">🔍</div>
+          <h2 className="font-heading text-2xl font-semibold text-brand-dark mb-2">
             Ürün Bulunamadı
           </h2>
-          <p className="text-gray-600 mb-4">
+          <p className="text-brand-dark/60 mb-6">
             {search
               ? `"${search}" için sonuç bulunamadı`
               : 'Bu kategoride ürün bulunmuyor'}
           </p>
           <Link
             href="/shop"
-            className="inline-block bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
+            className="btn-cta inline-block"
           >
             Tüm Ürünleri Gör
           </Link>

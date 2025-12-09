@@ -12,14 +12,15 @@
     "sync:meta-feed": "node ./scripts/generate-meta-feed.mjs"
   },
   "dependencies": {
-    "@supabase/ssr": "^0.8.0",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
+    "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.86.0",
     "@upstash/ratelimit": "^2.0.7",
     "@upstash/redis": "^1.35.7",
     "autoprefixer": "^10.4.22",
     "googleapis": "^167.0.0",
     "jspdf": "^3.0.4",
+    "lucide-react": "^0.556.0",
     "next": "15.1.9",
     "react": "19.2.1",
     "react-dom": "19.2.1",

@@ -133,14 +133,20 @@ export async function processCheckoutOrderPayload(payload: CheckoutFormValues) {
   const notes = sanitizeStringValue(payload.notes)
   const paymentMethod = sanitizeStringValue(payload.paymentMethod) || 'card'
 
+  // Split fullName into firstName and lastName
+  const nameParts = fullName.trim().split(/\s+/)
+  const firstName = nameParts[0] || ''
+  const lastName = nameParts.slice(1).join(' ') || ''
+
   const shippingAddress = {
-    fullName,
+    firstName,
+    lastName,
+    email: user?.email || undefined,
     phone,
     address: addressLine,
     city,
-    district: district || undefined,
-    zipCode,
-    notes: notes || undefined,
+    postalCode: zipCode,
+    country: 'Türkiye',
   }
 
   const { data: order, error: orderError } = await supabase

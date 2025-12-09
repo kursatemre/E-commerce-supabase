@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import { ShopHeader } from '@/components/shop/ShopHeader'
+import { MobileNavigation } from '@/components/shop/MobileNavigation'
+import { ensureGuestId } from '@/lib/guest'
 
 export default async function ShopLayout({
   children,
@@ -8,6 +10,7 @@ export default async function ShopLayout({
   children: React.ReactNode
 }) {
   const supabase = await createClient()
+  const guestId = await ensureGuestId()
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -20,6 +23,33 @@ export default async function ShopLayout({
         .single()
     : { data: null }
 
+  // Get cart info
+  const cartQuery = supabase
+    .from('carts')
+    .select(`
+      id,
+      cart_items (
+        id,
+        quantity,
+        variant_id,
+        product_variants (price),
+        products (price)
+      )
+    `)
+
+  const { data: cart } = user
+    ? await cartQuery.or(`user_id.eq.${user.id},guest_id.eq.${guestId}`).maybeSingle()
+    : await cartQuery.eq('guest_id', guestId).maybeSingle()
+
+  const cartItems = cart?.cart_items ?? []
+  const cartItemCount = cartItems.length
+  const cartTotal = cartItems.reduce((sum: number, item: any) => {
+    const variant = Array.isArray(item.product_variants) ? item.product_variants[0] : item.product_variants
+    const product = Array.isArray(item.products) ? item.products[0] : item.products
+    const unitPrice = variant?.price ?? product?.price ?? 0
+    return sum + unitPrice * item.quantity
+  }, 0)
+
   const handleSignOut = async () => {
     'use server'
     const supabase = await createClient()
@@ -28,71 +58,20 @@ export default async function ShopLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <Link href="/shop" className="text-xl font-bold text-gray-900">
-                  E-Ticaret
-                </Link>
-              </div>
-              <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Link
-                  href="/shop"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Ürünler
-                </Link>
-                <Link
-                  href="/shop/cart"
-                  className="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium"
-                >
-                  Sepetim
-                </Link>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              {user ? (
-                <>
-                  <span className="text-sm text-gray-700">
-                    {`${profile?.first_name || ''} ${profile?.last_name || ''}`.trim() ||
-                      user.email ||
-                      'Hesabım'}
-                  </span>
-                  <form action={handleSignOut}>
-                    <button
-                      type="submit"
-                      className="text-sm text-red-600 hover:text-red-700 font-medium"
-                    >
-                      Çıkış
-                    </button>
-                  </form>
-                </>
-              ) : (
-                <div className="flex items-center space-x-3">
-                  <Link
-                    href="/auth/login"
-                    className="text-sm font-medium text-gray-700 hover:text-gray-900"
-                  >
-                    Giriş Yap
-                  </Link>
-                  <Link
-                    href="/auth/register"
-                    className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
-                  >
-                    Kayıt Ol
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-surface-white pb-16 md:pb-0">
+      <ShopHeader
+        user={user}
+        profile={profile}
+        cartItemCount={cartItemCount}
+        cartTotal={cartTotal}
+        onSignOut={handleSignOut}
+      />
+
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
         {children}
       </main>
+
+      <MobileNavigation cartItemCount={cartItemCount} cartTotal={cartTotal} />
     </div>
   )
 }
