@@ -1,4 +1,4 @@
-import { createMiddlewareClient } from '@supabase/auth-helpers-nextjs'
+import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { ADMIN_COOKIE_NAME, isAdminSessionValid } from '@/lib/adminAuth'
 
@@ -8,8 +8,25 @@ const GUEST_COOKIE_NAME = 'guest_id'
 const GUEST_COOKIE_MAX_AGE = 60 * 60 * 24 * 180 // 180 days
 
 export async function updateSession(request: NextRequest) {
-  const response = NextResponse.next({ request })
-  const supabase = createMiddlewareClient({ req: request, res: response })
+  let response = NextResponse.next({ request })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options)
+          })
+        },
+      },
+    }
+  )
+
   const adminSessionCookie = request.cookies.get(ADMIN_COOKIE_NAME)?.value
   const hasAdminSession = isAdminSessionValid(adminSessionCookie)
 

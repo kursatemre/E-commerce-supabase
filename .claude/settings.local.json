@@ -23,7 +23,9 @@
       "Bash(ls:*)",
       "Bash(if [ -f \"supabase/config.toml\" ])",
       "Bash(then echo \"Config exists\")",
-      "Bash(else echo \"No config.toml found\")"
+      "Bash(else echo \"No config.toml found\")",
+      "Bash(git fetch:*)",
+      "Bash(git pull:*)"
     ],
     "deny": [],
     "ask": []
