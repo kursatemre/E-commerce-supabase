@@ -14,12 +14,14 @@ interface CartItem {
     name: string
     slug: string
     price: number
+    stock: number
     images?: Array<{ url: string; alt: string | null }>
   }
   variant?: {
     id: string
     name: string
     price: number
+    stock: number
   }
 }
 
@@ -43,6 +45,20 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   useEffect(() => {
     if (isOpen) {
       fetchCartItems()
+      // Prevent body scroll
+      const originalOverflow = document.body.style.overflow
+      const originalPaddingRight = document.body.style.paddingRight
+
+      // Get scrollbar width
+      const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
+
+      document.body.style.overflow = 'hidden'
+      document.body.style.paddingRight = `${scrollbarWidth}px`
+
+      return () => {
+        document.body.style.overflow = originalOverflow
+        document.body.style.paddingRight = originalPaddingRight
+      }
     }
   }, [isOpen])
 
@@ -53,11 +69,9 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     }
     if (isOpen) {
       document.addEventListener('keydown', handleEscape)
-      document.body.style.overflow = 'hidden'
     }
     return () => {
       document.removeEventListener('keydown', handleEscape)
-      document.body.style.overflow = 'unset'
     }
   }, [isOpen, onClose])
 
@@ -76,9 +90,15 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     }
   }
 
-  const updateQuantity = async (itemId: string, newQuantity: number) => {
+  const updateQuantity = async (itemId: string, newQuantity: number, maxStock: number) => {
     if (newQuantity <= 0) {
       removeItem(itemId)
+      return
+    }
+
+    // Check stock limit
+    if (newQuantity > maxStock) {
+      alert(`Maksimum ${maxStock} adet ekleyebilirsiniz.`)
       return
     }
 
@@ -134,19 +154,19 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black/40 z-50 transition-opacity"
+        className="fixed inset-0 bg-black/50 z-[60] transition-opacity duration-300"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Drawer */}
       <div
-        className={`fixed top-0 right-0 h-full w-full sm:w-[480px] bg-white z-50 shadow-2xl transform transition-transform duration-300 ease-in-out flex flex-col ${
+        className={`fixed top-0 right-0 bottom-0 w-full max-w-md bg-white z-[70] shadow-2xl transform transition-transform duration-300 ease-out flex flex-col ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
           <div className="flex items-center gap-3">
             <ShoppingBag className="w-6 h-6 text-action" />
             <div>
@@ -167,14 +187,14 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
           </button>
         </div>
 
-        {/* Cart Items */}
+        {/* Cart Items - Scrollable */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {loading ? (
             <div className="flex items-center justify-center h-full">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-action" />
             </div>
           ) : cartItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center">
+            <div className="flex flex-col items-center justify-center h-full text-center px-4">
               <div className="w-24 h-24 bg-surface-light rounded-full flex items-center justify-center mb-4">
                 <ShoppingBag className="w-12 h-12 text-brand-dark/40" />
               </div>
@@ -196,6 +216,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               {cartItems.map((item) => {
                 const firstImage = item.product.images?.[0]
                 const unitPrice = item.variant?.price ?? item.product.price
+                const maxStock = item.variant?.stock ?? item.product.stock
                 const productName = item.variant
                   ? `${item.product.name} - ${item.variant.name}`
                   : item.product.name
@@ -243,8 +264,8 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                       {/* Quantity Controls */}
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="w-7 h-7 rounded-md border border-gray-300 flex items-center justify-center hover:bg-white transition-colors"
+                          onClick={() => updateQuantity(item.id, item.quantity - 1, maxStock)}
+                          className="w-7 h-7 rounded-md border border-gray-300 flex items-center justify-center hover:bg-white transition-colors text-brand-dark font-semibold"
                           aria-label="Azalt"
                         >
                           -
@@ -253,13 +274,21 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                           {item.quantity}
                         </span>
                         <button
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="w-7 h-7 rounded-md border border-gray-300 flex items-center justify-center hover:bg-white transition-colors"
+                          onClick={() => updateQuantity(item.id, item.quantity + 1, maxStock)}
+                          disabled={item.quantity >= maxStock}
+                          className="w-7 h-7 rounded-md border border-gray-300 flex items-center justify-center hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-brand-dark font-semibold"
                           aria-label="Artır"
                         >
                           +
                         </button>
                       </div>
+
+                      {/* Stock warning */}
+                      {maxStock > 0 && maxStock <= 5 && (
+                        <p className="text-xs text-action font-medium mt-1">
+                          Son {maxStock} ürün!
+                        </p>
+                      )}
                     </div>
 
                     {/* Remove Button */}
@@ -279,7 +308,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
         {/* Footer - Only show if cart has items */}
         {cartItems.length > 0 && (
-          <div className="border-t border-gray-200 p-4 sm:p-6 space-y-4 bg-surface-light">
+          <div className="border-t border-gray-200 p-4 sm:p-6 space-y-4 bg-surface-light flex-shrink-0">
             {/* Subtotal */}
             <div className="flex items-center justify-between">
               <span className="text-brand-dark/80">Ara Toplam</span>

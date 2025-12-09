@@ -19,13 +19,15 @@ export async function GET() {
           product_variants (
             id,
             name,
-            price
+            price,
+            stock
           ),
           products (
             id,
             name,
             slug,
             price,
+            stock,
             product_images (url, alt)
           )
         )
@@ -46,12 +48,14 @@ export async function GET() {
         name: Array.isArray(item.products) ? item.products[0]?.name : item.products?.name,
         slug: Array.isArray(item.products) ? item.products[0]?.slug : item.products?.slug,
         price: Array.isArray(item.products) ? item.products[0]?.price : item.products?.price,
+        stock: Array.isArray(item.products) ? item.products[0]?.stock : item.products?.stock,
         images: Array.isArray(item.products) ? item.products[0]?.product_images : item.products?.product_images,
       },
       variant: item.variant_id ? {
         id: Array.isArray(item.product_variants) ? item.product_variants[0]?.id : item.product_variants?.id,
         name: Array.isArray(item.product_variants) ? item.product_variants[0]?.name : item.product_variants?.name,
         price: Array.isArray(item.product_variants) ? item.product_variants[0]?.price : item.product_variants?.price,
+        stock: Array.isArray(item.product_variants) ? item.product_variants[0]?.stock : item.product_variants?.stock,
       } : undefined,
     }))
 
