@@ -136,13 +136,14 @@ export default async function CartPage() {
             return (
               <div
                 key={item.id}
-                className="bg-surface-white rounded-2xl border border-gray-200 p-4 md:p-6 hover:shadow-lg transition-all"
+                className="bg-surface-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-lg transition-all"
               >
-                <div className="flex gap-4">
+                {/* Desktop Layout */}
+                <div className="hidden md:flex md:gap-6 md:p-6">
                   {/* Product Image */}
                   <Link
                     href={`/${product.slug}`}
-                    className="relative w-20 h-20 md:w-32 md:h-32 bg-surface-light rounded-xl overflow-hidden flex-shrink-0 group"
+                    className="relative w-32 h-32 bg-surface-light rounded-xl overflow-hidden flex-shrink-0 group"
                   >
                     {firstImage ? (
                       <Image
@@ -150,81 +151,115 @@ export default async function CartPage() {
                         alt={firstImage.alt || product.name}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
-                        sizes="(max-width: 768px) 80px, 128px"
+                        sizes="128px"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-2xl md:text-4xl opacity-20">📦</span>
+                        <span className="text-4xl opacity-20">📦</span>
                       </div>
                     )}
                   </Link>
 
-                  {/* Product Info & Price Container */}
-                  <div className="flex-1 min-w-0 flex flex-col">
-                    {/* Product Info and Desktop Price */}
-                    <div className="flex justify-between gap-3 mb-2">
-                      <div className="flex-1 min-w-0">
-                        <Link
-                          href={`/${product.slug}`}
-                          className="font-heading font-semibold text-sm md:text-base text-brand-dark hover:text-action transition-colors line-clamp-2 block mb-1"
-                        >
-                          {product.name}
-                        </Link>
+                  {/* Product Info */}
+                  <div className="flex-1 min-w-0">
+                    <Link
+                      href={`/${product.slug}`}
+                      className="font-heading font-semibold text-base text-brand-dark hover:text-action transition-colors line-clamp-2 block mb-1"
+                    >
+                      {product.name}
+                    </Link>
 
-                        {variant && (
-                          <p className="text-xs md:text-sm text-brand-dark/60 mb-1">
-                            Varyant: {variant.name}
-                          </p>
-                        )}
+                    {variant && (
+                      <p className="text-sm text-brand-dark/60 mb-3">
+                        Varyant: {variant.name}
+                      </p>
+                    )}
 
-                        {/* Stock Warning - Mobile */}
-                        {maxStock > 0 && maxStock <= 5 && (
-                          <p className="text-xs text-action font-medium md:hidden">
-                            Son {maxStock} ürün!
-                          </p>
-                        )}
-                      </div>
+                    <CartItemButtons itemId={item.id} quantity={item.quantity} maxStock={maxStock} />
+                  </div>
 
-                      {/* Price - Desktop Only */}
-                      <div className="hidden md:flex md:flex-col md:text-right md:justify-between">
-                        <div>
-                          <p className="text-xl font-bold text-brand-dark whitespace-nowrap">
-                            {currencyFormatter.format(unitPrice * item.quantity)}
-                          </p>
-                          {item.quantity > 1 && (
-                            <p className="text-sm text-brand-dark/60 whitespace-nowrap">
-                              {currencyFormatter.format(unitPrice)} / adet
-                            </p>
-                          )}
-                        </div>
-
-                        {/* Stock Warning - Desktop */}
-                        {maxStock > 0 && maxStock <= 5 && (
-                          <p className="text-xs text-action font-medium mt-2">
-                            Son {maxStock} ürün!
-                          </p>
-                        )}
-                      </div>
+                  {/* Price - Desktop */}
+                  <div className="text-right flex flex-col justify-between">
+                    <div>
+                      <p className="text-xl font-bold text-brand-dark whitespace-nowrap">
+                        {currencyFormatter.format(unitPrice * item.quantity)}
+                      </p>
+                      {item.quantity > 1 && (
+                        <p className="text-sm text-brand-dark/60 whitespace-nowrap">
+                          {currencyFormatter.format(unitPrice)} / adet
+                        </p>
+                      )}
                     </div>
 
-                    {/* Quantity and Price Row - Mobile */}
-                    <div className="flex items-center justify-between gap-3 mt-auto">
-                      {/* Quantity Controls */}
-                      <div className="flex-shrink-0">
-                        <CartItemButtons itemId={item.id} quantity={item.quantity} maxStock={maxStock} />
-                      </div>
+                    {maxStock > 0 && maxStock <= 5 && (
+                      <p className="text-xs text-action font-medium mt-2">
+                        Son {maxStock} ürün!
+                      </p>
+                    )}
+                  </div>
+                </div>
 
-                      {/* Price - Mobile Only */}
-                      <div className="md:hidden text-right">
-                        <p className="text-base font-bold text-brand-dark whitespace-nowrap">
-                          {currencyFormatter.format(unitPrice * item.quantity)}
+                {/* Mobile Layout */}
+                <div className="md:hidden">
+                  <div className="p-4 flex gap-3">
+                    {/* Product Image */}
+                    <Link
+                      href={`/${product.slug}`}
+                      className="relative w-20 h-20 bg-surface-light rounded-xl overflow-hidden flex-shrink-0"
+                    >
+                      {firstImage ? (
+                        <Image
+                          src={firstImage.url}
+                          alt={firstImage.alt || product.name}
+                          fill
+                          className="object-cover"
+                          sizes="80px"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <span className="text-2xl opacity-20">📦</span>
+                        </div>
+                      )}
+                    </Link>
+
+                    {/* Product Info */}
+                    <div className="flex-1 min-w-0">
+                      <Link
+                        href={`/${product.slug}`}
+                        className="font-heading font-semibold text-sm text-brand-dark line-clamp-2 block mb-1"
+                      >
+                        {product.name}
+                      </Link>
+
+                      {variant && (
+                        <p className="text-xs text-brand-dark/60">
+                          {variant.name}
                         </p>
-                        {item.quantity > 1 && (
-                          <p className="text-xs text-brand-dark/60 whitespace-nowrap">
-                            {currencyFormatter.format(unitPrice)} / adet
-                          </p>
-                        )}
-                      </div>
+                      )}
+
+                      {maxStock > 0 && maxStock <= 5 && (
+                        <p className="text-xs text-action font-medium mt-1">
+                          Son {maxStock} ürün!
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Mobile Bottom Bar - Quantity & Price */}
+                  <div className="bg-surface-light px-4 py-3 flex items-center justify-between border-t border-gray-200">
+                    <div className="flex-shrink-0">
+                      <CartItemButtons itemId={item.id} quantity={item.quantity} maxStock={maxStock} />
+                    </div>
+
+                    <div className="text-right">
+                      <p className="text-base font-bold text-brand-dark">
+                        {currencyFormatter.format(unitPrice * item.quantity)}
+                      </p>
+                      {item.quantity > 1 && (
+                        <p className="text-xs text-brand-dark/60">
+                          {currencyFormatter.format(unitPrice)} / adet
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
