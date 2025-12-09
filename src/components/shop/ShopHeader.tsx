@@ -2,8 +2,10 @@
 
 import Link from 'next/link'
 import { Search, Heart, ShoppingCart, User, Menu, X } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CartDrawer } from '@/components/cart/CartDrawer'
+import { searchProducts } from '@/actions/shop'
+import Image from 'next/image'
 
 type ShopHeaderProps = {
   user?: {
@@ -19,10 +21,21 @@ type ShopHeaderProps = {
   onSignOut?: () => void
 }
 
+type SearchResult = {
+  id: string
+  name: string
+  slug: string
+  price: number
+  product_images: { url: string; alt: string | null }[]
+}
+
 export function ShopHeader({ user, profile, cartItemCount = 0, cartTotal = 0, onSignOut }: ShopHeaderProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([])
+  const [isSearching, setIsSearching] = useState(false)
 
   const currencyFormatter = new Intl.NumberFormat('tr-TR', {
     style: 'currency',
@@ -37,6 +50,28 @@ export function ShopHeader({ user, profile, cartItemCount = 0, cartTotal = 0, on
     { name: 'Yeni Ürünler', href: '/new' },
     { name: 'İndirim', href: '/sale' },
   ]
+
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (searchQuery.trim().length >= 2) {
+        setIsSearching(true)
+        const result = await searchProducts(searchQuery)
+        setSearchResults(result.products as SearchResult[])
+        setIsSearching(false)
+      } else {
+        setSearchResults([])
+      }
+    }, 300)
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
+  const handleSearchClose = () => {
+    setIsSearchOpen(false)
+    setSearchQuery('')
+    setSearchResults([])
+  }
 
   return (
     <>
@@ -74,16 +109,74 @@ export function ShopHeader({ user, profile, cartItemCount = 0, cartTotal = 0, on
             </nav>
 
             {/* Search Bar */}
-            <div className="flex-1 max-w-md">
+            <div className="flex-1 max-w-md relative">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-brand-dark/40" />
                 <input
                   type="search"
                   placeholder="Ürün ara..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-12 pr-4 py-2.5 bg-surface-light border border-gray-200 rounded-button text-sm focus:outline-none focus:border-action focus:ring-2 focus:ring-action/20 transition-all"
                   onFocus={() => setIsSearchOpen(true)}
                 />
               </div>
+
+              {/* Desktop Search Results Dropdown */}
+              {isSearchOpen && (
+                <>
+                  <div className="fixed inset-0 z-30" onClick={handleSearchClose} />
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-96 overflow-y-auto z-40">
+                    {isSearching ? (
+                      <div className="p-4 text-center text-brand-dark/60">Aranıyor...</div>
+                    ) : searchQuery.trim().length < 2 ? (
+                      <div className="p-4">
+                        <p className="text-xs uppercase tracking-wide text-brand-dark/60 font-semibold mb-3">Popüler Aramalar</p>
+                        <div className="flex flex-wrap gap-2">
+                          {['Elbise', 'Pantolon', 'Gömlek', 'Ayakkabı'].map((term) => (
+                            <button
+                              key={term}
+                              onClick={() => setSearchQuery(term)}
+                              className="px-4 py-2 bg-surface-light text-sm text-brand-dark rounded-full hover:bg-action hover:text-white transition-colors"
+                            >
+                              {term}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : searchResults.length > 0 ? (
+                      <div className="divide-y divide-gray-100">
+                        {searchResults.map((product) => (
+                          <Link
+                            key={product.id}
+                            href={`/${product.slug}`}
+                            onClick={handleSearchClose}
+                            className="flex items-center gap-3 p-3 hover:bg-surface-light transition-colors"
+                          >
+                            <div className="w-12 h-12 bg-gray-100 rounded flex-shrink-0 overflow-hidden">
+                              {product.product_images?.[0]?.url && (
+                                <Image
+                                  src={product.product_images[0].url}
+                                  alt={product.product_images[0].alt || product.name}
+                                  width={48}
+                                  height={48}
+                                  className="w-full h-full object-cover"
+                                />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-brand-dark truncate">{product.name}</p>
+                              <p className="text-sm text-action font-semibold">{currencyFormatter.format(product.price)}</p>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="p-4 text-center text-brand-dark/60">Sonuç bulunamadı</div>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Right Icons */}
@@ -188,7 +281,7 @@ export function ShopHeader({ user, profile, cartItemCount = 0, cartTotal = 0, on
         <div className="fixed inset-0 z-50 bg-white md:hidden animate-fade-in">
           <div className="flex items-center h-14 px-4 border-b border-gray-200">
             <button
-              onClick={() => setIsSearchOpen(false)}
+              onClick={handleSearchClose}
               className="mr-3 text-brand-dark"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -200,23 +293,63 @@ export function ShopHeader({ user, profile, cartItemCount = 0, cartTotal = 0, on
               <input
                 type="search"
                 placeholder="Ne arıyorsunuz?"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 bg-surface-light rounded-button text-sm focus:outline-none"
                 autoFocus
               />
             </div>
           </div>
-          <div className="p-4">
-            <p className="text-xs uppercase tracking-wide text-brand-dark/60 font-semibold mb-3">Popüler Aramalar</p>
-            <div className="flex flex-wrap gap-2">
-              {['Elbise', 'Pantolon', 'Gömlek', 'Ayakkabı'].map((term) => (
-                <button
-                  key={term}
-                  className="px-4 py-2 bg-surface-light text-sm text-brand-dark rounded-full hover:bg-action hover:text-white transition-colors"
-                >
-                  {term}
-                </button>
-              ))}
-            </div>
+
+          {/* Mobile Search Results */}
+          <div className="overflow-y-auto h-[calc(100vh-3.5rem)]">
+            {isSearching ? (
+              <div className="p-4 text-center text-brand-dark/60">Aranıyor...</div>
+            ) : searchQuery.trim().length < 2 ? (
+              <div className="p-4">
+                <p className="text-xs uppercase tracking-wide text-brand-dark/60 font-semibold mb-3">Popüler Aramalar</p>
+                <div className="flex flex-wrap gap-2">
+                  {['Elbise', 'Pantolon', 'Gömlek', 'Ayakkabı'].map((term) => (
+                    <button
+                      key={term}
+                      onClick={() => setSearchQuery(term)}
+                      className="px-4 py-2 bg-surface-light text-sm text-brand-dark rounded-full hover:bg-action hover:text-white transition-colors"
+                    >
+                      {term}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : searchResults.length > 0 ? (
+              <div className="divide-y divide-gray-100">
+                {searchResults.map((product) => (
+                  <Link
+                    key={product.id}
+                    href={`/${product.slug}`}
+                    onClick={handleSearchClose}
+                    className="flex items-center gap-3 p-4 hover:bg-surface-light transition-colors"
+                  >
+                    <div className="w-16 h-16 bg-gray-100 rounded flex-shrink-0 overflow-hidden">
+                      {product.product_images?.[0]?.url && (
+                        <Image
+                          src={product.product_images[0].url}
+                          alt={product.product_images[0].alt || product.name}
+                          width={64}
+                          height={64}
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-brand-dark mb-1">{product.name}</p>
+                      <p className="text-sm text-action font-semibold">{currencyFormatter.format(product.price)}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="p-4 text-center text-brand-dark/60">Sonuç bulunamadı</div>
+            )}
           </div>
         </div>
       )}

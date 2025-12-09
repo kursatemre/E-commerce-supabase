@@ -5,6 +5,42 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { ensureGuestId } from '@/lib/guest'
 
+export async function searchProducts(query: string) {
+  if (!query || query.trim().length < 2) {
+    return { products: [], count: 0 }
+  }
+
+  const supabase = await createClient()
+  const searchTerm = `%${query.trim()}%`
+
+  const { data: products, error, count } = await supabase
+    .from('products')
+    .select(`
+      id,
+      name,
+      slug,
+      price,
+      product_images (
+        url,
+        alt
+      )
+    `, { count: 'exact' })
+    .eq('is_active', true)
+    .ilike('name', searchTerm)
+    .order('name', { ascending: true })
+    .limit(10)
+
+  if (error) {
+    console.error('Search error:', error)
+    return { products: [], count: 0 }
+  }
+
+  return {
+    products: products || [],
+    count: count || 0
+  }
+}
+
 export async function addToCart(productId: string, variantId?: string) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
