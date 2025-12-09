@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { CreditCard, Wallet } from 'lucide-react'
 
 export type CheckoutFormValues = {
   fullName: string
@@ -19,6 +20,13 @@ interface CheckoutFormProps {
   defaultPhone?: string
   total: number
 }
+
+const currencyFormatter = new Intl.NumberFormat('tr-TR', {
+  style: 'currency',
+  currency: 'TRY',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+})
 
 export function CheckoutForm({
   defaultFullName = '',
@@ -92,153 +100,257 @@ export function CheckoutForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
           {error}
         </div>
       )}
 
-      <section className="space-y-4 rounded-3xl border border-white/60 bg-white p-6 shadow-sm">
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Teslimat</p>
-          <h2 className="text-lg font-semibold text-gray-900">Adres Bilgileri</h2>
-          <p className="text-sm text-gray-500">Kargoyu yönlendireceğimiz adresi paylaşın.</p>
+      {/* Delivery Information */}
+      <section className="space-y-4 rounded-2xl border border-gray-200 bg-surface-white p-6">
+        <div className="mb-4">
+          <h2 className="font-heading text-xl font-bold text-brand-dark mb-1">
+            Teslimat Bilgileri
+          </h2>
+          <p className="text-sm text-brand-dark/60">
+            Kargoyu yönlendireceğimiz adresi paylaşın
+          </p>
         </div>
+
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="space-y-1 text-sm font-medium text-gray-700">
-            Ad Soyad *
+          <label className="space-y-2">
+            <span className="text-sm font-semibold text-brand-dark">
+              Ad Soyad <span className="text-action">*</span>
+            </span>
             <input
               name="fullName"
               type="text"
               value={formValues.fullName}
               onChange={handleChange}
-              className="mt-1 w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-brand-dark focus:outline-none focus:ring-2 focus:ring-action/50 focus:border-action transition-colors"
+              placeholder="Ad ve soyadınızı girin"
               required
             />
           </label>
-          <label className="space-y-1 text-sm font-medium text-gray-700">
-            Telefon *
+
+          <label className="space-y-2">
+            <span className="text-sm font-semibold text-brand-dark">
+              Telefon <span className="text-action">*</span>
+            </span>
             <input
               name="phone"
               type="tel"
               value={formValues.phone}
               onChange={handleChange}
-              className="mt-1 w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-brand-dark focus:outline-none focus:ring-2 focus:ring-action/50 focus:border-action transition-colors"
+              placeholder="0555 555 55 55"
               required
             />
           </label>
         </div>
-        <label className="space-y-1 text-sm font-medium text-gray-700">
-          Adres *
+
+        <label className="space-y-2">
+          <span className="text-sm font-semibold text-brand-dark">
+            Adres <span className="text-action">*</span>
+          </span>
           <textarea
             name="address"
             rows={3}
             value={formValues.address}
             onChange={handleChange}
-            className="mt-1 w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none"
-            placeholder="Mahalle, sokak, no, daire"
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-brand-dark focus:outline-none focus:ring-2 focus:ring-action/50 focus:border-action transition-colors resize-none"
+            placeholder="Mahalle, sokak, bina no, daire no"
             required
           />
         </label>
-        <div className="grid gap-4 md:grid-cols-2">
-          <label className="space-y-1 text-sm font-medium text-gray-700">
-            İl / Şehir *
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <label className="space-y-2">
+            <span className="text-sm font-semibold text-brand-dark">
+              İl / Şehir <span className="text-action">*</span>
+            </span>
             <input
               name="city"
               type="text"
               value={formValues.city}
               onChange={handleChange}
-              className="mt-1 w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-brand-dark focus:outline-none focus:ring-2 focus:ring-action/50 focus:border-action transition-colors"
+              placeholder="İstanbul"
               required
             />
           </label>
-          <label className="space-y-1 text-sm font-medium text-gray-700">
-            İlçe
+
+          <label className="space-y-2">
+            <span className="text-sm font-semibold text-brand-dark">İlçe</span>
             <input
               name="district"
               type="text"
               value={formValues.district}
               onChange={handleChange}
-              className="mt-1 w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-brand-dark focus:outline-none focus:ring-2 focus:ring-action/50 focus:border-action transition-colors"
+              placeholder="Kadıköy"
             />
           </label>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2">
-          <label className="space-y-1 text-sm font-medium text-gray-700">
-            Posta Kodu *
+
+          <label className="space-y-2">
+            <span className="text-sm font-semibold text-brand-dark">
+              Posta Kodu <span className="text-action">*</span>
+            </span>
             <input
               name="zipCode"
               type="text"
               inputMode="numeric"
               value={formValues.zipCode}
               onChange={handleChange}
-              className="mt-1 w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none"
+              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-brand-dark focus:outline-none focus:ring-2 focus:ring-action/50 focus:border-action transition-colors"
+              placeholder="34000"
               required
             />
           </label>
-          <label className="space-y-1 text-sm font-medium text-gray-700">
-            Not (opsiyonel)
-            <input
-              name="notes"
-              type="text"
-              value={formValues.notes}
-              onChange={handleChange}
-              placeholder="Kurye notu"
-              className="mt-1 w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm text-gray-900 shadow-sm focus:border-blue-500 focus:outline-none"
-            />
-          </label>
         </div>
+
+        <label className="space-y-2">
+          <span className="text-sm font-semibold text-brand-dark">
+            Teslimat Notu <span className="text-xs text-brand-dark/60">(Opsiyonel)</span>
+          </span>
+          <input
+            name="notes"
+            type="text"
+            value={formValues.notes}
+            onChange={handleChange}
+            placeholder="Kapı zili çalışmıyor, arayın lütfen"
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm text-brand-dark focus:outline-none focus:ring-2 focus:ring-action/50 focus:border-action transition-colors"
+          />
+        </label>
       </section>
 
-      <section className="space-y-4 rounded-3xl border border-white/60 bg-white p-6 shadow-sm">
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-gray-500">Ödeme</p>
-          <h2 className="text-lg font-semibold text-gray-900">Yöntem Seçimi</h2>
-          <p className="text-sm text-gray-500">EFT veya kapıda ödeme tercih edebilirsiniz.</p>
+      {/* Payment Method */}
+      <section className="space-y-4 rounded-2xl border border-gray-200 bg-surface-white p-6">
+        <div className="mb-4">
+          <h2 className="font-heading text-xl font-bold text-brand-dark mb-1">
+            Ödeme Yöntemi
+          </h2>
+          <p className="text-sm text-brand-dark/60">
+            Kredi kartı veya kapıda ödeme seçeneklerinden birini seçin
+          </p>
         </div>
+
         <div className="grid gap-3 sm:grid-cols-2">
-          <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-gray-200 px-4 py-3 shadow-sm hover:border-blue-400">
+          <label
+            className={`flex cursor-pointer items-center gap-4 rounded-xl border-2 p-4 transition-all ${
+              formValues.paymentMethod === 'card'
+                ? 'border-action bg-action/5'
+                : 'border-gray-200 hover:border-gray-300 bg-surface-light'
+            }`}
+          >
             <input
               type="radio"
               name="paymentMethod"
               value="card"
               checked={formValues.paymentMethod === 'card'}
               onChange={handleRadioChange}
-              className="h-4 w-4 accent-blue-600"
+              className="sr-only"
             />
-            <div>
-              <p className="text-sm font-semibold text-gray-900">Kart / EFT</p>
-              <p className="text-xs text-gray-500">Ödeme onayı bekleyen</p>
+            <div className="flex-shrink-0">
+              <div
+                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                  formValues.paymentMethod === 'card'
+                    ? 'border-action'
+                    : 'border-gray-300'
+                }`}
+              >
+                {formValues.paymentMethod === 'card' && (
+                  <div className="w-3 h-3 rounded-full bg-action" />
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <CreditCard className="w-6 h-6 text-action" />
+              <div>
+                <p className="font-semibold text-brand-dark">Kredi Kartı</p>
+                <p className="text-xs text-brand-dark/60">Güvenli 3D ödeme</p>
+              </div>
             </div>
           </label>
-          <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-gray-200 px-4 py-3 shadow-sm hover:border-blue-400">
+
+          <label
+            className={`flex cursor-pointer items-center gap-4 rounded-xl border-2 p-4 transition-all ${
+              formValues.paymentMethod === 'cod'
+                ? 'border-action bg-action/5'
+                : 'border-gray-200 hover:border-gray-300 bg-surface-light'
+            }`}
+          >
             <input
               type="radio"
               name="paymentMethod"
               value="cod"
               checked={formValues.paymentMethod === 'cod'}
               onChange={handleRadioChange}
-              className="h-4 w-4 accent-blue-600"
+              className="sr-only"
             />
-            <div>
-              <p className="text-sm font-semibold text-gray-900">Kapıda Ödeme</p>
-              <p className="text-xs text-gray-500">Teslimatta nakit</p>
+            <div className="flex-shrink-0">
+              <div
+                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                  formValues.paymentMethod === 'cod'
+                    ? 'border-action'
+                    : 'border-gray-300'
+                }`}
+              >
+                {formValues.paymentMethod === 'cod' && (
+                  <div className="w-3 h-3 rounded-full bg-action" />
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Wallet className="w-6 h-6 text-action" />
+              <div>
+                <p className="font-semibold text-brand-dark">Kapıda Ödeme</p>
+                <p className="text-xs text-brand-dark/60">Nakit veya kart</p>
+              </div>
             </div>
           </label>
         </div>
-        <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-xs text-blue-900">
+
+        <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 text-xs text-blue-900">
+          <p className="font-semibold mb-1">Not:</p>
           Siparişiniz admin panelinde manuel olarak onaylandığında ödeme durumunuz güncellenir.
         </div>
       </section>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      {/* Submit Button */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-4">
+        <div className="text-center sm:text-left">
+          <p className="text-sm text-brand-dark/60 mb-1">Ödenecek Tutar</p>
+          <p className="text-2xl font-bold text-brand-dark">
+            {currencyFormatter.format(total)}
+          </p>
+        </div>
+
         <button
           type="submit"
           disabled={loading}
-          className="rounded-full bg-blue-600 px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-600/30 transition hover:bg-blue-700 disabled:bg-blue-300"
+          className="btn-cta btn-cta-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'İşleniyor...' : 'Siparişi Onayla'}
         </button>
-        <p className="text-sm text-gray-500">Toplam: {new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(total)}</p>
+      </div>
+
+      {/* Mobile Sticky CTA */}
+      <div className="sticky-cta-footer sm:hidden">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-xs text-brand-dark/60 mb-1">Toplam</p>
+            <p className="text-xl font-bold text-brand-dark">
+              {currencyFormatter.format(total)}
+            </p>
+          </div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-cta disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'İşleniyor...' : 'Siparişi Onayla'}
+          </button>
+        </div>
       </div>
     </form>
   )
