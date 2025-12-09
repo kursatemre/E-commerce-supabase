@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { AccountTabs } from "@/components/AccountTabs";
+import { LogoutButton } from "@/components/LogoutButton";
 import { createClient } from "@/lib/supabase/server";
 
 const accountTabs = [
@@ -51,21 +52,26 @@ export default async function AccountLayout({
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border bg-white p-6 shadow-sm">
-        <p className="text-sm text-gray-500">Hesap Özeti</p>
-        <h1 className="mt-1 text-2xl font-semibold text-gray-900">{fullName}</h1>
-        <div className="mt-4 flex flex-wrap gap-6 text-sm text-gray-600">
+      <div className="rounded-2xl border border-gray-200 bg-surface-white p-6 shadow-sm">
+        <div className="flex items-start justify-between">
           <div>
-            <p className="text-xs uppercase tracking-wide text-gray-400">E-posta</p>
-            <p className="font-medium text-gray-900">{user.email}</p>
+            <p className="text-sm text-brand-dark/60">Hesap Özeti</p>
+            <h1 className="mt-1 font-heading text-2xl font-semibold text-brand-dark">{fullName}</h1>
+          </div>
+          <LogoutButton />
+        </div>
+        <div className="mt-6 flex flex-wrap gap-6 text-sm">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-brand-dark/40">E-posta</p>
+            <p className="mt-1 font-medium text-brand-dark">{user.email}</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-gray-400">Telefon</p>
-            <p className="font-medium text-gray-900">{profile?.phone || "Tanımlı değil"}</p>
+            <p className="text-xs uppercase tracking-wide text-brand-dark/40">Telefon</p>
+            <p className="mt-1 font-medium text-brand-dark">{profile?.phone || "Tanımlı değil"}</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-wide text-gray-400">Hızlı İşlem</p>
-            <Link href="/" className="font-medium text-primary">
+            <p className="text-xs uppercase tracking-wide text-brand-dark/40">Hızlı İşlem</p>
+            <Link href="/" className="mt-1 block font-medium text-action hover:text-action-hover transition-colors">
               Mağazaya Dön
             </Link>
           </div>
@@ -74,7 +80,7 @@ export default async function AccountLayout({
 
       <AccountTabs tabs={accountTabs} />
 
-      <section className="rounded-2xl border bg-white p-6 shadow-sm">{children}</section>
+      <section className="rounded-2xl border border-gray-200 bg-surface-white p-6 shadow-sm">{children}</section>
     </div>
   );
 }
