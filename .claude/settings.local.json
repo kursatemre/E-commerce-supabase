@@ -30,7 +30,8 @@
       "Bash(node scripts/seed-products.js:*)",
       "Bash(node scripts/add-images-to-products.js:*)",
       "Bash(node scripts/setup-variant-system.js:*)",
-      "Bash(node scripts/assign-variants-to-products.js:*)"
+      "Bash(node scripts/assign-variants-to-products.js:*)",
+      "Bash(node -e \"\nconst { createClient } = require(''@supabase/supabase-js'');\nconst fs = require(''fs'');\nconst path = require(''path'');\nconst envPath = path.join(process.cwd(), ''.env.local'');\nconst envFile = fs.readFileSync(envPath, ''utf-8'');\nconst envVars = {};\nenvFile.split(''\\n'').forEach(line => {\n  const match = line.match(/^([^=]+)=(.*)$/);\n  if (match) envVars[match[1].trim()] = match[2].trim();\n});\nconst supabase = createClient(envVars.NEXT_PUBLIC_SUPABASE_URL, envVars.SUPABASE_SERVICE_ROLE_KEY || envVars.NEXT_PUBLIC_SUPABASE_ANON_KEY);\n(async () => {\n  const { data } = await supabase.from(''categories'').select(''name, slug'').eq(''is_active'', true).order(''name'');\n  console.log(JSON.stringify(data, null, 2));\n})();\n\")"
     ],
     "deny": [],
     "ask": []

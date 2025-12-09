@@ -45,10 +45,11 @@ export function ShopHeader({ user, profile, cartItemCount = 0, cartTotal = 0, on
   })
 
   const mainCategories = [
-    { name: 'Kadın', href: '/categories/kadin' },
-    { name: 'Erkek', href: '/categories/erkek' },
-    { name: 'Yeni Ürünler', href: '/new' },
-    { name: 'İndirim', href: '/sale' },
+    { name: 'Kadın Elbiseleri', href: '/categories/kadin-elbiseleri' },
+    { name: 'Erkek Dış Giyim', href: '/categories/erkek-dis-giyim' },
+    { name: 'Kadın Alt Giyim', href: '/categories/kadin-alt-giyim' },
+    { name: 'Erkek Üst Giyim', href: '/categories/erkek-ust-giyim' },
+    { name: 'Aksesuar ve Ayakkabı', href: '/categories/aksesuar-ve-ayakkabi' },
   ]
 
   // Debounced search
@@ -76,7 +77,7 @@ export function ShopHeader({ user, profile, cartItemCount = 0, cartTotal = 0, on
   return (
     <>
       {/* Top Announcement Bar */}
-      <div className="bg-action/10 border-b border-action/20 hidden md:block">
+      <div className="bg-action/10 border-b border-action/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-center h-10">
             <p className="text-sm text-action font-semibold">

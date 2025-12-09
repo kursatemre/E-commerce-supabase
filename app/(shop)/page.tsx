@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { ProductCard } from '@/components/shop/ProductCard'
 import { CategoryFilter } from '@/components/shop/CategoryFilter'
 import { Pagination } from '@/components/Pagination'
-import { Hero } from '@/components/homepage/Hero'
+import { HeroSection } from '@/components/shop/HeroSection'
 import { TrustStrip } from '@/components/homepage/TrustStrip'
 import { DualBanner } from '@/components/homepage/DualBanner'
 import { SingleBanner } from '@/components/homepage/SingleBanner'
@@ -59,7 +59,7 @@ export default async function ShopPage({
     return (
       <div className="space-y-0">
         {/* Hero Section */}
-        <Hero {...homepageConfig.hero} />
+        <HeroSection />
 
         {/* Trust Strip */}
         <TrustStrip badges={homepageConfig.trustBadges} />
