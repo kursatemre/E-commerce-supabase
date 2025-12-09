@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Search, Heart, ShoppingCart, User, Menu } from 'lucide-react'
 import { useState } from 'react'
+import { CartDrawer } from '@/components/cart/CartDrawer'
 
 type ShopHeaderProps = {
   user?: {
@@ -20,6 +21,7 @@ type ShopHeaderProps = {
 
 export function ShopHeader({ user, profile, cartItemCount = 0, cartTotal = 0, onSignOut }: ShopHeaderProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
+  const [isCartOpen, setIsCartOpen] = useState(false)
 
   const currencyFormatter = new Intl.NumberFormat('tr-TR', {
     style: 'currency',
@@ -68,14 +70,17 @@ export function ShopHeader({ user, profile, cartItemCount = 0, cartTotal = 0, on
                 </Link>
               )}
 
-              <Link href="/cart" className="relative text-brand-dark/60 hover:text-brand-dark transition-colors">
+              <button
+                onClick={() => setIsCartOpen(true)}
+                className="relative text-brand-dark/60 hover:text-brand-dark transition-colors"
+              >
                 <ShoppingCart className="w-6 h-6" />
                 {cartTotal > 0 && (
                   <div className="absolute -top-2 -right-3 min-w-[52px] px-2 py-0.5 bg-action text-white text-xs font-semibold rounded-full whitespace-nowrap">
                     {currencyFormatter.format(cartTotal)}
                   </div>
                 )}
-              </Link>
+              </button>
             </div>
           </div>
         </div>
@@ -136,6 +141,9 @@ export function ShopHeader({ user, profile, cartItemCount = 0, cartTotal = 0, on
           </div>
         </div>
       )}
+
+      {/* Cart Drawer */}
+      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   )
 }
