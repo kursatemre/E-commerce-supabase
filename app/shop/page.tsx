@@ -8,6 +8,7 @@ import { TrustStrip } from '@/components/homepage/TrustStrip'
 import { DualBanner } from '@/components/homepage/DualBanner'
 import { SingleBanner } from '@/components/homepage/SingleBanner'
 import { ProductCarousel } from '@/components/homepage/ProductCarousel'
+import { homepageConfig } from '@/config/homepage'
 import { Suspense } from 'react'
 
 const ITEMS_PER_PAGE = 12
@@ -58,62 +59,37 @@ export default async function ShopPage({
     return (
       <div className="space-y-0">
         {/* Hero Section */}
-        <Hero
-          title="Yeniden Keşfet"
-          subtitle="Sakin çekiciliğin gücünü yaşayın"
-          ctaText="Koleksiyonu Keşfet"
-          ctaLink="/shop?category=yeni"
-          imageSrc="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920&h=1080&fit=crop"
-          imageAlt="Koleksiyon görseli"
-        />
+        <Hero {...homepageConfig.hero} />
 
         {/* Trust Strip */}
-        <TrustStrip />
+        <TrustStrip badges={homepageConfig.trustBadges} />
 
         {/* Dual Banner - Kadın / Erkek */}
         <DualBanner
-          leftBanner={{
-            title: 'Kadın Koleksiyonu',
-            link: '/shop?category=kadin',
-            imageSrc: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&h=1000&fit=crop',
-            imageAlt: 'Kadın koleksiyonu',
-          }}
-          rightBanner={{
-            title: 'Erkek Koleksiyonu',
-            link: '/shop?category=erkek',
-            imageSrc: 'https://images.unsplash.com/photo-1490114538077-0a7f8cb49891?w=800&h=1000&fit=crop',
-            imageAlt: 'Erkek koleksiyonu',
-          }}
+          leftBanner={homepageConfig.dualBanner.left}
+          rightBanner={homepageConfig.dualBanner.right}
         />
 
         {/* Featured Products */}
         {transformedFeatured.length > 0 && (
           <ProductCarousel
-            title="Size Özel Seçtiklerimiz"
-            subtitle="En yeni ve popüler ürünler"
+            title={homepageConfig.featuredSection.title}
+            subtitle={homepageConfig.featuredSection.subtitle}
             products={transformedFeatured}
-            viewAllLink="/shop?page=2"
+            viewAllLink={homepageConfig.featuredSection.viewAllLink}
           />
         )}
 
         {/* Single Banner - Sustainability */}
-        <SingleBanner
-          title="Sürdürülebilir Moda"
-          subtitle="Doğaya saygılı, stilden ödün vermeyen koleksiyonumuz"
-          ctaText="Keşfet"
-          ctaLink="/shop?category=surdurulebilir"
-          imageSrc="https://images.unsplash.com/photo-1542838132-92c53300491e?w=1920&h=1000&fit=crop"
-          imageAlt="Sürdürülebilir koleksiyon"
-          theme="light"
-        />
+        <SingleBanner {...homepageConfig.singleBanner} />
 
         {/* More Products */}
         {transformedFeatured.length > 0 && (
           <ProductCarousel
-            title="Popüler Ürünler"
-            subtitle="Müşterilerimizin favorileri"
+            title={homepageConfig.popularSection.title}
+            subtitle={homepageConfig.popularSection.subtitle}
             products={transformedFeatured}
-            viewAllLink="/shop?page=2"
+            viewAllLink={homepageConfig.popularSection.viewAllLink}
           />
         )}
       </div>
@@ -236,18 +212,19 @@ export default async function ShopPage({
   }))
 
   return (
-    <div className="space-y-6 py-6">
-      {/* Header Section */}
-      <div>
-        <h1 className="font-heading text-h1 md:text-h1 text-brand-dark mb-2">
-          Ürünlerimiz
-        </h1>
-        <p className="text-brand-dark/60 text-sm md:text-base">
-          {count || 0} ürün bulundu
-          {search && ` - "${search}" için`}
-          {categorySlug && ` - ${categories?.find(c => c.slug === categorySlug)?.name} kategorisinde`}
-        </p>
-      </div>
+    <div className="section-container py-6">
+      <div className="space-y-6">
+        {/* Header Section */}
+        <div>
+          <h1 className="font-heading text-h1 md:text-h1 text-brand-dark mb-2">
+            Ürünlerimiz
+          </h1>
+          <p className="text-brand-dark/60 text-sm md:text-base">
+            {count || 0} ürün bulundu
+            {search && ` - "${search}" için`}
+            {categorySlug && ` - ${categories?.find(c => c.slug === categorySlug)?.name} kategorisinde`}
+          </p>
+        </div>
 
       {/* Category Filter */}
       {categories && categories.length > 0 && (
@@ -295,6 +272,7 @@ export default async function ShopPage({
           </Link>
         </div>
       )}
+      </div>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { ShopHeader } from '@/components/shop/ShopHeader'
+import { ShopFooter } from '@/components/shop/ShopFooter'
 import { MobileNavigation } from '@/components/shop/MobileNavigation'
 import { ensureGuestId } from '@/lib/guest'
 
@@ -58,7 +59,7 @@ export default async function ShopLayout({
   }
 
   return (
-    <div className="min-h-screen bg-surface-white pb-16 md:pb-0">
+    <div className="min-h-screen bg-surface-white pb-16 md:pb-0 flex flex-col">
       <ShopHeader
         user={user}
         profile={profile}
@@ -67,9 +68,11 @@ export default async function ShopLayout({
         onSignOut={handleSignOut}
       />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+      <main className="flex-1">
         {children}
       </main>
+
+      <ShopFooter />
 
       <MobileNavigation cartItemCount={cartItemCount} cartTotal={cartTotal} />
     </div>
