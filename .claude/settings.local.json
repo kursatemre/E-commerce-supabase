@@ -26,7 +26,11 @@
       "Bash(else echo \"No config.toml found\")",
       "Bash(git fetch:*)",
       "Bash(git pull:*)",
-      "Bash(timeout /t 15 /nobreak)"
+      "Bash(timeout /t 15 /nobreak)",
+      "Bash(node scripts/seed-products.js:*)",
+      "Bash(node scripts/add-images-to-products.js:*)",
+      "Bash(node scripts/setup-variant-system.js:*)",
+      "Bash(node scripts/assign-variants-to-products.js:*)"
     ],
     "deny": [],
     "ask": []

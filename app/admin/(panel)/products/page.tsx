@@ -1,6 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { DeleteButton } from '@/components/DeleteButton'
-import { createProduct, deleteProduct, toggleProductActive } from '@/actions/products'
+import { createProduct, toggleProductActive } from '@/actions/products'
 import Link from 'next/link'
 
 export default async function ProductsPage() {
@@ -249,13 +248,32 @@ export default async function ProductsPage() {
                     href={`/admin/products/${product.id}`}
                     className="text-blue-400 hover:text-blue-300 text-sm font-medium transition inline-flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-blue-600/10 border border-transparent hover:border-blue-600/30"
                   >
-                    Detay
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                    Düzenle
                   </Link>
-                  <DeleteButton
-                    id={product.id}
-                    action={deleteProduct}
-                    confirmMessage="Bu ürünü silmek istediğinizden emin misiniz?"
-                  />
+                  <form action={toggleProductActive} className="inline">
+                    <input type="hidden" name="id" value={product.id} />
+                    <input type="hidden" name="isActive" value={product.is_active.toString()} />
+                    <button
+                      type="submit"
+                      className={`text-sm font-medium transition inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border ${
+                        product.is_active
+                          ? 'text-orange-400 hover:text-orange-300 hover:bg-orange-600/10 border-transparent hover:border-orange-600/30'
+                          : 'text-green-400 hover:text-green-300 hover:bg-green-600/10 border-transparent hover:border-green-600/30'
+                      }`}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {product.is_active ? (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                        ) : (
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        )}
+                      </svg>
+                      {product.is_active ? 'Pasif Yap' : 'Aktif Yap'}
+                    </button>
+                  </form>
                 </td>
               </tr>
             ))}
