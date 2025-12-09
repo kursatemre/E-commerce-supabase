@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { createProduct, toggleProductActive } from '@/actions/products'
+import { ToggleProductActiveButton } from '@/components/ToggleProductActiveButton'
 import Link from 'next/link'
 
 export default async function ProductsPage() {
@@ -253,27 +254,11 @@ export default async function ProductsPage() {
                     </svg>
                     Düzenle
                   </Link>
-                  <form action={toggleProductActive} className="inline">
-                    <input type="hidden" name="id" value={product.id} />
-                    <input type="hidden" name="isActive" value={product.is_active.toString()} />
-                    <button
-                      type="submit"
-                      className={`text-sm font-medium transition inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border ${
-                        product.is_active
-                          ? 'text-orange-400 hover:text-orange-300 hover:bg-orange-600/10 border-transparent hover:border-orange-600/30'
-                          : 'text-green-400 hover:text-green-300 hover:bg-green-600/10 border-transparent hover:border-green-600/30'
-                      }`}
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        {product.is_active ? (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-                        ) : (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        )}
-                      </svg>
-                      {product.is_active ? 'Pasif Yap' : 'Aktif Yap'}
-                    </button>
-                  </form>
+                  <ToggleProductActiveButton
+                    productId={product.id}
+                    isActive={product.is_active}
+                    action={toggleProductActive}
+                  />
                 </td>
               </tr>
             ))}
