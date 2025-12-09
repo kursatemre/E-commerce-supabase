@@ -35,7 +35,7 @@ export function ShopHeader({ user, profile, cartItemCount = 0, cartTotal = 0, on
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Link href="/shop" className="flex-shrink-0">
+            <Link href="/" className="flex-shrink-0">
               <h1 className="text-2xl font-heading font-bold text-brand-dark">E-Ticaret</h1>
             </Link>
 
@@ -54,12 +54,12 @@ export function ShopHeader({ user, profile, cartItemCount = 0, cartTotal = 0, on
 
             {/* Right Icons */}
             <div className="flex items-center space-x-6">
-              <Link href="/shop/favorites" className="text-brand-dark/60 hover:text-brand-dark transition-colors">
+              <Link href="/favorites" className="text-brand-dark/60 hover:text-brand-dark transition-colors">
                 <Heart className="w-6 h-6" />
               </Link>
 
               {user ? (
-                <Link href="/shop/account" className="text-brand-dark/60 hover:text-brand-dark transition-colors">
+                <Link href="/account" className="text-brand-dark/60 hover:text-brand-dark transition-colors">
                   <User className="w-6 h-6" />
                 </Link>
               ) : (
@@ -68,7 +68,7 @@ export function ShopHeader({ user, profile, cartItemCount = 0, cartTotal = 0, on
                 </Link>
               )}
 
-              <Link href="/shop/cart" className="relative text-brand-dark/60 hover:text-brand-dark transition-colors">
+              <Link href="/cart" className="relative text-brand-dark/60 hover:text-brand-dark transition-colors">
                 <ShoppingCart className="w-6 h-6" />
                 {cartTotal > 0 && (
                   <div className="absolute -top-2 -right-3 min-w-[52px] px-2 py-0.5 bg-action text-white text-xs font-semibold rounded-full whitespace-nowrap">
@@ -85,7 +85,7 @@ export function ShopHeader({ user, profile, cartItemCount = 0, cartTotal = 0, on
       <header className="sticky top-0 z-40 bg-surface-white border-b border-gray-200 md:hidden">
         <div className="flex items-center justify-between h-14 px-4">
           {/* Logo (Center) */}
-          <Link href="/shop" className="absolute left-1/2 -translate-x-1/2">
+          <Link href="/" className="absolute left-1/2 -translate-x-1/2">
             <h1 className="text-lg font-heading font-bold text-brand-dark">E-Ticaret</h1>
           </Link>
 

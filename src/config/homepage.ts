@@ -13,7 +13,7 @@ export const homepageConfig = {
     title: 'Yeniden Keşfet',
     subtitle: 'Sakin çekiciliğin gücünü yaşayın',
     ctaText: 'Koleksiyonu Keşfet',
-    ctaLink: '/shop?page=2', // Değiştirilebilir: '/shop?category=yeni-sezon'
+    ctaLink: '/?page=2', // Değiştirilebilir: '/?category=yeni-sezon'
     imageSrc: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1920&h=1080&fit=crop',
     imageAlt: 'Hero görseli - Yeni koleksiyon',
   },
@@ -46,13 +46,13 @@ export const homepageConfig = {
   dualBanner: {
     left: {
       title: 'Kadın Koleksiyonu',
-      link: '/shop?category=kadin',
+      link: '/?category=kadin',
       imageSrc: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&h=1000&fit=crop',
       imageAlt: 'Kadın koleksiyonu',
     },
     right: {
       title: 'Erkek Koleksiyonu',
-      link: '/shop?category=erkek',
+      link: '/?category=erkek',
       imageSrc: 'https://images.unsplash.com/photo-1490114538077-0a7f8cb49891?w=800&h=1000&fit=crop',
       imageAlt: 'Erkek koleksiyonu',
     },
@@ -62,7 +62,7 @@ export const homepageConfig = {
   featuredSection: {
     title: 'Size Özel Seçtiklerimiz',
     subtitle: 'En yeni ve popüler ürünler',
-    viewAllLink: '/shop?page=2',
+    viewAllLink: '/?page=2',
   },
 
   // SINGLE BANNER (Tek Banner - Kampanya/Sürdürülebilirlik)
@@ -70,7 +70,7 @@ export const homepageConfig = {
     title: 'Sürdürülebilir Moda',
     subtitle: 'Doğaya saygılı, stilden ödün vermeyen koleksiyonumuz',
     ctaText: 'Keşfet',
-    ctaLink: '/shop?category=surdurulebilir',
+    ctaLink: '/?category=surdurulebilir',
     imageSrc: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=1920&h=1000&fit=crop',
     imageAlt: 'Sürdürülebilir koleksiyon',
     theme: 'light' as const, // 'light' veya 'dark'
@@ -80,7 +80,7 @@ export const homepageConfig = {
   popularSection: {
     title: 'Popüler Ürünler',
     subtitle: 'Müşterilerimizin favorileri',
-    viewAllLink: '/shop?page=2',
+    viewAllLink: '/?page=2',
   },
 }
 
@@ -97,7 +97,7 @@ export const homepageConfig = {
  *
  * 3. LİNKLER:
  *    - ctaLink ve link alanlarını gerçek kategorilerinize göre ayarlayın
- *    - Örnek: '/shop?category=kadin' → gerçek kategori slug'ınız
+ *    - Örnek: '/?category=kadin' → gerçek kategori slug'ınız
  *
  * 4. İLERİ SEVİYE:
  *    - Bu config'i veritabanına taşıyıp admin panelden yönetin
@@ -112,7 +112,7 @@ export const seasonalConfigs = {
       title: 'Yaz Koleksiyonu',
       subtitle: 'Sıcak günlerin hafif şıklığı',
       ctaText: 'Yaz Ürünlerini Gör',
-      ctaLink: '/shop?category=yaz',
+      ctaLink: '/?category=yaz',
       imageSrc: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1920&h=1080&fit=crop',
       imageAlt: 'Yaz koleksiyonu',
     },
@@ -122,7 +122,7 @@ export const seasonalConfigs = {
       title: 'Kış Koleksiyonu',
       subtitle: 'Sıcak tutan, şık gösteren',
       ctaText: 'Kış Ürünlerini Gör',
-      ctaLink: '/shop?category=kis',
+      ctaLink: '/?category=kis',
       imageSrc: 'https://images.unsplash.com/photo-1483058712412-4245e9b90334?w=1920&h=1080&fit=crop',
       imageAlt: 'Kış koleksiyonu',
     },

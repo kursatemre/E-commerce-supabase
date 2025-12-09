@@ -8,10 +8,10 @@ export function MobileNavigation({ cartItemCount = 0, cartTotal = 0 }: { cartIte
   const pathname = usePathname()
 
   const navItems = [
-    { href: '/shop', icon: Home, label: 'Anasayfa' },
-    { href: '/shop/categories', icon: Grid, label: 'Kategoriler' },
-    { href: '/shop/account', icon: User, label: 'Profil' },
-    { href: '/shop/cart', icon: ShoppingCart, label: 'Sepet', badge: cartItemCount, price: cartTotal },
+    { href: '/', icon: Home, label: 'Anasayfa' },
+    { href: '/categories', icon: Grid, label: 'Kategoriler' },
+    { href: '/account', icon: User, label: 'Profil' },
+    { href: '/cart', icon: ShoppingCart, label: 'Sepet', badge: cartItemCount, price: cartTotal },
   ]
 
   const currencyFormatter = new Intl.NumberFormat('tr-TR', {
@@ -25,9 +25,9 @@ export function MobileNavigation({ cartItemCount = 0, cartTotal = 0 }: { cartIte
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-surface-white border-t border-gray-200 md:hidden">
       <div className="flex items-center justify-around h-16 px-2">
         {navItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+          const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href + '/'))
           const Icon = item.icon
-          const isCart = item.href === '/shop/cart'
+          const isCart = item.href === '/cart'
 
           return (
             <Link

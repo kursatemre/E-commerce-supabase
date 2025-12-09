@@ -48,7 +48,7 @@ export default async function CartPage() {
         <div className="text-6xl mb-4">🛒</div>
         <h1 className="text-2xl font-bold mb-4">Sepetiniz Boş</h1>
         <Link
-          href="/shop"
+          href="/"
           className="inline-block bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
         >
           Alışverişe Başla
@@ -159,14 +159,14 @@ export default async function CartPage() {
             </div>
 
             <Link
-              href="/shop/checkout"
+              href="/checkout"
               className="block w-full rounded-md bg-blue-600 py-3 text-center font-semibold text-white transition-colors hover:bg-blue-700"
             >
               Ödeme Adımına Geç
             </Link>
 
             <Link
-              href="/shop"
+              href="/"
               className="block text-center text-blue-600 hover:text-blue-700 mt-4"
             >
               Alışverişe Devam Et

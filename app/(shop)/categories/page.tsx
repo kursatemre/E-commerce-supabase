@@ -20,7 +20,7 @@ export default async function CategoriesPage() {
     <div className="section-container py-8">
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-sm text-brand-dark/60 mb-6">
-        <Link href="/shop" className="hover:text-brand-dark transition-colors">
+        <Link href="/" className="hover:text-brand-dark transition-colors">
           Ana Sayfa
         </Link>
         <ChevronRight className="w-4 h-4" />
@@ -43,7 +43,7 @@ export default async function CategoriesPage() {
           {categories.map((category) => (
             <Link
               key={category.id}
-              href={`/shop?category=${category.slug}`}
+              href={`/?category=${category.slug}`}
               className="group relative aspect-square overflow-hidden rounded-2xl bg-surface-light border border-gray-200 hover:border-action transition-all hover:shadow-lg"
             >
               {/* Category Name */}
@@ -76,7 +76,7 @@ export default async function CategoriesPage() {
           <p className="text-brand-dark/60 mb-6">
             Şu anda aktif kategori bulunmuyor.
           </p>
-          <Link href="/shop" className="btn-cta inline-block">
+          <Link href="/" className="btn-cta inline-block">
             Tüm Ürünlere Dön
           </Link>
         </div>

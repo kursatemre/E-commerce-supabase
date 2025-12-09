@@ -133,7 +133,7 @@ export function ProductCarousel({
           {products.map((product) => (
             <Link
               key={product.id}
-              href={`/shop/products/${product.slug}`}
+              href={`/${product.slug}`}
               className="group flex-none w-[200px] md:w-[250px]"
             >
               {/* Product Card */}

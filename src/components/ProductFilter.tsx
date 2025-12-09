@@ -19,7 +19,7 @@ export function ProductFilter() {
     }
     params.delete('page') // Reset to first page
 
-    router.push(`/shop?${params.toString()}`)
+    router.push(`/?${params.toString()}`)
   }
 
   return (
@@ -42,7 +42,7 @@ export function ProductFilter() {
           type="button"
           onClick={() => {
             setSearch('')
-            router.push('/shop')
+            router.push('/')
           }}
           className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300"
         >

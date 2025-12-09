@@ -57,7 +57,7 @@ export async function updateProfile(formData: FormData) {
     throw new Error('Profil güncellenemedi')
   }
 
-  revalidatePath('/shop/account/profile')
+  revalidatePath('/account/profile')
 }
 
 export async function updatePassword(formData: FormData) {
@@ -82,5 +82,5 @@ export async function updatePassword(formData: FormData) {
     throw new Error(error.message || 'Şifre güncellenemedi')
   }
 
-  revalidatePath('/shop/account/profile')
+  revalidatePath('/account/profile')
 }

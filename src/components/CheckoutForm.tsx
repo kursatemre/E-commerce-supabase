@@ -81,7 +81,7 @@ export function CheckoutForm({
         throw new Error(data.error || 'Sipariş oluşturulamadı')
       }
 
-      router.push(data.redirectUrl || '/shop?success=Siparişiniz başarıyla oluşturuldu')
+      router.push(data.redirectUrl || '/?success=Siparişiniz başarıyla oluşturuldu')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Bir hata oluştu')
     } finally {

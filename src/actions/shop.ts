@@ -18,7 +18,7 @@ export async function addToCart(productId: string, variantId?: string) {
       .single()
 
     if (!product || !product.is_active) {
-      redirect('/shop?error=Ürün bulunamadı veya yayında değil')
+      redirect('/?error=Ürün bulunamadı veya yayında değil')
     }
 
     let availableStock = product.stock
@@ -32,14 +32,14 @@ export async function addToCart(productId: string, variantId?: string) {
         .single()
 
       if (!variant || !variant.is_active) {
-        redirect('/shop?error=Bu varyant satılamıyor')
+        redirect('/?error=Bu varyant satılamıyor')
       }
 
       availableStock = variant.stock || 0
     }
 
     if (!availableStock || availableStock <= 0) {
-      redirect('/shop?error=Stokta yok')
+      redirect('/?error=Stokta yok')
     }
 
     // Get or create cart
@@ -75,7 +75,7 @@ export async function addToCart(productId: string, variantId?: string) {
 
     if (existingItem) {
       if (existingItem.quantity >= availableStock) {
-        redirect('/shop?error=Bu seçenek için daha fazla stok yok')
+        redirect('/?error=Bu seçenek için daha fazla stok yok')
       }
       // Update quantity
       const { error } = await supabase
@@ -98,14 +98,14 @@ export async function addToCart(productId: string, variantId?: string) {
       if (error) throw error
     }
 
-    revalidatePath('/shop')
-    revalidatePath('/shop/cart')
+    revalidatePath('/')
+    revalidatePath('/cart')
   } catch (error) {
     console.error('Error adding to cart:', error)
-    redirect('/shop?error=Sepete eklenirken bir hata oluştu')
+    redirect('/?error=Sepete eklenirken bir hata oluştu')
   }
 
-  redirect('/shop?success=Ürün sepete eklendi')
+  redirect('/?success=Ürün sepete eklendi')
 }
 
 export async function updateCartItem(itemId: string, quantity: number) {
@@ -131,7 +131,7 @@ export async function updateCartItem(itemId: string, quantity: number) {
     }
   }
 
-  revalidatePath('/shop/cart')
+  revalidatePath('/cart')
 }
 
 export async function removeFromCart(itemId: string) {
@@ -146,5 +146,5 @@ export async function removeFromCart(itemId: string) {
     console.error('Error removing item:', error)
   }
 
-  revalidatePath('/shop/cart')
+  revalidatePath('/cart')
 }

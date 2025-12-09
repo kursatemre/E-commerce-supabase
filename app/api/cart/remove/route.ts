@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
     if (error) throw error
 
-    revalidatePath('/shop/cart')
+    revalidatePath('/cart')
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Cart remove error:', error)

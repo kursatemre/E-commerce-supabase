@@ -265,7 +265,7 @@ export default async function ShopPage({
               : 'Bu kategoride ürün bulunmuyor'}
           </p>
           <Link
-            href="/shop"
+            href="/"
             className="btn-cta inline-block"
           >
             Tüm Ürünleri Gör

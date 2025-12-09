@@ -54,7 +54,7 @@ export default async function CheckoutPage() {
   const cartItems = cart?.cart_items ?? []
 
   if (!cartItems.length) {
-    redirect('/shop/cart')
+    redirect('/cart')
   }
 
   const subtotal = cartItems.reduce((sum: number, item: any) => {

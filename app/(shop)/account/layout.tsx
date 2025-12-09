@@ -6,22 +6,22 @@ import { createClient } from "@/lib/supabase/server";
 
 const accountTabs = [
   {
-    href: "/shop/account/orders",
+    href: "/account/orders",
     label: "Siparişlerim",
     description: "Geçmiş siparişler, durumlar ve iadeler",
   },
   {
-    href: "/shop/account/addresses",
+    href: "/account/addresses",
     label: "Adres Defteri",
     description: "Teslimat adreslerini yönet",
   },
   {
-    href: "/shop/account/profile",
+    href: "/account/profile",
     label: "Kişisel Bilgiler",
     description: "İletişim ve KVKK tercihleri",
   },
   {
-    href: "/shop/account/rewards",
+    href: "/account/rewards",
     label: "Puan / Kupon",
     description: "Sadakat puanları ve kuponlar",
   },
@@ -65,7 +65,7 @@ export default async function AccountLayout({
           </div>
           <div>
             <p className="text-xs uppercase tracking-wide text-gray-400">Hızlı İşlem</p>
-            <Link href="/shop" className="font-medium text-primary">
+            <Link href="/" className="font-medium text-primary">
               Mağazaya Dön
             </Link>
           </div>

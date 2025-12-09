@@ -8,7 +8,7 @@ const footerLinks = {
     { name: 'İletişim', href: '/contact' },
   ],
   musteri: [
-    { name: 'Sipariş Takibi', href: '/shop/account/orders' },
+    { name: 'Sipariş Takibi', href: '/account/orders' },
     { name: 'İade ve Değişim', href: '/returns' },
     { name: 'Kargo Bilgileri', href: '/shipping' },
     { name: 'SSS', href: '/faq' },
@@ -88,7 +88,7 @@ export function ShopFooter() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand Column */}
           <div className="lg:col-span-1">
-            <Link href="/shop" className="inline-block mb-4">
+            <Link href="/" className="inline-block mb-4">
               <h3 className="text-2xl font-heading font-bold">E-Ticaret</h3>
             </Link>
             <p className="text-white/70 text-sm mb-6">

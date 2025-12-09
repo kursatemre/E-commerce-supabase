@@ -55,7 +55,7 @@ export default async function ShopLayout({
     'use server'
     const supabase = await createClient()
     await supabase.auth.signOut()
-    redirect('/shop')
+    redirect('/')
   }
 
   return (

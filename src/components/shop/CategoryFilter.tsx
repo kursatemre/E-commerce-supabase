@@ -26,7 +26,7 @@ export function CategoryFilter({ categories }: CategoryFilterProps) {
       <div className="hidden md:block mb-6">
         <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide">
           <Link
-            href="/shop"
+            href="/"
             className={`px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
               !currentCategory
                 ? 'bg-action text-white shadow-button'
@@ -38,7 +38,7 @@ export function CategoryFilter({ categories }: CategoryFilterProps) {
           {categories.map((category) => (
             <Link
               key={category.id}
-              href={`/shop?category=${category.slug}`}
+              href={`/?category=${category.slug}`}
               className={`px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${
                 currentCategory === category.slug
                   ? 'bg-action text-white shadow-button'
@@ -58,7 +58,7 @@ export function CategoryFilter({ categories }: CategoryFilterProps) {
           <div className="flex-1 overflow-x-auto scrollbar-hide">
             <div className="flex gap-2 pb-1">
               <Link
-                href="/shop"
+                href="/"
                 className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
                   !currentCategory
                     ? 'bg-action text-white'
@@ -70,7 +70,7 @@ export function CategoryFilter({ categories }: CategoryFilterProps) {
               {categories.slice(0, 5).map((category) => (
                 <Link
                   key={category.id}
-                  href={`/shop?category=${category.slug}`}
+                  href={`/?category=${category.slug}`}
                   className={`px-4 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all ${
                     currentCategory === category.slug
                       ? 'bg-action text-white'
@@ -116,7 +116,7 @@ export function CategoryFilter({ categories }: CategoryFilterProps) {
 
             <div className="p-6 space-y-2">
               <Link
-                href="/shop"
+                href="/"
                 onClick={() => setShowFilterModal(false)}
                 className={`block px-4 py-3 rounded-button text-sm font-semibold ${
                   !currentCategory
@@ -129,7 +129,7 @@ export function CategoryFilter({ categories }: CategoryFilterProps) {
               {categories.map((category) => (
                 <Link
                   key={category.id}
-                  href={`/shop?category=${category.slug}`}
+                  href={`/?category=${category.slug}`}
                   onClick={() => setShowFilterModal(false)}
                   className={`block px-4 py-3 rounded-button text-sm font-semibold ${
                     currentCategory === category.slug
