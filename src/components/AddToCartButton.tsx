@@ -2,15 +2,25 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { ShoppingCart } from 'lucide-react'
 
 interface AddToCartButtonProps {
   productId: string
   stock: number
   variantId?: string | null
   disabled?: boolean
+  fullWidth?: boolean
+  onAddToCart?: () => void
 }
 
-export function AddToCartButton({ productId, stock, variantId, disabled = false }: AddToCartButtonProps) {
+export function AddToCartButton({
+  productId,
+  stock,
+  variantId,
+  disabled = false,
+  fullWidth = true,
+  onAddToCart
+}: AddToCartButtonProps) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
@@ -35,8 +45,14 @@ export function AddToCartButton({ productId, stock, variantId, disabled = false 
         return
       }
 
-      // Success feedback
-      alert('✓ Ürün sepete eklendi!')
+      // Success feedback - simple toast-like message
+      const toast = document.createElement('div')
+      toast.className = 'fixed top-20 left-1/2 -translate-x-1/2 bg-brand-dark text-white px-6 py-3 rounded-button shadow-button z-50 animate-fade-in'
+      toast.textContent = '✓ Ürün sepete eklendi!'
+      document.body.appendChild(toast)
+      setTimeout(() => toast.remove(), 2000)
+
+      if (onAddToCart) onAddToCart()
       router.refresh()
     } catch (error) {
       console.error('Error adding to cart:', error)
@@ -50,9 +66,12 @@ export function AddToCartButton({ productId, stock, variantId, disabled = false 
     <button
       onClick={handleAddToCart}
       disabled={stock === 0 || loading || disabled}
-      className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+      className={`btn-cta flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+        fullWidth ? 'w-full' : ''
+      }`}
     >
-      {loading ? 'Ekleniyor...' : stock > 0 ? 'Sepete Ekle' : 'Stokta Yok'}
+      <ShoppingCart className="w-5 h-5" />
+      <span>{loading ? 'Ekleniyor...' : stock > 0 ? 'Sepete Ekle' : 'Stokta Yok'}</span>
     </button>
   )
 }

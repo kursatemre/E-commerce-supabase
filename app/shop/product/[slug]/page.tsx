@@ -1,12 +1,18 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
-import Image from 'next/image'
 import Link from 'next/link'
-import { AddToCartButton } from '@/components/AddToCartButton'
+import { ProductImages } from '@/components/shop/ProductImages'
 import { ProductVariantSelector, ProductVariantSku, VariantTypeDefinition } from '@/components/ProductVariantSelector'
+import { AddToCartButton } from '@/components/AddToCartButton'
+import { ChevronLeft, Heart, Share2 } from 'lucide-react'
 import type { Metadata } from 'next'
 
-const currencyFormatter = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' })
+const currencyFormatter = new Intl.NumberFormat('tr-TR', {
+  style: 'currency',
+  currency: 'TRY',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+})
 
 type ProductImage = {
   id: string
@@ -100,10 +106,6 @@ export default async function ShopProductDetail({ params }: { params: Promise<{ 
   }
 
   const galleryImages: ProductImage[] = (product as { product_images?: ProductImage[] }).product_images || []
-  const sortedImages = [...galleryImages].sort(
-    (a, b) => (a.sort_order || 0) - (b.sort_order || 0)
-  )
-  const heroImage = sortedImages[0]
 
   const [variantTypesResponse, variantOptionsResponse, variantSkusResponse] = await Promise.all([
     supabase
@@ -221,89 +223,70 @@ export default async function ShopProductDetail({ params }: { params: Promise<{ 
   const selectorBasePrice = hasVariantFlow ? (minVariantPrice ?? product.price) : product.price
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
+    <div className="pb-24 md:pb-8">
+      {/* Back Button - Desktop */}
       <Link
         href="/shop"
-        className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900"
+        className="hidden md:inline-flex items-center gap-2 text-sm text-brand-dark/60 hover:text-brand-dark transition-colors mb-6"
       >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
+        <ChevronLeft className="w-4 h-4" />
         Tüm Ürünlere Dön
       </Link>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10">
+        {/* Product Images */}
         <div>
-          <div className="aspect-square bg-gray-100 rounded-2xl overflow-hidden relative">
-            {heroImage ? (
-              <Image
-                src={heroImage.url}
-                alt={heroImage.alt || product.name}
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center text-5xl text-gray-400">
-                📦
-              </div>
-            )}
-          </div>
-          {sortedImages.length > 1 && (
-            <div className="grid grid-cols-4 gap-3 mt-4">
-              {sortedImages.map((image) => (
-                <div key={image.id} className="aspect-square bg-gray-100 rounded-xl relative overflow-hidden">
-                  <Image
-                    src={image.url}
-                    alt={image.alt || product.name}
-                    fill
-                    sizes="(max-width: 768px) 25vw, 10vw"
-                    className="object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
+          <ProductImages images={galleryImages} productName={product.name} />
         </div>
 
-        <div className="space-y-6">
-          <div>
-            <p className="text-sm text-gray-500 mb-1">
-              {product.categories?.name || 'Kategori Yok'} • {product.brands?.name || 'Marka Yok'}
-            </p>
-            <h1 className="text-3xl font-semibold text-gray-900 mb-4">{product.name}</h1>
-            {hasVariantFlow ? (
-              <>
-                {showVariantPriceRange ? (
-                  <p className="text-3xl font-bold text-gray-900">
-                    {currencyFormatter.format(minVariantPrice!)} − {currencyFormatter.format(maxVariantPrice!)}
-                  </p>
-                ) : (
-                  <p className="text-3xl font-bold text-gray-900">
-                    {currencyFormatter.format(minVariantPrice ?? product.price)}
-                  </p>
-                )}
-                <p className="text-sm text-gray-500 mt-1">
-                  Varyant seçiminize göre fiyat netleşir.
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="text-3xl font-bold text-gray-900">
-                  {currencyFormatter.format(product.price)}
-                </p>
-                <p className="text-sm text-gray-500 mt-1">Stok: {product.stock}</p>
-              </>
-            )}
+        {/* Product Info */}
+        <div className="space-y-5 md:space-y-6">
+          {/* Category & Brand */}
+          <div className="flex items-center gap-2 text-xs md:text-sm text-brand-dark/60">
+            <Link
+              href={`/shop?category=${product.categories?.slug}`}
+              className="hover:text-action transition-colors"
+            >
+              {product.categories?.name || 'Kategori'}
+            </Link>
+            <span>•</span>
+            <span>{product.brands?.name || 'Marka'}</span>
           </div>
 
-          {product.description && (
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">Açıklama</h2>
-              <p className="text-gray-700 leading-relaxed">{product.description}</p>
+          {/* Product Name */}
+          <h1 className="font-heading text-h2-mobile md:text-h1 text-brand-dark leading-tight">
+            {product.name}
+          </h1>
+
+          {/* Price Display - Non-Variant Products */}
+          {!hasVariantFlow && (
+            <div className="p-4 bg-surface-light rounded-2xl border border-gray-200">
+              <p className="text-xs font-medium text-brand-dark/60 mb-1">Fiyat</p>
+              <p className="text-2xl md:text-3xl font-heading font-semibold text-brand-dark">
+                {currencyFormatter.format(product.price)}
+              </p>
+              {product.stock > 0 && product.stock <= 5 && (
+                <p className="text-xs text-action font-semibold mt-1">
+                  Son {product.stock} ürün!
+                </p>
+              )}
+              {product.stock === 0 && (
+                <p className="text-xs text-error font-semibold mt-1">Stokta Yok</p>
+              )}
             </div>
           )}
 
+          {/* Description */}
+          {product.description && (
+            <div className="space-y-2">
+              <h2 className="text-sm font-semibold text-brand-dark">Ürün Açıklaması</h2>
+              <p className="text-sm md:text-base text-brand-dark/80 leading-relaxed">
+                {product.description}
+              </p>
+            </div>
+          )}
+
+          {/* Variant Selector or Simple Add to Cart */}
           {hasVariantFlow ? (
             <ProductVariantSelector
               productId={product.id}
@@ -313,13 +296,59 @@ export default async function ShopProductDetail({ params }: { params: Promise<{ 
               basePrice={selectorBasePrice}
             />
           ) : (
-            <div className="p-4 border rounded-xl bg-gray-50">
-              <p className="text-sm text-gray-600 mb-3">
-                Güvenli ödeme, hızlı teslimat ve 7/24 destek.
-              </p>
-              <AddToCartButton productId={product.id} stock={product.stock} />
+            <div className="space-y-4">
+              <div className="p-4 bg-surface-light rounded-button border border-gray-200">
+                <div className="flex items-center gap-2 text-xs text-brand-dark/60 mb-3">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Güvenli ödeme</span>
+                  <span>•</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                  <span>Hızlı teslimat</span>
+                </div>
+                <AddToCartButton productId={product.id} stock={product.stock} />
+              </div>
             </div>
           )}
+
+          {/* Action Buttons - Desktop Only */}
+          <div className="hidden md:flex items-center gap-3">
+            <button className="flex items-center gap-2 px-4 py-2 text-sm text-brand-dark/60 hover:text-brand-dark transition-colors">
+              <Heart className="w-5 h-5" />
+              <span>Favorilere Ekle</span>
+            </button>
+            <button className="flex items-center gap-2 px-4 py-2 text-sm text-brand-dark/60 hover:text-brand-dark transition-colors">
+              <Share2 className="w-5 h-5" />
+              <span>Paylaş</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Features Section */}
+      <div className="mt-8 md:mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="p-4 bg-surface-light rounded-2xl text-center">
+          <div className="text-2xl mb-2">🚚</div>
+          <p className="text-xs md:text-sm font-semibold text-brand-dark mb-1">Ücretsiz Kargo</p>
+          <p className="text-xs text-brand-dark/60">500 TL üzeri</p>
+        </div>
+        <div className="p-4 bg-surface-light rounded-2xl text-center">
+          <div className="text-2xl mb-2">↩️</div>
+          <p className="text-xs md:text-sm font-semibold text-brand-dark mb-1">Kolay İade</p>
+          <p className="text-xs text-brand-dark/60">14 gün içinde</p>
+        </div>
+        <div className="p-4 bg-surface-light rounded-2xl text-center">
+          <div className="text-2xl mb-2">🔒</div>
+          <p className="text-xs md:text-sm font-semibold text-brand-dark mb-1">Güvenli Ödeme</p>
+          <p className="text-xs text-brand-dark/60">SSL sertifikalı</p>
+        </div>
+        <div className="p-4 bg-surface-light rounded-2xl text-center">
+          <div className="text-2xl mb-2">💬</div>
+          <p className="text-xs md:text-sm font-semibold text-brand-dark mb-1">7/24 Destek</p>
+          <p className="text-xs text-brand-dark/60">Müşteri hizmetleri</p>
         </div>
       </div>
     </div>

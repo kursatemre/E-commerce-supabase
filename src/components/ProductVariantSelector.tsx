@@ -142,19 +142,31 @@ export function ProductVariantSelector({
 
   return (
     <div className="space-y-6">
-      <div>
-        <p className="text-sm text-gray-500">Fiyat</p>
-        <p className="text-3xl font-bold text-gray-900">{currency.format(displayPrice)}</p>
+      {/* Price Display */}
+      <div className="p-4 bg-surface-light rounded-2xl border border-gray-200">
+        <p className="text-xs font-medium text-brand-dark/60 mb-1">Fiyat</p>
+        <p className="text-2xl md:text-3xl font-heading font-semibold text-brand-dark">
+          {currency.format(displayPrice)}
+        </p>
+        {displayStock > 0 && displayStock <= 5 && (
+          <p className="text-xs text-action font-semibold mt-1">
+            Son {displayStock} ürün!
+          </p>
+        )}
+        {displayStock === 0 && (
+          <p className="text-xs text-error font-semibold mt-1">Stokta Yok</p>
+        )}
       </div>
 
+      {/* Variant Options */}
       {variantTypes.map((type, index) => {
         const locked = isTypeLocked(index)
         return (
           <div key={type.id} className="space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-semibold text-gray-900">{index + 1}. {type.name}</h4>
+              <h4 className="text-sm font-semibold text-brand-dark">{type.name}</h4>
               {locked && (
-                <span className="text-xs text-gray-400">Önce önceki seçenekleri seçin</span>
+                <span className="text-xs text-brand-dark/40">Önce önceki seçenekleri seçin</span>
               )}
             </div>
             <div className="flex flex-wrap gap-2">
@@ -168,11 +180,11 @@ export function ProductVariantSelector({
                     type="button"
                     onClick={() => handleSelectOption(type.id, option.id)}
                     disabled={disabled}
-                    className={`px-4 py-2 rounded-2xl text-sm border transition ${
+                    className={`px-5 py-2.5 rounded-button text-sm font-semibold border-2 transition-all ${
                       isSelected
-                        ? 'border-blue-500 bg-blue-600/10 text-blue-100'
-                        : 'border-gray-300 bg-white text-gray-900 hover:border-gray-500'
-                    } ${disabled ? 'opacity-40 cursor-not-allowed' : ''}`}
+                        ? 'border-action bg-action text-white shadow-button'
+                        : 'border-gray-300 bg-surface-white text-brand-dark hover:border-brand-dark'
+                    } ${disabled ? 'opacity-30 cursor-not-allowed' : ''}`}
                   >
                     {option.value}
                   </button>
@@ -183,30 +195,32 @@ export function ProductVariantSelector({
         )
       })}
 
-      <div className="space-y-2 text-sm text-gray-500">
-        {matchedVariant ? (
-          <div className="flex flex-wrap items-center gap-3 text-gray-700">
-            <span className="text-gray-500">Seçim:</span>
+      {/* Selection Summary */}
+      {matchedVariant && (
+        <div className="p-4 bg-surface-light rounded-button border border-gray-200">
+          <p className="text-xs font-medium text-brand-dark/60 mb-2">Seçiminiz:</p>
+          <div className="flex flex-wrap gap-2">
             {variantTypes.map((type) => {
               const selectedId = selectedOptions[type.id]
               const optionLabel = type.options.find((opt) => opt.id === selectedId)?.value
               return (
-                <span key={type.id} className="px-3 py-1 rounded-full bg-gray-100 text-gray-800 text-xs font-medium">
-                  {type.name}: {optionLabel}
+                <span key={type.id} className="px-3 py-1 rounded-full bg-brand-dark text-white text-xs font-semibold">
+                  {optionLabel}
                 </span>
               )
             })}
           </div>
-        ) : nextIncompleteType ? (
-          <p className="text-yellow-600">Lütfen {nextIncompleteType.name} seçin.</p>
-        ) : (
-          <p>Varyant seçeneklerini seçin.</p>
-        )}
-        <p>
-          Stok: <span className="text-gray-900 font-semibold">{displayStock}</span>
-        </p>
-      </div>
+        </div>
+      )}
 
+      {/* Warning for incomplete selection */}
+      {!matchedVariant && nextIncompleteType && (
+        <p className="text-sm text-action font-medium">
+          Lütfen {nextIncompleteType.name} seçin
+        </p>
+      )}
+
+      {/* Add to Cart Button */}
       <AddToCartButton
         productId={productId}
         variantId={matchedVariant?.id}
