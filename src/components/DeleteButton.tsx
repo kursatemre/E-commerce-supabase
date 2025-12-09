@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface DeleteButtonProps {
   id: string
@@ -11,6 +12,7 @@ interface DeleteButtonProps {
 
 export function DeleteButton({ id, action, confirmMessage, additionalFields }: DeleteButtonProps) {
   const [isDeleting, setIsDeleting] = useState(false)
+  const router = useRouter()
 
   const handleDelete = async () => {
     if (!confirm(confirmMessage)) return
@@ -25,6 +27,8 @@ export function DeleteButton({ id, action, confirmMessage, additionalFields }: D
         })
       }
       await action(formData)
+      // Refresh the page to reflect changes
+      router.refresh()
     } catch (error) {
       console.error('Delete error:', error)
       alert('Silme işlemi sırasında bir hata oluştu.')
