@@ -91,9 +91,12 @@ export function ProductCarousel({
         {viewAllLink && (
           <Link
             href={viewAllLink}
-            className="hidden md:block text-sm font-medium text-brand-dark hover:text-action transition-colors"
+            className="hidden md:flex items-center gap-2 px-4 py-2 border-2 border-brand-dark text-brand-dark font-medium text-sm rounded-button hover:bg-action hover:border-action hover:text-white transition-all"
           >
-            Tümünü Gör →
+            Tümünü Gör
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
           </Link>
         )}
       </div>
@@ -215,7 +218,7 @@ export function ProductCarousel({
 
                       {/* Quick Add to Cart Button */}
                       <button
-                        className="w-9 h-9 bg-action text-white rounded-full flex items-center justify-center hover:bg-action-hover hover:shadow-button-hover hover:-translate-y-0.5 transition-all active:scale-95"
+                        className="w-9 h-9 bg-action text-white rounded-full flex items-center justify-center shadow-button-depth hover:bg-action-hover hover:shadow-button-depth-hover hover:-translate-y-0.5 transition-all active:scale-95"
                         onClick={(e) => {
                           e.preventDefault()
                           setSelectedProduct(product)

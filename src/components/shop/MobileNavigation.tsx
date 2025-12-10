@@ -3,12 +3,24 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, Grid, User, ShoppingCart } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { CartDrawer } from '@/components/cart/CartDrawer'
 
 export function MobileNavigation({ cartItemCount = 0, cartTotal = 0 }: { cartItemCount?: number; cartTotal?: number }) {
   const pathname = usePathname()
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [flashCart, setFlashCart] = useState(false)
+  const prevCartCount = useRef(cartItemCount)
+
+  // Trigger flash animation when cart count increases
+  useEffect(() => {
+    if (cartItemCount > prevCartCount.current) {
+      setFlashCart(true)
+      const timer = setTimeout(() => setFlashCart(false), 600)
+      return () => clearTimeout(timer)
+    }
+    prevCartCount.current = cartItemCount
+  }, [cartItemCount])
 
   const navItems = [
     { href: '/', icon: Home, label: 'Anasayfa', isLink: true },
@@ -35,7 +47,7 @@ export function MobileNavigation({ cartItemCount = 0, cartTotal = 0 }: { cartIte
 
             const content = (
               <>
-                <div className="relative">
+                <div className={`relative ${isCart && flashCart ? 'animate-cart-flash' : ''}`}>
                   <Icon className={`w-6 h-6 ${isActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
 
                   {isCart && item.badge && item.badge > 0 && (

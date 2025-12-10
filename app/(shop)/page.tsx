@@ -90,42 +90,52 @@ export default async function ShopPage({
 
     return (
       <div className="space-y-0">
-        {/* Hero Section */}
+        {/* Hero Section - Tam Ekran Görsel */}
         <HeroSection />
 
-        {/* Featured Products - En Çok Satanlar */}
-        {transformedFeatured.length > 0 && (
-          <ProductCarousel
-            title="En Çok Satanlar"
-            subtitle="Bu haftanın en popüler ürünleri"
-            products={transformedFeatured}
-            viewAllLink="/"
-            badge="bestseller"
+        {/* Featured Products - En Çok Satanlar - Hafif Krem Arka Plan */}
+        <div className="bg-surface-cream">
+          {transformedFeatured.length > 0 && (
+            <ProductCarousel
+              title="En Çok Satanlar"
+              subtitle="Bu haftanın en popüler ürünleri"
+              products={transformedFeatured}
+              viewAllLink="/"
+              badge="bestseller"
+            />
+          )}
+        </div>
+
+        {/* Trust Strip - Saf Beyaz Arka Plan */}
+        <div className="bg-white">
+          <TrustStrip badges={homepageConfig.trustBadges} />
+        </div>
+
+        {/* Dual Banner - Kadın / Erkek - Saf Beyaz */}
+        <div className="bg-white">
+          <DualBanner
+            leftBanner={homepageConfig.dualBanner.left}
+            rightBanner={homepageConfig.dualBanner.right}
           />
-        )}
+        </div>
 
-        {/* Trust Strip */}
-        <TrustStrip badges={homepageConfig.trustBadges} />
+        {/* More Products - Yeni Gelenler - Açık Gri Arka Plan */}
+        <div className="bg-surface-light">
+          {transformedFeatured.length > 0 && (
+            <ProductCarousel
+              title="Yeni Gelenler"
+              subtitle="Yeni sezon koleksiyonundan seçtiklerimiz"
+              products={transformedFeatured}
+              viewAllLink="/"
+              badge="new"
+            />
+          )}
+        </div>
 
-        {/* Dual Banner - Kadın / Erkek */}
-        <DualBanner
-          leftBanner={homepageConfig.dualBanner.left}
-          rightBanner={homepageConfig.dualBanner.right}
-        />
-
-        {/* More Products - Yeni Gelenler */}
-        {transformedFeatured.length > 0 && (
-          <ProductCarousel
-            title="Yeni Gelenler"
-            subtitle="Yeni sezon koleksiyonundan seçtiklerimiz"
-            products={transformedFeatured}
-            viewAllLink="/"
-            badge="new"
-          />
-        )}
-
-        {/* Single Banner - Sustainability */}
-        <SingleBanner {...homepageConfig.singleBanner} />
+        {/* Single Banner - Sustainability - Saf Beyaz */}
+        <div className="bg-white">
+          <SingleBanner {...homepageConfig.singleBanner} />
+        </div>
       </div>
     )
   }

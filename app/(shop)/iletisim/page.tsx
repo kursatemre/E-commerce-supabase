@@ -146,7 +146,7 @@ export default function ContactPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full px-6 py-3 bg-action text-white font-semibold rounded-button hover:bg-action-hover hover:shadow-button-hover hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                  className="w-full px-6 py-3 bg-action text-white font-semibold rounded-button shadow-button-depth hover:bg-action-hover hover:shadow-button-depth-hover hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:shadow-none"
                 >
                   {isSubmitting ? 'Gönderiliyor...' : 'Mesaj Gönder'}
                 </button>

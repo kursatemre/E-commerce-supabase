@@ -111,7 +111,7 @@ export default function AboutPage() {
           </p>
           <Link
             href="/"
-            className="inline-block px-8 md:px-12 py-3 md:py-4 bg-action text-white font-semibold text-base md:text-lg rounded-button hover:bg-action-hover hover:shadow-button-hover hover:-translate-y-0.5 transition-all"
+            className="inline-block px-8 md:px-12 py-3 md:py-4 bg-action text-white font-semibold text-base md:text-lg rounded-button shadow-button-depth hover:bg-action-hover hover:shadow-button-depth-hover hover:-translate-y-0.5 transition-all"
           >
             Alışverişe Başla
           </Link>

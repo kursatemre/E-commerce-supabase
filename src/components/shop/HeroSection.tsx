@@ -67,8 +67,8 @@ export function HeroSection() {
             className="md:hidden absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url('${slide.mobileImage || slide.image}')` }}
           />
-          {/* Overlay for text contrast */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/40" />
+          {/* Overlay for text contrast - Opak Siyah */}
+          <div className="absolute inset-0 bg-overlay-dark" />
         </div>
       ))}
 
@@ -83,7 +83,7 @@ export function HeroSection() {
           </p>
           <Link
             href={currentHero.ctaLink}
-            className="inline-block px-8 md:px-12 py-3 md:py-4 bg-action text-white font-semibold text-base md:text-lg rounded-button hover:bg-action-hover hover:shadow-button-hover hover:-translate-y-0.5 transition-all duration-200 animate-fade-in"
+            className="inline-block px-8 md:px-12 py-3 md:py-4 bg-action text-white font-semibold text-base md:text-lg rounded-button shadow-button-depth hover:bg-action-hover hover:shadow-button-depth-hover hover:-translate-y-0.5 transition-all duration-200 animate-fade-in"
           >
             {currentHero.ctaText}
           </Link>
