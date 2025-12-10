@@ -1,195 +1,210 @@
-'use client'
+import { Metadata } from 'next'
+import Link from 'next/link'
+import { Mail, MapPin, Phone, Clock } from 'lucide-react'
 
-import { useState } from 'react'
-import { Mail, Phone, MapPin, Clock } from 'lucide-react'
+export const metadata: Metadata = {
+  title: 'İletişim | E-Ticaret',
+  description: 'Bizimle iletişime geçin. İletişim formu, telefon, e-posta ve adres bilgileri.',
+}
 
-export default function ContactPage() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: '',
-  })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    setSubmitted(true)
-    setIsSubmitting(false)
-    setFormData({ name: '', email: '', message: '' })
-
-    setTimeout(() => setSubmitted(false), 5000)
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }))
-  }
-
-  const contactInfo = [
-    {
-      icon: Mail,
-      title: 'E-posta',
-      value: 'destek@example.com',
-      description: '2 saat içinde yanıt veriyoruz',
-    },
-    {
-      icon: Phone,
-      title: 'Telefon',
-      value: '+90 (212) 123 45 67',
-      description: 'Hafta içi 09:00 - 18:00',
-    },
-    {
-      icon: MapPin,
-      title: 'Adres',
-      value: 'Maslak Mahallesi, Sarıyer',
-      description: 'İstanbul, Türkiye',
-    },
-    {
-      icon: Clock,
-      title: 'Çalışma Saatleri',
-      value: 'Pazartesi - Cuma',
-      description: '09:00 - 18:00',
-    },
-  ]
-
+export default function IletisimPage() {
   return (
-    <div className="min-h-screen py-12 md:py-20">
-      <div className="section-container">
-        {/* Header */}
-        <div className="text-center mb-12 md:mb-16">
-          <h1 className="font-heading text-h1 font-semibold text-brand-dark mb-4">
-            Bize Ulaşın
-          </h1>
-          <p className="text-base md:text-lg text-brand-dark/70 max-w-2xl mx-auto">
-            Sorularınız, önerileriniz veya her türlü konuda bizimle iletişime geçebilirsiniz
-          </p>
+    <div className="min-h-screen">
+      {/* Hero Section */}
+      <div className="bg-brand-dark text-white py-16 md:py-24">
+        <div className="section-container">
+          <div className="max-w-3xl mx-auto text-center">
+            <h1 className="font-heading text-4xl md:text-5xl font-bold mb-6">
+              İletişim
+            </h1>
+            <p className="text-xl text-white/80 leading-relaxed">
+              Sorularınız, önerileriniz veya geri bildirimleriniz için
+              bizimle iletişime geçebilirsiniz. Size yardımcı olmaktan mutluluk duyarız.
+            </p>
+          </div>
         </div>
+      </div>
 
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
+      <div className="section-container py-16 md:py-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Contact Form */}
           <div>
-            <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8">
-              <div className="mb-6">
-                <h2 className="font-heading text-h3 font-semibold text-brand-dark mb-2">
-                  Mesaj Gönderin
-                </h2>
-                <p className="text-sm text-action font-medium">
-                  ⏱️ Ortalama yanıt süresi: 2 saat
-                </p>
+            <h2 className="font-heading text-2xl font-bold text-brand-dark mb-6">
+              Mesaj Gönderin
+            </h2>
+            <form className="space-y-6">
+              <div>
+                <label htmlFor="name" className="block text-sm font-semibold text-brand-dark mb-2">
+                  Ad Soyad *
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  required
+                  className="w-full px-4 py-3 rounded-button border border-gray-300 focus:border-action focus:ring-2 focus:ring-action/50 focus:outline-none transition-colors"
+                  placeholder="Adınız ve soyadınız"
+                />
               </div>
 
-              {submitted && (
-                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                  <p className="text-green-800 text-sm font-medium">
-                    ✓ Mesajınız başarıyla gönderildi. En kısa sürede size dönüş yapacağız.
-                  </p>
-                </div>
-              )}
+              <div>
+                <label htmlFor="email" className="block text-sm font-semibold text-brand-dark mb-2">
+                  E-posta *
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  className="w-full px-4 py-3 rounded-button border border-gray-300 focus:border-action focus:ring-2 focus:ring-action/50 focus:outline-none transition-colors"
+                  placeholder="ornek@email.com"
+                />
+              </div>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-brand-dark mb-2">
-                    Adınız Soyadınız
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 bg-surface-light border border-gray-200 rounded-button focus:outline-none focus:border-action focus:ring-2 focus:ring-action/20 transition-all"
-                    placeholder="Adınızı girin"
-                  />
-                </div>
+              <div>
+                <label htmlFor="phone" className="block text-sm font-semibold text-brand-dark mb-2">
+                  Telefon
+                </label>
+                <input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  className="w-full px-4 py-3 rounded-button border border-gray-300 focus:border-action focus:ring-2 focus:ring-action/50 focus:outline-none transition-colors"
+                  placeholder="+90 (5XX) XXX XX XX"
+                />
+              </div>
 
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-brand-dark mb-2">
-                    E-posta Adresiniz
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 bg-surface-light border border-gray-200 rounded-button focus:outline-none focus:border-action focus:ring-2 focus:ring-action/20 transition-all"
-                    placeholder="ornek@email.com"
-                  />
-                </div>
+              <div>
+                <label htmlFor="subject" className="block text-sm font-semibold text-brand-dark mb-2">
+                  Konu *
+                </label>
+                <input
+                  type="text"
+                  id="subject"
+                  name="subject"
+                  required
+                  className="w-full px-4 py-3 rounded-button border border-gray-300 focus:border-action focus:ring-2 focus:ring-action/50 focus:outline-none transition-colors"
+                  placeholder="Mesajınızın konusu"
+                />
+              </div>
 
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-brand-dark mb-2">
-                    Mesajınız
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    required
-                    rows={6}
-                    className="w-full px-4 py-3 bg-surface-light border border-gray-200 rounded-button focus:outline-none focus:border-action focus:ring-2 focus:ring-action/20 transition-all resize-none"
-                    placeholder="Mesajınızı buraya yazın..."
-                  />
-                </div>
+              <div>
+                <label htmlFor="message" className="block text-sm font-semibold text-brand-dark mb-2">
+                  Mesaj *
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  required
+                  rows={6}
+                  className="w-full px-4 py-3 rounded-button border border-gray-300 focus:border-action focus:ring-2 focus:ring-action/50 focus:outline-none transition-colors resize-none"
+                  placeholder="Mesajınızı buraya yazın..."
+                />
+              </div>
 
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full px-6 py-3 bg-action text-white font-semibold rounded-button shadow-button-depth hover:bg-action-hover hover:shadow-button-depth-hover hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:shadow-none"
-                >
-                  {isSubmitting ? 'Gönderiliyor...' : 'Mesaj Gönder'}
-                </button>
-              </form>
-            </div>
+              <button type="submit" className="btn-cta w-full">
+                Mesajı Gönder
+              </button>
+            </form>
           </div>
 
           {/* Contact Info */}
-          <div className="space-y-6">
-            <h2 className="font-heading text-h3 font-semibold text-brand-dark mb-6">
+          <div>
+            <h2 className="font-heading text-2xl font-bold text-brand-dark mb-6">
               İletişim Bilgileri
             </h2>
-
-            <div className="space-y-4">
-              {contactInfo.map((info) => {
-                const Icon = info.icon
-                return (
-                  <div
-                    key={info.title}
-                    className="flex items-start gap-4 p-5 bg-white rounded-xl border border-gray-200 hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex-shrink-0 w-12 h-12 bg-action/10 rounded-full flex items-center justify-center">
-                      <Icon className="w-6 h-6 text-action" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-brand-dark mb-1">{info.title}</h3>
-                      <p className="text-brand-dark font-semibold mb-0.5">{info.value}</p>
-                      <p className="text-sm text-brand-dark/60">{info.description}</p>
-                    </div>
+            <div className="space-y-6">
+              <div className="card">
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 bg-action/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Phone className="w-6 h-6 text-action" />
                   </div>
-                )
-              })}
-            </div>
+                  <div>
+                    <h3 className="font-semibold text-brand-dark mb-2">Telefon</h3>
+                    <p className="text-brand-dark/70 text-sm mb-1">
+                      <a href="tel:+902125550123" className="hover:text-action transition-colors">
+                        +90 (212) 555 01 23
+                      </a>
+                    </p>
+                    <p className="text-brand-dark/70 text-sm">
+                      <a href="tel:+905551234567" className="hover:text-action transition-colors">
+                        +90 (555) 123 45 67
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              </div>
 
-            {/* Map Placeholder */}
-            <div className="mt-8 rounded-2xl overflow-hidden border border-gray-200">
-              <div className="aspect-video bg-surface-light flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="w-12 h-12 text-brand-dark/40 mx-auto mb-2" />
-                  <p className="text-sm text-brand-dark/60">Harita Görünümü</p>
+              <div className="card">
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 bg-action/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-6 h-6 text-action" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-brand-dark mb-2">E-posta</h3>
+                    <p className="text-brand-dark/70 text-sm mb-1">
+                      <a href="mailto:info@e-ticaret.com" className="hover:text-action transition-colors">
+                        info@e-ticaret.com
+                      </a>
+                    </p>
+                    <p className="text-brand-dark/70 text-sm">
+                      <a href="mailto:destek@e-ticaret.com" className="hover:text-action transition-colors">
+                        destek@e-ticaret.com
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card">
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 bg-action/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <MapPin className="w-6 h-6 text-action" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-brand-dark mb-2">Adres</h3>
+                    <p className="text-brand-dark/70 text-sm">
+                      Merkez Ofis: Teşvikiye Mahallesi,<br />
+                      Halaskargazi Caddesi No:123<br />
+                      Şişli, İstanbul 34357
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card">
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 bg-action/10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-6 h-6 text-action" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-brand-dark mb-2">Çalışma Saatleri</h3>
+                    <p className="text-brand-dark/70 text-sm">
+                      Pazartesi - Cuma: 09:00 - 18:00<br />
+                      Cumartesi: 10:00 - 17:00<br />
+                      Pazar: Kapalı
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* FAQ Link */}
+      <div className="bg-surface-light py-12">
+        <div className="section-container">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="font-heading text-2xl font-bold text-brand-dark mb-4">
+              Sıkça Sorulan Sorular
+            </h2>
+            <p className="text-brand-dark/70 mb-6">
+              Aradığınız cevabı bulamadınız mı? Sıkça sorulan sorular sayfamızı ziyaret edin.
+            </p>
+            <Link href="/sss" className="btn-secondary inline-block">
+              SSS&apos;yi İncele
+            </Link>
           </div>
         </div>
       </div>
