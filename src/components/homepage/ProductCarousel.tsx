@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ShoppingCart } from 'lucide-react'
+import { QuickAddModal } from '@/components/shop/QuickAddModal'
 
 interface Product {
   id: string
@@ -11,6 +12,11 @@ interface Product {
   slug: string
   price: number
   images: Array<{ url: string; alt: string | null }> | null
+  variants?: Array<{
+    id: string
+    name: string
+    options: string[]
+  }>
 }
 
 interface ProductCarouselProps {
@@ -30,6 +36,8 @@ export function ProductCarousel({
 }: ProductCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const scroll = (direction: 'left' | 'right') => {
     if (!scrollRef.current) return
@@ -210,8 +218,8 @@ export function ProductCarousel({
                         className="w-9 h-9 bg-action text-white rounded-full flex items-center justify-center hover:bg-action-hover hover:shadow-button-hover hover:-translate-y-0.5 transition-all active:scale-95"
                         onClick={(e) => {
                           e.preventDefault()
-                          // TODO: Implement quick add to cart with variant modal
-                          console.log('Add to cart:', product.id)
+                          setSelectedProduct(product)
+                          setIsModalOpen(true)
                         }}
                         aria-label="Sepete Ekle"
                       >
@@ -239,6 +247,24 @@ export function ProductCarousel({
             Tümünü Gör
           </Link>
         </div>
+      )}
+
+      {/* Quick Add Modal */}
+      {selectedProduct && (
+        <QuickAddModal
+          product={{
+            id: selectedProduct.id,
+            name: selectedProduct.name,
+            price: selectedProduct.price,
+            image: selectedProduct.images?.[0]?.url,
+            variants: selectedProduct.variants,
+          }}
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false)
+            setSelectedProduct(null)
+          }}
+        />
       )}
     </section>
   )

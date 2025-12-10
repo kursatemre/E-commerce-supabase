@@ -48,12 +48,44 @@ export default async function ShopPage({
       .order('created_at', { ascending: false })
       .limit(8)
 
+    // Fetch variant types and options for each product
+    const productIds = (featuredProducts ?? []).map(p => p.id)
+
+    const { data: variantData } = await supabase
+      .from('variant_types')
+      .select(`
+        id,
+        name,
+        product_id,
+        variant_options(id, value, sort_order)
+      `)
+      .in('product_id', productIds)
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true })
+
+    // Group variants by product_id
+    const variantsByProduct = new Map<string, any[]>()
+    variantData?.forEach((vt: any) => {
+      if (!vt.product_id) return
+      if (!variantsByProduct.has(vt.product_id)) {
+        variantsByProduct.set(vt.product_id, [])
+      }
+      variantsByProduct.get(vt.product_id)?.push({
+        id: vt.id,
+        name: vt.name,
+        options: (vt.variant_options || [])
+          .sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0))
+          .map((vo: any) => vo.value),
+      })
+    })
+
     const transformedFeatured = (featuredProducts ?? []).map((product: any) => ({
       id: product.id,
       name: product.name,
       slug: product.slug,
       price: product.price,
       images: product.product_images?.sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0)) || null,
+      variants: variantsByProduct.get(product.id) || [],
     }))
 
     return (
