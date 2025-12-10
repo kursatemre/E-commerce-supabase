@@ -180,7 +180,7 @@ export default function KargoPage() {
             </h2>
             <ul className="space-y-3 text-brand-dark/70">
               <li>• Ürünü teslim alırken kargo görevlisinin yanında açıp kontrol edin</li>
-              <li>• Hasar veya eksiklik varsa "Hasarlı Teslim Tutanağı" tutturu</li>
+              <li>• Hasar veya eksiklik varsa &quot;Hasarlı Teslim Tutanağı&quot; tutturu</li>
               <li>• Fatura ve kargo evraklarını saklayın</li>
               <li>• Teslimat adresi değişiklikleri için kargo firmasını arayın</li>
             </ul>

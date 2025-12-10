@@ -100,7 +100,7 @@ export default function KullanimKosullariPage() {
                 6. Sorumluluk Reddi
               </h2>
               <p className="text-brand-dark/70 leading-relaxed">
-                Web sitemiz "olduğu gibi" sunulmaktadır. Ürün açıklamalarının doğruluğunu
+                Web sitemiz &quot;olduğu gibi&quot; sunulmaktadır. Ürün açıklamalarının doğruluğunu
                 sağlamaya çalışsak da, bilgilerde hatalar olabilir. Üçüncü taraf bağlantılardan
                 veya kullanıcı yorumlarından sorumlu değiliz. Teknik aksaklıklar veya kesintiler
                 yaşanabilir.

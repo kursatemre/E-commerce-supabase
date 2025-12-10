@@ -54,7 +54,7 @@ export default function MesafeliSatisSozlesmesiPage() {
                 Madde 2: Sözleşme Konusu
               </h2>
               <p className="text-brand-dark/70 leading-relaxed">
-                İşbu Sözleşme, ALICI'nın SATICI'ya ait www.e-ticaret.com internet sitesinden
+                İşbu Sözleşme, ALICI&apos;nın SATICI&apos;ya ait www.e-ticaret.com internet sitesinden
                 elektronik ortamda siparişini yaptığı aşağıda nitelikleri belirtilen ürün/ün
                 satışı ve teslimi ile ilgili olarak 6502 sayılı Tüketicinin Korunması Hakkında
                 Kanun ve Mesafeli Sözleşmelere Dair Yönetmelik hükümleri gereğince tarafların
@@ -69,7 +69,7 @@ export default function MesafeliSatisSozlesmesiPage() {
               <p className="text-brand-dark/70 leading-relaxed mb-4">
                 Sipariş edilen ürün/ürünlerin temel özellikleri (türü, miktarı, marka/modeli,
                 rengi, adedi) sipariş formunda ve sipariş onayında belirtilmiştir. Ürünün temel
-                özelliklerini SATICI'nın sitesinde inceleyebilirsiniz.
+                özelliklerini SATICI&apos;nın sitesinde inceleyebilirsiniz.
               </p>
               <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                 <p className="text-brand-dark/70 text-sm">
@@ -91,11 +91,11 @@ export default function MesafeliSatisSozlesmesiPage() {
                 </li>
                 <li>
                   Sözleşme konusu ürün, yasal 30 günlük süreyi aşmamak koşulu ile her bir ürün
-                  için ALICI'nın yerleşim yerinin uzaklığına bağlı olarak ön bilgiler içinde
+                  için ALICI&apos;nın yerleşim yerinin uzaklığına bağlı olarak ön bilgiler içinde
                   açıklanan süre içinde ALICI veya gösterdiği adresteki kişi/kuruluşa teslim edilir.
                 </li>
                 <li>
-                  Sözleşme konusu ürün, ALICI'dan başka bir kişi/kuruluşa teslim edilecek ise,
+                  Sözleşme konusu ürün, ALICI&apos;dan başka bir kişi/kuruluşa teslim edilecek ise,
                   teslim edilecek kişi/kuruluşun teslimatı kabul etmemesinden SATICI sorumlu tutulamaz.
                 </li>
                 <li>
@@ -112,7 +112,7 @@ export default function MesafeliSatisSozlesmesiPage() {
               </h2>
               <p className="text-brand-dark/70 leading-relaxed mb-4">
                 ALICI, sözleşme konusu ürünün kendisine veya gösterdiği adresteki kişi/kuruluşa
-                tesliminden itibaren 14 (on dört) gün içinde, SATICI'ya bildirmek şartıyla hiçbir
+                tesliminden itibaren 14 (on dört) gün içinde, SATICI&apos;ya bildirmek şartıyla hiçbir
                 hukuki ve cezai sorumluluk üstlenmeksizin ve hiçbir gerekçe göstermeksizin malı
                 reddederek sözleşmeden cayma hakkını kullanabilir.
               </p>
@@ -128,7 +128,7 @@ export default function MesafeliSatisSozlesmesiPage() {
               <div className="mt-6">
                 <h3 className="font-bold text-brand-dark mb-3">Cayma Hakkının Kullanılması</h3>
                 <p className="text-brand-dark/70 leading-relaxed mb-4">
-                  Cayma hakkının kullanılması için bu süre içinde SATICI'ya;
+                  Cayma hakkının kullanılması için bu süre içinde SATICI&apos;ya;
                 </p>
                 <ul className="list-disc pl-6 space-y-2 text-brand-dark/70 text-sm">
                   <li>E-posta: iade@e-ticaret.com</li>
@@ -178,8 +178,8 @@ export default function MesafeliSatisSozlesmesiPage() {
                 Madde 8: Yetkili Mahkeme
               </h2>
               <p className="text-brand-dark/70 leading-relaxed">
-                İşbu Sözleşme'nin uygulanmasında, Sanayi ve Ticaret Bakanlığınca ilan edilen
-                değere kadar ALICI'nın yerleşim yerindeki Tüketici Hakem Heyetleri ile
+                İşbu Sözleşme&apos;nin uygulanmasında, Sanayi ve Ticaret Bakanlığınca ilan edilen
+                değere kadar ALICI&apos;nın yerleşim yerindeki Tüketici Hakem Heyetleri ile
                 Tüketici Mahkemeleri yetkilidir.
               </p>
             </section>
@@ -190,7 +190,7 @@ export default function MesafeliSatisSozlesmesiPage() {
               </h2>
               <p className="text-brand-dark/70 leading-relaxed">
                 ALICI, işbu sözleşmeyi elektronik ortamda kabul etmekle, sipariş konusu ürünün
-                temel nitelikleri, satış fiyatı, ödeme şekli, teslimat şartları ve SATICI'nın
+                temel nitelikleri, satış fiyatı, ödeme şekli, teslimat şartları ve SATICI&apos;nın
                 kimlik bilgileri gibi ön bilgileri de doğru ve eksiksiz olarak okuduğunu ve
                 elektronik ortamda gerekli teyidi verdiğini beyan eder.
               </p>
@@ -199,7 +199,7 @@ export default function MesafeliSatisSozlesmesiPage() {
             <section className="bg-blue-50 border border-blue-200 rounded-xl p-6">
               <h3 className="font-bold text-brand-dark mb-3">Sözleşme Onayı</h3>
               <p className="text-brand-dark/70 text-sm">
-                Sipariş sürecinde "Siparişi Onayla" butonuna tıklamakla işbu sözleşmenin
+                Sipariş sürecinde &quot;Siparişi Onayla&quot; butonuna tıklamakla işbu sözleşmenin
                 tüm şartlarını kabul etmiş sayılırsınız. Sözleşme metni, siparişinizin
                 onaylanmasının ardından e-posta adresinize gönderilecektir.
               </p>

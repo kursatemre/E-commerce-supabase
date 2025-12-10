@@ -20,7 +20,7 @@ export default function KVKKPage() {
                 <strong>Son Güncelleme:</strong> 10 Aralık 2024
               </p>
               <p className="text-brand-dark/70 leading-relaxed">
-                6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") uyarınca, kişisel
+                6698 sayılı Kişisel Verilerin Korunması Kanunu (&quot;KVKK&quot;) uyarınca, kişisel
                 verilerinizin işlenmesine ilişkin olarak veri sorumlusu sıfatıyla sizi
                 bilgilendirmek isteriz.
               </p>
@@ -56,7 +56,7 @@ export default function KVKKPage() {
                 <li>Kargo ve ödeme hizmet sağlayıcılarından</li>
               </ul>
               <p className="text-brand-dark/70 leading-relaxed mt-4">
-                Kişisel verileriniz, KVKK'nın 5. ve 6. maddelerinde belirtilen veri işleme
+                Kişisel verileriniz, KVKK&apos;nın 5. ve 6. maddelerinde belirtilen veri işleme
                 şartları kapsamında işlenmektedir.
               </p>
             </section>
@@ -124,7 +124,7 @@ export default function KVKKPage() {
                 <li><strong>Kamu kurum ve kuruluşları:</strong> Yasal yükümlülükler çerçevesinde</li>
               </ul>
               <p className="text-brand-dark/70 leading-relaxed mt-4">
-                Yurt dışına veri aktarımı yapılması durumunda, KVKK'nın 9. maddesinde
+                Yurt dışına veri aktarımı yapılması durumunda, KVKK&apos;nın 9. maddesinde
                 öngörülen şartlara uygun hareket edilmektedir.
               </p>
             </section>
@@ -134,7 +134,7 @@ export default function KVKKPage() {
                 6. Kişisel Veri Sahibinin Hakları
               </h2>
               <p className="text-brand-dark/70 leading-relaxed mb-4">
-                KVKK'nın 11. maddesi uyarınca aşağıdaki haklara sahipsiniz:
+                KVKK&apos;nın 11. maddesi uyarınca aşağıdaki haklara sahipsiniz:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-brand-dark/70">
                 <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme</li>
@@ -142,7 +142,7 @@ export default function KVKKPage() {
                 <li>Kişisel verilerinizin işlenme amacını ve bunların amacına uygun kullanılıp kullanılmadığını öğrenme</li>
                 <li>Yurt içinde veya yurt dışında kişisel verilerinizin aktarıldığı üçüncü kişileri bilme</li>
                 <li>Kişisel verilerinizin eksik veya yanlış işlenmiş olması hâlinde bunların düzeltilmesini isteme</li>
-                <li>KVKK'nın 7. maddesinde öngörülen şartlar çerçevesinde kişisel verilerinizin silinmesini veya yok edilmesini isteme</li>
+                <li>KVKK&apos;nın 7. maddesinde öngörülen şartlar çerçevesinde kişisel verilerinizin silinmesini veya yok edilmesini isteme</li>
                 <li>Düzeltme, silme veya yok etme işlemlerinin kişisel verilerin aktarıldığı üçüncü kişilere bildirilmesini isteme</li>
                 <li>İşlenen verilerin münhasıran otomatik sistemler vasıtasıyla analiz edilmesi suretiyle aleyhinize bir sonucun ortaya çıkmasına itiraz etme</li>
                 <li>Kişisel verilerinizin kanuna aykırı olarak işlenmesi sebebiyle zarara uğramanız hâlinde zararın giderilmesini talep etme</li>

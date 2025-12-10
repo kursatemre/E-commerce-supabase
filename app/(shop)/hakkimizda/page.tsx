@@ -34,7 +34,7 @@ export default function HakkimizdaPage() {
           </h2>
           <div className="prose prose-lg max-w-none">
             <p className="text-brand-dark/70 leading-relaxed mb-6">
-              E-Ticaret, 2020 yılında "sakin çekicilik" felsefesiyle yola çıktı.
+              E-Ticaret, 2020 yılında &quot;sakin çekicilik&quot; felsefesiyle yola çıktı.
               Gürültülü ve agresif pazarlama taktiklerinin aksine, kaliteli ürünlerin
               ve içten hizmetin kendini göstereceğine inanıyoruz.
             </p>

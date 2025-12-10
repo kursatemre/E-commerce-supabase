@@ -91,7 +91,7 @@ export default function IadeVeDegisimPage() {
                 <div>
                   <h3 className="font-bold text-brand-dark mb-2">İade Talebinde Bulunun</h3>
                   <p className="text-brand-dark/70 text-sm">
-                    Hesabınıza giriş yaparak "Siparişlerim" sayfasından iade etmek istediğiniz ürünü seçin
+                    Hesabınıza giriş yaparak &quot;Siparişlerim&quot; sayfasından iade etmek istediğiniz ürünü seçin
                     ve iade talebinde bulunun.
                   </p>
                 </div>
