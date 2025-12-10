@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { ChevronDown, Search } from 'lucide-react'
 
 const faqCategories = [
@@ -146,9 +147,9 @@ export default function SSSPage() {
           <div className="max-w-3xl mx-auto text-center">
             <p className="text-brand-dark/60 text-lg">
               Aradığınız soruyu bulamadık. Lütfen farklı bir arama yapın veya{' '}
-              <a href="/iletisim" className="text-action hover:underline">
+              <Link href="/iletisim" className="text-action hover:underline">
                 bizimle iletişime geçin
-              </a>
+              </Link>
               .
             </p>
           </div>
@@ -205,9 +206,9 @@ export default function SSSPage() {
             <p className="text-brand-dark/70 mb-6">
               Aradığınız cevabı bulamadıysanız, müşteri hizmetlerimiz size yardımcı olmaktan mutluluk duyar.
             </p>
-            <a href="/iletisim" className="btn-cta inline-block">
+            <Link href="/iletisim" className="btn-cta inline-block">
               İletişime Geçin
-            </a>
+            </Link>
           </div>
         </div>
       </div>

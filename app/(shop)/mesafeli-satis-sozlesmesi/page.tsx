@@ -133,7 +133,7 @@ export default function MesafeliSatisSozlesmesiPage() {
                 <ul className="list-disc pl-6 space-y-2 text-brand-dark/70 text-sm">
                   <li>E-posta: iade@e-ticaret.com</li>
                   <li>Telefon: +90 (212) 555 01 23</li>
-                  <li>Hesabım > Siparişlerim bölümünden</li>
+                  <li>Hesabım &gt; Siparişlerim bölümünden</li>
                 </ul>
                 <p className="text-brand-dark/70 leading-relaxed mt-4">
                   yoluyla yazılı olarak veya cayma hakkı formunu doldurarak bildirimde bulunulması

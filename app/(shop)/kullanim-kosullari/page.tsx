@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Kullanım Koşulları | E-Ticaret',
@@ -46,7 +47,7 @@ export default function KullanimKosullariPage() {
                 <li>Hesap şifrenizi gizli tutmak sizin sorumluluğunuzdadır</li>
                 <li>Hesabınızda gerçekleşen tüm aktivitelerden siz sorumlusunuz</li>
                 <li>18 yaşından küçükseniz, yasal bir velinin izni ile üye olabilirsiniz</li>
-                <li>Hesabınızı başkasına devredemez veya satamaz</li>
+                <li>Hesabınızı başkasına devredemez veya satamazsınız</li>
               </ul>
             </section>
 
@@ -71,7 +72,7 @@ export default function KullanimKosullariPage() {
                 4. Fikri Mülkiyet Hakları
               </h2>
               <p className="text-brand-dark/70 leading-relaxed">
-                Web sitesindeki tüm içerik (metinler, görseller, logolar, tasarımlar) E-Ticaret'in
+                Web sitesindeki tüm içerik (metinler, görseller, logolar, tasarımlar) E-Ticaret&apos;in
                 veya lisans verenlerin mülkiyetindedir. İzinsiz kullanım, kopyalama veya dağıtım
                 yasaktır ve yasal işlem başlatılmasına neden olabilir.
               </p>
@@ -112,9 +113,9 @@ export default function KullanimKosullariPage() {
               </h2>
               <p className="text-brand-dark/70 leading-relaxed">
                 İade ve iptal işlemleri{' '}
-                <a href="/iade-degisim" className="text-action hover:underline">
+                <Link href="/iade-degisim" className="text-action hover:underline">
                   İade ve Değişim Politikamızda
-                </a>{' '}
+                </Link>{' '}
                 belirtilen kurallara tabidir. Lütfen detaylı bilgi için ilgili sayfayı inceleyin.
               </p>
             </section>
@@ -125,13 +126,13 @@ export default function KullanimKosullariPage() {
               </h2>
               <p className="text-brand-dark/70 leading-relaxed">
                 Kişisel verileriniz{' '}
-                <a href="/gizlilik-politikasi" className="text-action hover:underline">
+                <Link href="/gizlilik-politikasi" className="text-action hover:underline">
                   Gizlilik Politikamız
-                </a>{' '}
+                </Link>{' '}
                 ve{' '}
-                <a href="/kvkk" className="text-action hover:underline">
+                <Link href="/kvkk" className="text-action hover:underline">
                   KVKK Aydınlatma Metni
-                </a>{' '}
+                </Link>{' '}
                 kapsamında işlenmektedir.
               </p>
             </section>

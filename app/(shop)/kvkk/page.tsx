@@ -161,7 +161,7 @@ export default function KVKKPage() {
                 <div className="bg-surface-light p-6 rounded-xl">
                   <h3 className="font-bold text-brand-dark mb-3">Yazılı Başvuru</h3>
                   <p className="text-brand-dark/70 text-sm">
-                    Kimliğinizi tespit edici belgeler ile birlikte "KVKK Başvurusu" başlığı altında:<br />
+                    Kimliğinizi tespit edici belgeler ile birlikte &quot;KVKK Başvurusu&quot; başlığı altında:<br />
                     <strong>Adres:</strong> Teşvikiye Mahallesi, Halaskargazi Caddesi No:123, Şişli, İstanbul
                   </p>
                 </div>

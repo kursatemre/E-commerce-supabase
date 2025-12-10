@@ -151,7 +151,7 @@ export default function KariyerPage() {
           </h2>
           <p className="text-brand-dark/70 mb-8">
             Aradığınız pozisyonu listede göremediniz mi? Yine de sizinle
-            tanışmaktan mutluluk duyarız. CV'nizi bizimle paylaşın!
+            tanışmaktan mutluluk duyarız. CV&apos;nizi bizimle paylaşın!
           </p>
           <Link href="/iletisim" className="btn-cta inline-block">
             Özgeçmişinizi Gönderin

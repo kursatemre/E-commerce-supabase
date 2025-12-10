@@ -1,4 +1,5 @@
-import { Metadata } from 'next/link'
+import { Metadata } from 'next'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Gizlilik Politikası | E-Ticaret',
@@ -97,9 +98,9 @@ export default function GizlilikPolitikasiPage() {
               <p className="text-brand-dark/70 leading-relaxed">
                 Web sitemiz, kullanıcı deneyimini iyileştirmek için çerezler kullanır.
                 Çerezler hakkında daha fazla bilgi için{' '}
-                <a href="/cerez-politikasi" className="text-action hover:underline">
+                <Link href="/cerez-politikasi" className="text-action hover:underline">
                   Çerez Politikamızı
-                </a>{' '}
+                </Link>{' '}
                 inceleyebilirsiniz.
               </p>
             </section>

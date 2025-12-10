@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import Link from 'next/link'
 import { Mail, MapPin, Phone, Clock } from 'lucide-react'
 
 export const metadata: Metadata = {
@@ -201,9 +202,9 @@ export default function IletisimPage() {
             <p className="text-brand-dark/70 mb-6">
               Aradığınız cevabı bulamadınız mı? Sıkça sorulan sorular sayfamızı ziyaret edin.
             </p>
-            <a href="/sss" className="btn-secondary inline-block">
-              SSS'yi İncele
-            </a>
+            <Link href="/sss" className="btn-secondary inline-block">
+              SSS&apos;yi İncele
+            </Link>
           </div>
         </div>
       </div>

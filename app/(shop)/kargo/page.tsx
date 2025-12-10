@@ -145,7 +145,7 @@ export default function KargoPage() {
               </p>
               <ul className="space-y-3 text-brand-dark/70">
                 <li>E-posta ve SMS ile kargo takip numaranız gönderilir</li>
-                <li>"Hesabım" > "Siparişlerim" bölümünden kargo durumunu görüntüleyebilirsiniz</li>
+                <li>&quot;Hesabım&quot; &gt; &quot;Siparişlerim&quot; bölümünden kargo durumunu görüntüleyebilirsiniz</li>
                 <li>Kargo firmasının web sitesinden anlık takip yapabilirsiniz</li>
                 <li>Teslimattan önce kargo görevlisi sizi arayacaktır</li>
               </ul>

@@ -128,7 +128,7 @@ export default function IadeVeDegisimPage() {
                 <div>
                   <h3 className="font-bold text-brand-dark mb-2">İadenizi Alın</h3>
                   <p className="text-brand-dark/70 text-sm">
-                    Ürün depomuzageldikten sonra 3-5 iş günü içinde ödemeniz iade edilecektir.
+                    Ürün depomuz ulaştıktan sonra 3-5 iş günü içinde ödemeniz iade edilecektir.
                   </p>
                 </div>
               </div>
