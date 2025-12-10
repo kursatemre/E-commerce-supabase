@@ -61,6 +61,17 @@ export default async function ShopPage({
         {/* Hero Section */}
         <HeroSection />
 
+        {/* Featured Products - En Çok Satanlar */}
+        {transformedFeatured.length > 0 && (
+          <ProductCarousel
+            title="En Çok Satanlar"
+            subtitle="Bu haftanın en popüler ürünleri"
+            products={transformedFeatured}
+            viewAllLink="/"
+            badge="bestseller"
+          />
+        )}
+
         {/* Trust Strip */}
         <TrustStrip badges={homepageConfig.trustBadges} />
 
@@ -70,28 +81,19 @@ export default async function ShopPage({
           rightBanner={homepageConfig.dualBanner.right}
         />
 
-        {/* Featured Products */}
+        {/* More Products - Yeni Gelenler */}
         {transformedFeatured.length > 0 && (
           <ProductCarousel
-            title={homepageConfig.featuredSection.title}
-            subtitle={homepageConfig.featuredSection.subtitle}
+            title="Yeni Gelenler"
+            subtitle="Yeni sezon koleksiyonundan seçtiklerimiz"
             products={transformedFeatured}
-            viewAllLink={homepageConfig.featuredSection.viewAllLink}
+            viewAllLink="/"
+            badge="new"
           />
         )}
 
         {/* Single Banner - Sustainability */}
         <SingleBanner {...homepageConfig.singleBanner} />
-
-        {/* More Products */}
-        {transformedFeatured.length > 0 && (
-          <ProductCarousel
-            title={homepageConfig.popularSection.title}
-            subtitle={homepageConfig.popularSection.subtitle}
-            products={transformedFeatured}
-            viewAllLink={homepageConfig.popularSection.viewAllLink}
-          />
-        )}
       </div>
     )
   }
