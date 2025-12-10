@@ -2,22 +2,23 @@ import Link from 'next/link'
 
 const footerLinks = {
   hakkimizda: [
-    { name: 'Hakkımızda', href: '/about' },
-    { name: 'Mağazalarımız', href: '/stores' },
-    { name: 'Kariyer', href: '/career' },
-    { name: 'İletişim', href: '/contact' },
+    { name: 'Hakkımızda', href: '/hakkimizda' },
+    { name: 'Mağazalarımız', href: '/magazalarimiz' },
+    { name: 'Kariyer', href: '/kariyer' },
+    { name: 'İletişim', href: '/iletisim' },
   ],
   musteri: [
     { name: 'Sipariş Takibi', href: '/account/orders' },
-    { name: 'İade ve Değişim', href: '/returns' },
-    { name: 'Kargo Bilgileri', href: '/shipping' },
-    { name: 'SSS', href: '/faq' },
+    { name: 'İade ve Değişim', href: '/iade-degisim' },
+    { name: 'Kargo Bilgileri', href: '/kargo' },
+    { name: 'SSS', href: '/sss' },
   ],
   kurumsal: [
-    { name: 'Gizlilik Politikası', href: '/privacy' },
-    { name: 'Kullanım Koşulları', href: '/terms' },
-    { name: 'Çerez Politikası', href: '/cookies' },
+    { name: 'Gizlilik Politikası', href: '/gizlilik-politikasi' },
+    { name: 'Kullanım Koşulları', href: '/kullanim-kosullari' },
+    { name: 'Çerez Politikası', href: '/cerez-politikasi' },
     { name: 'KVKK', href: '/kvkk' },
+    { name: 'Mesafeli Satış Sözleşmesi', href: '/mesafeli-satis-sozlesmesi' },
   ],
 }
 
