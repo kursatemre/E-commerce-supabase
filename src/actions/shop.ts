@@ -48,53 +48,33 @@ export async function findVariantByOptions(
   const supabase = await createClient()
 
   try {
-    // Get all variant types for this product with their options
-    const { data: variantTypes } = await supabase
-      .from('variant_types')
-      .select(`
-        id,
-        name,
-        variant_options(id, value)
-      `)
+    // selectedOptions format: { size: 'M', color: 'Siyah' }
+    // Query product_variants directly with size and color columns
+    let query = supabase
+      .from('product_variants')
+      .select('id, size, color')
       .eq('product_id', productId)
       .eq('is_active', true)
 
-    if (!variantTypes || variantTypes.length === 0) {
+    // Apply size filter if provided
+    if (selectedOptions.size) {
+      query = query.eq('size', selectedOptions.size)
+    }
+
+    // Apply color filter if provided
+    if (selectedOptions.color) {
+      query = query.eq('color', selectedOptions.color)
+    }
+
+    const { data: variants, error } = await query
+
+    if (error) {
+      console.error('Error querying variants:', error)
       return null
     }
 
-    // Build array of selected option IDs
-    const selectedOptionIds: string[] = []
-    for (const vt of variantTypes) {
-      const selectedValue = selectedOptions[vt.id]
-      if (!selectedValue) continue
-
-      const option = (vt.variant_options as any[])?.find((vo: any) => vo.value === selectedValue)
-      if (option) {
-        selectedOptionIds.push(option.id)
-      }
-    }
-
-    // Find matching product variant
-    const { data: variants } = await supabase
-      .from('product_variants')
-      .select(`
-        id,
-        variant_option_values!inner(variant_option_id)
-      `)
-      .eq('product_id', productId)
-      .eq('is_active', true)
-
-    // Find variant that has all the selected option IDs
-    const matchingVariant = variants?.find((v: any) => {
-      const variantOptionIds = v.variant_option_values.map((vov: any) => vov.variant_option_id)
-      return (
-        selectedOptionIds.length === variantOptionIds.length &&
-        selectedOptionIds.every((id) => variantOptionIds.includes(id))
-      )
-    })
-
-    return matchingVariant?.id || null
+    // Return the first matching variant
+    return variants && variants.length > 0 ? variants[0].id : null
   } catch (error) {
     console.error('Error finding variant:', error)
     return null

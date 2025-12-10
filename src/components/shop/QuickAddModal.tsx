@@ -30,6 +30,14 @@ export function QuickAddModal({ product, isOpen, onClose }: QuickAddModalProps) 
   const [isAdding, setIsAdding] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
 
+  // Debug: Log product variants
+  useEffect(() => {
+    if (isOpen) {
+      console.log('QuickAddModal - Product:', product)
+      console.log('QuickAddModal - Variants:', product.variants)
+    }
+  }, [isOpen, product])
+
   const currencyFormatter = new Intl.NumberFormat('tr-TR', {
     style: 'currency',
     currency: 'TRY',

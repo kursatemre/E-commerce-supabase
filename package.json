@@ -9,7 +9,9 @@
     "lint": "next lint",
     "notifications:worker": "node ./scripts/notification-worker.mjs",
     "sync:trendyol": "node ./scripts/sync-trendyol-products.mjs",
-    "sync:meta-feed": "node ./scripts/generate-meta-feed.mjs"
+    "sync:meta-feed": "node ./scripts/generate-meta-feed.mjs",
+    "seed:variants": "tsx scripts/seed-variants.ts",
+    "check:variant-schema": "tsx scripts/check-variant-schema.ts"
   },
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.10.0",
@@ -36,6 +38,7 @@
     "eslint-config-next": "15.1.3",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }
