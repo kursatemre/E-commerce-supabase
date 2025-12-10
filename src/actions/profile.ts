@@ -84,3 +84,9 @@ export async function updatePassword(formData: FormData) {
 
   revalidatePath('/account/profile')
 }
+
+export async function logout() {
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  redirect('/auth/login')
+}

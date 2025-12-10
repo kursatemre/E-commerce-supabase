@@ -3,12 +3,24 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, Grid, User, ShoppingCart } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { CartDrawer } from '@/components/cart/CartDrawer'
 
 export function MobileNavigation({ cartItemCount = 0, cartTotal = 0 }: { cartItemCount?: number; cartTotal?: number }) {
   const pathname = usePathname()
   const [isCartOpen, setIsCartOpen] = useState(false)
+  const [flashCart, setFlashCart] = useState(false)
+  const prevCartCount = useRef(cartItemCount)
+
+  // Trigger flash animation when cart count increases
+  useEffect(() => {
+    if (cartItemCount > prevCartCount.current) {
+      setFlashCart(true)
+      const timer = setTimeout(() => setFlashCart(false), 600)
+      return () => clearTimeout(timer)
+    }
+    prevCartCount.current = cartItemCount
+  }, [cartItemCount])
 
   const navItems = [
     { href: '/', icon: Home, label: 'Anasayfa', isLink: true },
@@ -35,12 +47,12 @@ export function MobileNavigation({ cartItemCount = 0, cartTotal = 0 }: { cartIte
 
             const content = (
               <>
-                <div className="relative">
+                <div className={`relative ${isCart && flashCart ? 'animate-cart-flash' : ''}`}>
                   <Icon className={`w-6 h-6 ${isActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
 
-                  {isCart && item.price && item.price > 0 && (
-                    <div className="absolute -top-2 -right-2 min-w-[48px] px-1.5 py-0.5 bg-action text-white text-[10px] font-semibold rounded-full whitespace-nowrap animate-cart-pulse">
-                      {currencyFormatter.format(item.price)}
+                  {isCart && item.badge && item.badge > 0 && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-action text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                      {item.badge > 9 ? '9+' : item.badge}
                     </div>
                   )}
 

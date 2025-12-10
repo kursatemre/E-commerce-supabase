@@ -21,92 +21,89 @@ export default async function AccountProfilePage() {
   return (
     <div className="space-y-6">
       <header>
-        <h2 className="text-xl font-semibold text-gray-900">Kişisel Bilgiler</h2>
-        <p className="text-sm text-gray-600">
-          Profil detaylarınızı güncelleyebilir ve Supabase hesabınızın şifresini değiştirebilirsiniz.
+        <h2 className="text-xl font-semibold text-brand-dark">Profil</h2>
+        <p className="text-sm text-brand-dark/60">
+          Kişisel bilgilerinizi güncelleyebilir ve şifrenizi değiştirebilirsiniz.
         </p>
       </header>
 
-      <section className="rounded-2xl border bg-white p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900">Profil Bilgileri</h3>
-        <p className="text-sm text-gray-600">İletişim bilgilerinizi ve KVKK onayınızı güncelleyin.</p>
+      <section className="rounded-2xl border border-gray-200 bg-surface-white p-6 shadow-sm">
+        <h3 className="text-lg font-semibold text-brand-dark">Profil Bilgileri</h3>
+        <p className="text-sm text-brand-dark/60 mb-4">İletişim bilgilerinizi güncelleyin.</p>
         <form action={updateProfile} className="mt-4 space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-gray-600">Ad</label>
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-brand-dark">Ad</label>
               <input
                 name="first_name"
                 defaultValue={profile?.first_name ?? ""}
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+                required
+                className="input-field"
               />
             </div>
-            <div className="space-y-1">
-              <label className="text-xs font-semibold text-gray-600">Soyad</label>
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-brand-dark">Soyad</label>
               <input
                 name="last_name"
                 defaultValue={profile?.last_name ?? ""}
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+                required
+                className="input-field"
               />
             </div>
           </div>
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-600">Telefon</label>
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-brand-dark">Telefon</label>
             <input
               name="phone"
+              type="tel"
               defaultValue={profile?.phone ?? ""}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
-              placeholder="05xx xxx xx xx"
+              required
+              className="input-field"
+              placeholder="05XX XXX XX XX"
             />
-          </div>
-          <div className="flex items-center gap-2 rounded-xl bg-gray-50 px-4 py-3">
-            <input
-              id="kvkk-consent"
-              name="kvkk_consent"
-              type="checkbox"
-              defaultChecked={profile?.kvkk_consent ?? false}
-              className="h-4 w-4 rounded border-gray-300"
-            />
-            <label htmlFor="kvkk-consent" className="text-sm text-gray-700">
-              Kişisel verilerimin KVKK kapsamında işlenmesini onaylıyorum.
-            </label>
           </div>
           <button
             type="submit"
-            className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
+            className="btn-primary"
           >
-            Profil Bilgilerini Güncelle
+            Güncelle
           </button>
         </form>
       </section>
 
-      <section className="rounded-2xl border bg-white p-6 shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900">Şifre Değiştir</h3>
-        <p className="text-sm text-gray-600">Supabase Auth ile ilişkili hesabınız için yeni bir şifre belirleyin.</p>
+      <section className="rounded-2xl border border-gray-200 bg-surface-white p-6 shadow-sm">
+        <h3 className="text-lg font-semibold text-brand-dark">Şifre Değiştir</h3>
+        <p className="text-sm text-brand-dark/60 mb-4">Hesabınız için yeni bir şifre belirleyin.</p>
         <form action={updatePassword} className="mt-4 space-y-4">
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-600">Mevcut Şifre</label>
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-brand-dark">Mevcut Şifre</label>
             <input
               name="current_password"
               type="password"
               required
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              className="input-field"
+              placeholder="Mevcut şifreniz"
             />
           </div>
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-gray-600">Yeni Şifre</label>
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-brand-dark">Yeni Şifre</label>
             <input
               name="new_password"
               type="password"
               required
-              minLength={8}
-              className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm"
+              minLength={6}
+              className="input-field"
+              placeholder="En az 6 karakter"
             />
+            <p className="text-xs text-brand-dark/40">
+              Şifreniz en az 6 karakter olmalıdır
+            </p>
           </div>
           <button
             type="submit"
-            className="rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-800"
+            className="btn-primary"
           >
-            Şifreyi Güncelle
+            Şifreyi Değiştir
           </button>
         </form>
       </section>

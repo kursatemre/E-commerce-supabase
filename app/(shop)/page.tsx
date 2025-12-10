@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { ProductCard } from '@/components/shop/ProductCard'
 import { CategoryFilter } from '@/components/shop/CategoryFilter'
 import { Pagination } from '@/components/Pagination'
-import { Hero } from '@/components/homepage/Hero'
+import { HeroSection } from '@/components/shop/HeroSection'
 import { TrustStrip } from '@/components/homepage/TrustStrip'
 import { DualBanner } from '@/components/homepage/DualBanner'
 import { SingleBanner } from '@/components/homepage/SingleBanner'
@@ -48,50 +48,94 @@ export default async function ShopPage({
       .order('created_at', { ascending: false })
       .limit(8)
 
+    // Fetch variant types and options for each product
+    const productIds = (featuredProducts ?? []).map(p => p.id)
+
+    const { data: variantData } = await supabase
+      .from('variant_types')
+      .select(`
+        id,
+        name,
+        product_id,
+        variant_options(id, value, sort_order)
+      `)
+      .in('product_id', productIds)
+      .eq('is_active', true)
+      .order('sort_order', { ascending: true })
+
+    // Group variants by product_id
+    const variantsByProduct = new Map<string, any[]>()
+    variantData?.forEach((vt: any) => {
+      if (!vt.product_id) return
+      if (!variantsByProduct.has(vt.product_id)) {
+        variantsByProduct.set(vt.product_id, [])
+      }
+      variantsByProduct.get(vt.product_id)?.push({
+        id: vt.id,
+        name: vt.name,
+        options: (vt.variant_options || [])
+          .sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0))
+          .map((vo: any) => vo.value),
+      })
+    })
+
     const transformedFeatured = (featuredProducts ?? []).map((product: any) => ({
       id: product.id,
       name: product.name,
       slug: product.slug,
       price: product.price,
       images: product.product_images?.sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0)) || null,
+      variants: variantsByProduct.get(product.id) || [],
     }))
 
     return (
       <div className="space-y-0">
-        {/* Hero Section */}
-        <Hero {...homepageConfig.hero} />
+        {/* Hero Section - Tam Ekran Görsel */}
+        <HeroSection />
 
-        {/* Trust Strip */}
-        <TrustStrip badges={homepageConfig.trustBadges} />
+        {/* Featured Products - En Çok Satanlar - Hafif Krem Arka Plan */}
+        <div className="bg-surface-cream">
+          {transformedFeatured.length > 0 && (
+            <ProductCarousel
+              title="En Çok Satanlar"
+              subtitle="Bu haftanın en popüler ürünleri"
+              products={transformedFeatured}
+              viewAllLink="/"
+              badge="bestseller"
+            />
+          )}
+        </div>
 
-        {/* Dual Banner - Kadın / Erkek */}
-        <DualBanner
-          leftBanner={homepageConfig.dualBanner.left}
-          rightBanner={homepageConfig.dualBanner.right}
-        />
+        {/* Trust Strip - Saf Beyaz Arka Plan */}
+        <div className="bg-white">
+          <TrustStrip badges={homepageConfig.trustBadges} />
+        </div>
 
-        {/* Featured Products */}
-        {transformedFeatured.length > 0 && (
-          <ProductCarousel
-            title={homepageConfig.featuredSection.title}
-            subtitle={homepageConfig.featuredSection.subtitle}
-            products={transformedFeatured}
-            viewAllLink={homepageConfig.featuredSection.viewAllLink}
+        {/* Dual Banner - Kadın / Erkek - Saf Beyaz */}
+        <div className="bg-white">
+          <DualBanner
+            leftBanner={homepageConfig.dualBanner.left}
+            rightBanner={homepageConfig.dualBanner.right}
           />
-        )}
+        </div>
 
-        {/* Single Banner - Sustainability */}
-        <SingleBanner {...homepageConfig.singleBanner} />
+        {/* More Products - Yeni Gelenler - Açık Gri Arka Plan */}
+        <div className="bg-surface-light">
+          {transformedFeatured.length > 0 && (
+            <ProductCarousel
+              title="Yeni Gelenler"
+              subtitle="Yeni sezon koleksiyonundan seçtiklerimiz"
+              products={transformedFeatured}
+              viewAllLink="/"
+              badge="new"
+            />
+          )}
+        </div>
 
-        {/* More Products */}
-        {transformedFeatured.length > 0 && (
-          <ProductCarousel
-            title={homepageConfig.popularSection.title}
-            subtitle={homepageConfig.popularSection.subtitle}
-            products={transformedFeatured}
-            viewAllLink={homepageConfig.popularSection.viewAllLink}
-          />
-        )}
+        {/* Single Banner - Sustainability - Saf Beyaz */}
+        <div className="bg-white">
+          <SingleBanner {...homepageConfig.singleBanner} />
+        </div>
       </div>
     )
   }

@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
-import { DeleteButton } from '@/components/DeleteButton'
-import { createProduct, deleteProduct, toggleProductActive } from '@/actions/products'
+import { createProduct, toggleProductActive } from '@/actions/products'
+import { ToggleProductActiveButton } from '@/components/ToggleProductActiveButton'
 import Link from 'next/link'
 
 export default async function ProductsPage() {
@@ -249,12 +249,15 @@ export default async function ProductsPage() {
                     href={`/admin/products/${product.id}`}
                     className="text-blue-400 hover:text-blue-300 text-sm font-medium transition inline-flex items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-blue-600/10 border border-transparent hover:border-blue-600/30"
                   >
-                    Detay
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                    Düzenle
                   </Link>
-                  <DeleteButton
-                    id={product.id}
-                    action={deleteProduct}
-                    confirmMessage="Bu ürünü silmek istediğinizden emin misiniz?"
+                  <ToggleProductActiveButton
+                    productId={product.id}
+                    isActive={product.is_active}
+                    action={toggleProductActive}
                   />
                 </td>
               </tr>
