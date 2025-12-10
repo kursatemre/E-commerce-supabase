@@ -26,7 +26,7 @@ export function MobileNavigation({ cartItemCount = 0, cartTotal = 0 }: { cartIte
     { href: '/', icon: Home, label: 'Anasayfa', isLink: true },
     { href: '/categories', icon: Grid, label: 'Kategoriler', isLink: true },
     { href: '/account', icon: User, label: 'Profil', isLink: true },
-    { href: '/cart', icon: ShoppingCart, label: 'Sepet', badge: cartItemCount, price: cartTotal, isLink: false },
+    { href: '/cart', icon: ShoppingCart, label: 'Sepet', badge: cartItemCount, isLink: false },
   ]
 
   const currencyFormatter = new Intl.NumberFormat('tr-TR', {
@@ -50,9 +50,10 @@ export function MobileNavigation({ cartItemCount = 0, cartTotal = 0 }: { cartIte
                 <div className={`relative ${isCart && flashCart ? 'animate-cart-flash' : ''}`}>
                   <Icon className={`w-6 h-6 ${isActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
 
-                  {isCart && item.badge && item.badge > 0 && (
+                  {/* Sepet badge - sadece ürün varsa göster */}
+                  {isCart && cartItemCount > 0 && (
                     <div className="absolute -top-1 -right-1 w-5 h-5 bg-action text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                      {item.badge > 9 ? '9+' : item.badge}
+                      {cartItemCount > 9 ? '9+' : cartItemCount}
                     </div>
                   )}
 
