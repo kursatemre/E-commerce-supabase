@@ -37,7 +37,9 @@
       "Bash(git push)",
       "Bash(git commit -m \"$(cat <<''EOF''\nfeat: move carousel after Hero and add category pages\n\n**Homepage Changes:**\n- Move \"En Çok Satanlar\" carousel directly after Hero\n- Add second carousel \"Yeni Gelenler\" after banners\n- Remove old homepage config references\n- Better content flow and user engagement\n\n**Category Pages:**\n- Create dynamic category page route: /categories/[slug]\n- Full product listing with variants support\n- Breadcrumb navigation\n- Pagination support\n- Product grid with 2-4 columns (responsive)\n- Empty state with \"return home\" CTA\n- All categories now accessible via links\n\n**Routes Now Working:**\n- /categories/kadin-elbiseleri\n- /categories/erkek-dis-giyim\n- /categories/kadin-alt-giyim\n- /categories/erkek-ust-giyim\n- /categories/aksesuar-ve-ayakkabi\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")",
       "Bash(npm run seed:variants:*)",
-      "Bash(npm run check:variant-schema:*)"
+      "Bash(npm run check:variant-schema:*)",
+      "Bash(tsx scripts/check-product-variants.ts:*)",
+      "Bash(npx tsx:*)"
     ],
     "deny": [],
     "ask": []

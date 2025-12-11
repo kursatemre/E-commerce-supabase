@@ -48,46 +48,85 @@ export default async function ShopPage({
       .order('created_at', { ascending: false })
       .limit(8)
 
-    // Fetch product variants (size/color combinations) for each product
+    // Fetch product variants with their option values using the advanced variant system
     const productIds = (featuredProducts ?? []).map(p => p.id)
 
     const { data: productVariants } = await supabase
       .from('product_variants')
-      .select('id, product_id, size, color')
+      .select(`
+        id,
+        product_id,
+        variant_option_product_variants(
+          variant_option_id,
+          variant_options(
+            id,
+            value,
+            variant_type_id,
+            variant_types(id, name, code)
+          )
+        )
+      `)
       .in('product_id', productIds)
       .eq('is_active', true)
 
-    // Group variants by product_id and extract unique sizes/colors
-    const variantsByProduct = new Map<string, { sizes: Set<string>, colors: Set<string> }>()
+    // Group variant options by product and variant type
+    const variantsByProduct = new Map<string, Map<string, Set<string>>>()
 
     productVariants?.forEach((pv: any) => {
       if (!pv.product_id) return
+
       if (!variantsByProduct.has(pv.product_id)) {
-        variantsByProduct.set(pv.product_id, { sizes: new Set(), colors: new Set() })
+        variantsByProduct.set(pv.product_id, new Map())
       }
-      const variants = variantsByProduct.get(pv.product_id)!
-      if (pv.size && pv.size.trim()) variants.sizes.add(pv.size.trim())
-      if (pv.color && pv.color.trim()) variants.colors.add(pv.color.trim())
+
+      const productVariantMap = variantsByProduct.get(pv.product_id)!
+
+      // Process each variant option value
+      pv.variant_option_product_variants?.forEach((vopv: any) => {
+        const option = vopv.variant_options
+        const variantType = option?.variant_types
+
+        if (variantType && option) {
+          const typeKey = variantType.id
+
+          if (!productVariantMap.has(typeKey)) {
+            productVariantMap.set(typeKey, new Set())
+          }
+
+          productVariantMap.get(typeKey)!.add(option.value)
+        }
+      })
     })
 
     // Transform to the format expected by QuickAddModal
     const transformedVariants = new Map<string, any[]>()
-    variantsByProduct.forEach((variants, productId) => {
-      const variantTypes = []
-      if (variants.sizes.size > 0) {
-        variantTypes.push({
-          id: 'size',
-          name: 'Beden',
-          options: Array.from(variants.sizes).sort(),
-        })
-      }
-      if (variants.colors.size > 0) {
-        variantTypes.push({
-          id: 'color',
-          name: 'Renk',
-          options: Array.from(variants.colors).sort(),
-        })
-      }
+    variantsByProduct.forEach((variantTypeMap, productId) => {
+      const variantTypes: any[] = []
+
+      variantTypeMap.forEach((optionValues, typeId) => {
+        // Get the type name from any variant option for this product and type
+        const sampleVariant = productVariants?.find((pv: any) => pv.product_id === productId)
+
+        let typeName = ''
+        if (sampleVariant?.variant_option_product_variants) {
+          for (const vopv of sampleVariant.variant_option_product_variants) {
+            const vt = (vopv as any).variant_options?.variant_types
+            if (vt && vt.id === typeId) {
+              typeName = vt.name
+              break
+            }
+          }
+        }
+
+        if (typeName && optionValues.size > 0) {
+          variantTypes.push({
+            id: typeId,
+            name: typeName,
+            options: Array.from(optionValues).sort(),
+          })
+        }
+      })
+
       transformedVariants.set(productId, variantTypes)
     })
 

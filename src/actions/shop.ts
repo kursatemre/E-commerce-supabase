@@ -48,33 +48,56 @@ export async function findVariantByOptions(
   const supabase = await createClient()
 
   try {
-    // selectedOptions format: { size: 'M', color: 'Siyah' }
-    // Query product_variants directly with size and color columns
-    let query = supabase
-      .from('product_variants')
-      .select('id, size, color')
-      .eq('product_id', productId)
-      .eq('is_active', true)
+    // selectedOptions format: { [variantTypeId]: 'option value' }
+    // Example: { 'uuid-for-beden-type': 'M', 'uuid-for-renk-type': 'Siyah' }
 
-    // Apply size filter if provided
-    if (selectedOptions.size) {
-      query = query.eq('size', selectedOptions.size)
+    // First, get variant option IDs for the selected values
+    const selectedOptionIds: string[] = []
+
+    for (const [variantTypeId, selectedValue] of Object.entries(selectedOptions)) {
+      const { data: option } = await supabase
+        .from('variant_options')
+        .select('id')
+        .eq('variant_type_id', variantTypeId)
+        .eq('value', selectedValue)
+        .eq('is_active', true)
+        .single()
+
+      if (option) {
+        selectedOptionIds.push(option.id)
+      }
     }
 
-    // Apply color filter if provided
-    if (selectedOptions.color) {
-      query = query.eq('color', selectedOptions.color)
-    }
-
-    const { data: variants, error } = await query
-
-    if (error) {
-      console.error('Error querying variants:', error)
+    if (selectedOptionIds.length === 0) {
       return null
     }
 
-    // Return the first matching variant
-    return variants && variants.length > 0 ? variants[0].id : null
+    // Get all product variants for this product with their option values
+    const { data: variants } = await supabase
+      .from('product_variants')
+      .select(`
+        id,
+        variant_option_product_variants(variant_option_id)
+      `)
+      .eq('product_id', productId)
+      .eq('is_active', true)
+
+    if (!variants || variants.length === 0) {
+      return null
+    }
+
+    // Find the variant that has exactly the selected option IDs
+    const matchingVariant = variants.find((v: any) => {
+      const variantOptionIds = v.variant_option_product_variants?.map((vopv: any) => vopv.variant_option_id) || []
+
+      // Check if this variant has exactly the same option IDs
+      return (
+        variantOptionIds.length === selectedOptionIds.length &&
+        selectedOptionIds.every((id) => variantOptionIds.includes(id))
+      )
+    })
+
+    return matchingVariant?.id || null
   } catch (error) {
     console.error('Error finding variant:', error)
     return null
