@@ -155,7 +155,7 @@ export async function createProduct(formData: FormData) {
   if (error) {
     console.error('Error creating product:', error)
     revalidatePath('/admin/products')
-    redirect('/admin/products?error=Ürün eklenirken bir hata oluştu')
+    redirect(`/admin/products?error=${encodeURIComponent('Ürün eklenirken bir hata oluştu')}`)
   }
 
   const uploadedCount = data ? await uploadProductImages(supabase, data.id, imageFiles) : 0
@@ -239,7 +239,7 @@ export async function updateProduct(formData: FormData) {
 
   if (error) {
     console.error('Error updating product:', error)
-    redirect(`/admin/products/${id}?error=Ürün güncellenemedi`)
+    redirect(`/admin/products/${id}?error=${encodeURIComponent('Ürün güncellenemedi')}`)
   }
 
   revalidatePath('/admin/products')
