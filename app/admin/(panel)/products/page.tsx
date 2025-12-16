@@ -74,6 +74,22 @@ export default async function ProductsPage() {
             </div>
 
             <div>
+              <label htmlFor="discount_price" className="block text-sm font-medium text-gray-300 mb-1">
+                İndirimli Fiyat (TL)
+                <span className="text-gray-500 text-xs ml-1">(Opsiyonel)</span>
+              </label>
+              <input
+                type="number"
+                id="discount_price"
+                name="discount_price"
+                step="0.01"
+                min="0"
+                className="w-full px-4 py-2.5 bg-gray-900 border border-gray-700 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                placeholder="İndirim yoksa boş bırakın"
+              />
+            </div>
+
+            <div>
               <label htmlFor="stock" className="block text-sm font-medium text-gray-300 mb-1">
                 Stok *
               </label>

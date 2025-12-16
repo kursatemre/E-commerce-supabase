@@ -116,6 +116,8 @@ export async function createProduct(formData: FormData) {
   const name = formData.get('name') as string
   const description = formData.get('description') as string
   const price = parseFloat(formData.get('price') as string)
+  const discountPriceRaw = formData.get('discount_price') as string
+  const discountPrice = discountPriceRaw && discountPriceRaw.trim() !== '' ? parseFloat(discountPriceRaw) : null
   const stock = parseInt(formData.get('stock') as string)
   const categoryId = formData.get('category_id') as string
   const brandId = formData.get('brand_id') as string
@@ -142,6 +144,7 @@ export async function createProduct(formData: FormData) {
     slug,
     description,
     price,
+    discount_price: discountPrice,
     stock,
     category_id: categoryId || null,
     brand_id: brandId || null,
