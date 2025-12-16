@@ -113,6 +113,12 @@ async function uploadProductImages(
 }
 export async function createProduct(formData: FormData) {
   const supabase = await createClient()
+
+  // Debug: Check authentication state
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  console.log('🔐 Auth Debug - User:', user?.id, 'Email:', user?.email, 'Role:', user?.role)
+  console.log('🔐 Auth Error:', authError)
+
   const name = formData.get('name') as string
   const description = formData.get('description') as string
   const price = parseFloat(formData.get('price') as string)
