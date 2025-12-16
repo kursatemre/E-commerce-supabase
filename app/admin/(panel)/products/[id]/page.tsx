@@ -200,6 +200,22 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                   />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1" htmlFor="discount_price">
+                    İndirimli Fiyat (TL)
+                    <span className="text-gray-500 text-xs ml-1">(Opsiyonel)</span>
+                  </label>
+                  <input
+                    id="discount_price"
+                    name="discount_price"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    defaultValue={product.discount_price ?? ''}
+                    placeholder="İndirim yoksa boş bırakın"
+                    className="w-full px-4 py-2.5 rounded-xl bg-gray-900 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-300 mb-1" htmlFor="stock">
                     Toplam Stok
                   </label>

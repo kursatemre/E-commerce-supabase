@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Heart, Plus } from 'lucide-react'
 import { useState } from 'react'
+import { PriceDisplay } from './PriceDisplay'
 
 type ProductCardProps = {
   product: {
@@ -12,6 +13,7 @@ type ProductCardProps = {
     slug: string
     description?: string | null
     price: number
+    discount_price?: number | null
     stock: number
     category?: { name: string } | null
     brand?: { name: string } | null
@@ -151,12 +153,23 @@ export function ProductCard({ product, priceRange }: ProductCardProps) {
         </h3>
 
         {/* Price */}
-        <div className="flex items-baseline gap-2">
-          <span className="text-lg font-bold text-brand-dark">
-            {displayPrice}
-          </span>
-          {showRange && (
-            <span className="text-xs text-brand-dark/60">den başlayan</span>
+        <div className="flex items-baseline gap-2 flex-wrap">
+          {priceRange ? (
+            <>
+              <span className="text-lg font-bold text-brand-dark">
+                {displayPrice}
+              </span>
+              {showRange && (
+                <span className="text-xs text-brand-dark/60">den başlayan</span>
+              )}
+            </>
+          ) : (
+            <PriceDisplay
+              price={product.price}
+              discountPrice={product.discount_price}
+              priceClassName="text-sm"
+              discountPriceClassName="text-lg font-bold text-brand-dark"
+            />
           )}
         </div>
       </div>

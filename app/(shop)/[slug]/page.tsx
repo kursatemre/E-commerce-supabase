@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight, Heart, Share2 } from 'lucide-react'
 import { ProductTabs } from '@/components/product/ProductTabs'
 import { ProductReviews } from '@/components/product/ProductReviews'
 import { RelatedProducts } from '@/components/product/RelatedProducts'
+import { PriceDisplay } from '@/components/shop/PriceDisplay'
 import type { Metadata } from 'next'
 
 const currencyFormatter = new Intl.NumberFormat('tr-TR', {
@@ -285,9 +286,15 @@ export default async function ShopProductDetail({ params }: { params: Promise<{ 
           {!hasVariantFlow && (
             <div className="p-4 bg-surface-light rounded-2xl border border-gray-200">
               <p className="text-xs font-medium text-brand-dark/60 mb-1">Fiyat</p>
-              <p className="text-2xl md:text-3xl font-heading font-semibold text-brand-dark">
-                {currencyFormatter.format(product.price)}
-              </p>
+              <div className="mb-1">
+                <PriceDisplay
+                  price={product.price}
+                  discountPrice={product.discount_price}
+                  priceClassName="text-xl md:text-2xl"
+                  discountPriceClassName="text-2xl md:text-3xl font-heading font-semibold text-brand-dark"
+                  badgeClassName="text-sm"
+                />
+              </div>
               {product.stock > 0 && product.stock <= 5 && (
                 <p className="text-xs text-action font-semibold mt-1">
                   Son {product.stock} ürün!

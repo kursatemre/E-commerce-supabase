@@ -42,6 +42,7 @@ export default async function ShopPage({
         name,
         slug,
         price,
+        discount_price,
         product_images(url, alt, sort_order)
       `)
       .eq('is_active', true)
@@ -135,6 +136,7 @@ export default async function ShopPage({
       name: product.name,
       slug: product.slug,
       price: product.price,
+      discount_price: product.discount_price,
       images: product.product_images?.sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0)) || null,
       variants: transformedVariants.get(product.id) || [],
     }))
@@ -300,6 +302,7 @@ export default async function ShopPage({
     slug: product.slug,
     description: product.description,
     price: product.price,
+    discount_price: product.discount_price,
     stock: product.stock,
     category: product.categories,
     brand: product.brands,
