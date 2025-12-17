@@ -5,12 +5,14 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ShoppingCart } from 'lucide-react'
 import { QuickAddModal } from '@/components/shop/QuickAddModal'
+import { PriceDisplay } from '@/components/shop/PriceDisplay'
 
 interface Product {
   id: string
   name: string
   slug: string
   price: number
+  discount_price?: number | null
   images: Array<{ url: string; alt: string | null }> | null
   variants?: Array<{
     id: string
@@ -56,8 +58,8 @@ export function ProductCarousel({
   const currencyFormatter = new Intl.NumberFormat('tr-TR', {
     style: 'currency',
     currency: 'TRY',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   })
 
   const getBadgeText = (badgeType: typeof badge) => {
@@ -212,9 +214,13 @@ export function ProductCarousel({
                     </Link>
 
                     <div className="flex items-center justify-between">
-                      <p className="text-base md:text-lg font-bold text-brand-dark">
-                        {currencyFormatter.format(product.price)}
-                      </p>
+                      <PriceDisplay
+                        price={product.price}
+                        discountPrice={product.discount_price}
+                        priceClassName="text-sm"
+                        discountPriceClassName="text-base md:text-lg font-bold text-brand-dark"
+                        badgeClassName="text-xs"
+                      />
 
                       {/* Quick Add to Cart Button */}
                       <button
