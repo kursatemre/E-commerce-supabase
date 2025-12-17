@@ -206,14 +206,14 @@ export function ProductCarousel({
                   </Link>
 
                   {/* Product Info */}
-                  <div className="p-3 md:p-4">
+                  <div className="p-3 md:p-4 space-y-3">
                     <Link href={`/${product.slug}`}>
                       <h3 className="font-medium text-sm md:text-base text-brand-dark mb-2 line-clamp-2 group-hover:text-action transition-colors">
                         {product.name}
                       </h3>
                     </Link>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-2">
                       <PriceDisplay
                         price={product.price}
                         discountPrice={product.discount_price}
@@ -224,7 +224,7 @@ export function ProductCarousel({
 
                       {/* Quick Add to Cart Button */}
                       <button
-                        className="w-9 h-9 bg-action text-white rounded-full flex items-center justify-center shadow-button-depth hover:bg-action-hover hover:shadow-button-depth-hover hover:-translate-y-0.5 transition-all active:scale-95"
+                        className="w-full py-2 bg-action text-white rounded-button font-medium text-sm flex items-center justify-center gap-2 shadow-button-depth hover:bg-action-hover hover:shadow-button-depth-hover hover:-translate-y-0.5 transition-all active:scale-95"
                         onClick={(e) => {
                           e.preventDefault()
                           setSelectedProduct(product)
@@ -233,6 +233,7 @@ export function ProductCarousel({
                         aria-label="Sepete Ekle"
                       >
                         <ShoppingCart className="w-4 h-4" />
+                        <span>Sepete Ekle</span>
                       </button>
                     </div>
                   </div>
