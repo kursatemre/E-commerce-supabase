@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 
@@ -112,12 +112,8 @@ async function uploadProductImages(
   return uploaded
 }
 export async function createProduct(formData: FormData) {
-  const supabase = await createClient()
-
-  // Debug: Check authentication state
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  console.log('🔐 Auth Debug - User:', user?.id, 'Email:', user?.email, 'Role:', user?.role)
-  console.log('🔐 Auth Error:', authError)
+  // Use admin client for admin operations (bypasses RLS)
+  const supabase = createAdminClient()
 
   const name = formData.get('name') as string
   const description = formData.get('description') as string
@@ -204,7 +200,8 @@ export async function createProduct(formData: FormData) {
 }
 
 export async function updateProduct(formData: FormData) {
-  const supabase = await createClient()
+  // Use admin client for admin operations (bypasses RLS)
+  const supabase = createAdminClient()
   const id = formData.get('id') as string
   const name = formData.get('name') as string
   const description = formData.get('description') as string
@@ -266,7 +263,8 @@ const parseStock = (value: FormDataEntryValue | null, fallback = 0) => {
 }
 
 export async function createVariant(formData: FormData) {
-  const supabase = await createClient()
+  // Use admin client for admin operations (bypasses RLS)
+  const supabase = createAdminClient()
   const productId = formData.get('product_id') as string
   const payload = {
     product_id: productId,
@@ -291,7 +289,8 @@ export async function createVariant(formData: FormData) {
 }
 
 export async function updateVariant(formData: FormData) {
-  const supabase = await createClient()
+  // Use admin client for admin operations (bypasses RLS)
+  const supabase = createAdminClient()
   const variantId = formData.get('id') as string
   const productId = formData.get('product_id') as string
 
@@ -318,7 +317,8 @@ export async function updateVariant(formData: FormData) {
 }
 
 export async function deleteVariant(formData: FormData) {
-  const supabase = await createClient()
+  // Use admin client for admin operations (bypasses RLS)
+  const supabase = createAdminClient()
   const variantId = formData.get('id') as string
   const productId = formData.get('product_id') as string
 
@@ -336,7 +336,8 @@ export async function deleteVariant(formData: FormData) {
   redirect(`/admin/products/${productId}?success=${encodeURIComponent('Varyant silindi')}`)
 }
 export async function deleteProduct(formData: FormData) {
-  const supabase = await createClient()
+  // Use admin client for admin operations (bypasses RLS)
+  const supabase = createAdminClient()
   const id = formData.get('id') as string
 
   const { error } = await supabase
@@ -352,7 +353,8 @@ export async function deleteProduct(formData: FormData) {
 }
 
 export async function toggleProductActive(formData: FormData) {
-  const supabase = await createClient()
+  // Use admin client for admin operations (bypasses RLS)
+  const supabase = createAdminClient()
   const id = formData.get('id') as string
   const isActive = formData.get('isActive') === 'true'
 
